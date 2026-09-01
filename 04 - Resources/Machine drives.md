@@ -26,52 +26,67 @@ and works.
   next few hours. That `G:` held `G:\vlc` (the VLC source tree, ~6.8 GB, with the two
   local source patches) and `G:\Builds\installer\` (~306 MB).
 - A power-cycle of that drive did not help. It kept corrupting (578 events in 10 minutes).
-- **2026-09-02 ~1:51 AM** Nathan restarted the machine.
-- After the reboot the drive letters reshuffled and several USB devices did not come back.
+- **2026-09-02 ~1:51 AM** Nathan restarted the machine. The letters reshuffled and
+  several USB devices did not come back.
+- Nathan then found the physical cause: **loose USB connections**. He reseated the
+  4 TB Seagate and another drive, and they came back.
 
-## State after the reboot (2026-09-02 ~2 AM)
+## State after the reseating (2026-09-02 ~2:30 AM)
 
 **Connected and working:**
 - `C:` internal NVMe. Fine.
-- `D:` and `G:` are now the **Storage Space** (a 2 TB Windows Storage Spaces virtual
-  disk, two partitions 242 GB and 1051 GB). `D:` (~48 GB used: `torrents`, `FromOneDrive`,
-  an old `msys64`, `WpSystem`, relocated Store-app folders) and `G:` (empty). The Space
-  is **`{Degraded, Incomplete}` / Warning**: its 932 GB member "USB3.0 high speed" is
-  `Warning / {Split, OK}`, its 466 GB member "ST500DM0" (Seagate Barracuda) is healthy.
-  Readable right now, but Incomplete means writes are unsafe.
+- **4 TB "Seagate Expansion Desk" is back and healthy**, now lettered `E:` (1618 GB),
+  `F:` (1863 GB), `H:` (245 GB). Different letters than before the reboot, drive is fine.
+  `E:` holds the VLC installer package and File History.
+- `D:` and `G:` are the **Storage Space** (2 TB, two partitions 242 + 1051 GB). `D:`
+  (~48 GB used: `torrents`, `FromOneDrive`, an old `msys64`, relocated Store-app folders),
+  `G:` empty. Still **`{Degraded, Incomplete}` / Warning**: its 932 GB member
+  "USB3.0 high speed" is `Warning / {Split, OK}`, its 466 GB member "ST500DM0" is healthy.
+  Readable, but do not write to `D:` or `G:` while it is Incomplete.
 
-**Present in the registry but NOT enumerating (Status "Unknown"):**
-- **"Generic STORAGE DEVICE"** (999 GB USB) which held the old `E:` and the corrupted
-  old `G:` (the VLC source). Currently not connected as a working disk.
-- **"Seagate Expansion Desk"** (4 TB USB) which before the reboot held the old `D:`,
-  `H:`, and `F:` and was healthy. Now not enumerating.
-- Several USB hubs and "Unknown USB Device (Device Descriptor Request Failed)" entries;
-  `\Driver\WudfRd failed to load` warnings at boot. Points at a USB hub with power or
-  enumeration problems.
+**Connected but dead:**
+- **"Generic STORAGE DEVICE"** (999 GB USB, old `E:` + the corrupted VLC-source `G:`).
+  Reconnected as disk 5, lettered `I:` and `J:`, but both partitions read "Unknown"
+  filesystem / 0 bytes and it resumed logging NTFS corruption on contact (25 events in
+  3 minutes). **Unplug it.** Not recoverable through Windows; any real recovery needs
+  read-only imaging, done separately.
+- USB hubs logged "Device Descriptor Request Failed" and `WudfRd failed to load` at
+  boot. Likely a hub or a loose hub connection was the root cause of the whole episode.
 
 ## What is at risk
 
-- **VLC source tree (`old G:\vlc`)**: on the "Generic STORAGE DEVICE" drive, which was
-  corrupting and is now offline. Treat as lost. Rebuildable: the two patches are in
-  [[Building VLC for Windows]], the runnable build is safe on `C:`, roughly one session
-  to re-clone and re-patch.
-- **The 4 TB "Seagate Expansion Desk"**: was healthy, now missing. Contents unknown.
-  Needs Nathan to check its power and cable.
+- **VLC source tree (`old G:\vlc`, 6.8 GB)**: on the "Generic STORAGE DEVICE" drive,
+  which corrupted and is unrecoverable through Windows. **Lost.** Everything valuable
+  off it survived: the runnable build is on `C:`, the installer package is on `E:`
+  (see [[Building VLC for Windows]]), and the two source patches were captured by File
+  History and are saved at [[vlc-source-patches]]. Rebuilding the tree is a re-clone
+  plus re-patch, roughly one session, only needed to modify VLC further.
 - **The Storage Space (`D:` / `G:`)**: running Incomplete. If it is a simple (non-redundant)
   Space, some data may already be inaccessible and any write risks loss. Do not write
   to it until its 932 GB member is healthy.
 
-## What Nathan needs to decide / check
+## Backups that already exist
 
-1. Physically: is there a powered USB hub or multi-bay dock? Check its power. Reseat
-   the "Seagate Expansion Desk" (4 TB) and the "Generic STORAGE DEVICE" on a direct
-   port. Report what comes back.
-2. What is on the 4 TB Seagate, and is any of it the only copy?
-3. Is the Storage Space meant to hold anything important, or is it scratch (torrents,
-   caches, OneDrive overflow)? That decides how hard to work to repair it.
-4. Whether the old VLC-source drive ("Generic STORAGE DEVICE") is worth any recovery
-   effort, or written off.
+- **Windows File History** runs to `E:\FileHistory\badbo\MAJESTICBEAST\`, backing up
+  `C:\Users\badbo` (including the vault, `my-agent`, `Builds`, and the old `vlc` tree).
+  Snapshots are timestamped, e.g. `vlc\src\win32\plugin (2026_08_29 02_24_57 UTC).c`.
+  This is how the VLC patches were recovered. It only runs when `E:` (the 4 TB Seagate)
+  is connected.
+- The vault and `my-agent` are also in private GitHub repos ([[Vault backup]]).
+
+## Still open
+
+1. **Unplug the "Generic STORAGE DEVICE"** (I:/J:). It is dead and corrupts on contact.
+2. **The Storage Space** is still Degraded/Incomplete. Its 932 GB member is faulted
+   (`{Split, OK}`, which usually means it was pulled while the pool was live). Options:
+   reseat that member if it is also loose; if it is genuinely faulty, decide whether to
+   repair the Space (needs a spare disk or the member to recover) or retire it. First
+   confirm whether anything on `D:` is worth the effort (it looks like scratch: torrents,
+   OneDrive overflow, an old msys64).
+3. The whole USB setup is fragile: loose connections took down four drives at once.
+   Worth moving anything important onto the internal SSD or a directly-connected drive,
+   and getting the loose hub or dock sorted.
 
 ## Not yet known
 
-Full contents of every drive. This note should be completed once the storage is stable.
+Full contents of `E:`, `F:`, `H:`, and the Storage Space. Fill in once stable.
