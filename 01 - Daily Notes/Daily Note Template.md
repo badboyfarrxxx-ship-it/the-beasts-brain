@@ -11,10 +11,10 @@ created: 2026-08-28
 ## Index
 <!-- One bullet per session/topic. Bold the topic, then a one-sentence past-tense outcome. Update this BEFORE adding session body content below. -->
 
-- **[Session/topic name]** — [one-sentence outcome]
+- **[Session/topic name]:** [one-sentence outcome]
 
 <!-- Timestamp every session heading with the person's local time (e.g. 1:26 PM), never UTC. -->
-## Session 1 — [time]: [topic]
+## Session 1, [time]: [topic]
 
 ### What Got Done
 -
