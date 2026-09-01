@@ -74,18 +74,34 @@ and works.
   is connected.
 - The vault and `my-agent` are also in private GitHub repos ([[Vault backup]]).
 
+## 2026-09-02 ~3 AM: D: copied to H:
+
+At Nathan's request, `robocopy D:\ H:\` (copy, not move): 89,229 files / 49.8 GB,
+verified matching (`torrents` 22.4 GB, `FromOneDrive` 11.2 GB, `WpSystem` 9.6 GB,
+`msys64` 3.1 GB). `D:` was not cleared afterward (the bulk delete was blocked by a
+safety classifier; Nathan to clear it manually or leave it, since the data is now
+duplicated on the healthy `H:`).
+
+Copying `D:\WpSystem` (which holds EFS-encrypted Store-app data) made Windows
+auto-create an EFS certificate for the account and prompt to back it up. Nathan
+exported it to `C:\Users\badbo\efs-recovery-badbo.pfx` (PKCS#12, AES256, his own
+password, private key kept in the store). That `.pfx` still needs a copy off the
+machine.
+
 ## Still open
 
 1. **Unplug the "Generic STORAGE DEVICE"** (I:/J:). It is dead and corrupts on contact.
 2. **The Storage Space** is still Degraded/Incomplete. Its 932 GB member is faulted
    (`{Split, OK}`, which usually means it was pulled while the pool was live). Options:
    reseat that member if it is also loose; if it is genuinely faulty, decide whether to
-   repair the Space (needs a spare disk or the member to recover) or retire it. First
-   confirm whether anything on `D:` is worth the effort (it looks like scratch: torrents,
-   OneDrive overflow, an old msys64).
-3. The whole USB setup is fragile: loose connections took down four drives at once.
-   Worth moving anything important onto the internal SSD or a directly-connected drive,
-   and getting the loose hub or dock sorted.
+   repair the Space or retire it. `D:` looks like scratch (torrents, OneDrive overflow,
+   an old msys64), so probably not worth much effort, and it is now copied to `H:` anyway.
+3. **AOMEI Partition Assistant Technician 10.3.0** (installed 2026-09-01) was left with
+   a Disk Clone Wizard open at the confirm screen. Not an AI action. Close it unless a
+   clone is deliberately planned, and check source and destination first if it is.
+4. Copy `C:\Users\badbo\efs-recovery-badbo.pfx` off the machine.
+5. The whole USB setup is fragile: loose connections took down four drives at once.
+   Worth getting the hub or dock sorted and keeping anything important off it.
 
 ## Not yet known
 
