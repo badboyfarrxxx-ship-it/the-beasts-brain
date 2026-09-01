@@ -13,8 +13,10 @@ off-machine protection).
 
 | repo | local path | contents |
 |------|-----------|----------|
-| `the-beasts-brain` | `C:\Users\badbo\The Beasts Brain` | the whole vault — every note, plus the stable `.obsidian/` config |
-| `the-beast-agent` | `C:\Users\badbo\my-agent` | `CLAUDE.md`, `.claude/settings.json`, and `tool-configs/` (copies of the three tool `.json` files) |
+| [`the-beasts-brain`](https://github.com/badboyfarrxxx-ship-it/the-beasts-brain) (private) | `C:\Users\badbo\The Beasts Brain` | the whole vault — every note, plus the stable `.obsidian/` config |
+| [`the-beast-agent`](https://github.com/badboyfarrxxx-ship-it/the-beast-agent) (private) | `C:\Users\badbo\my-agent` | `CLAUDE.md`, `.claude/settings.json`, and `tool-configs/` (copies of the three tool `.json` files) |
+
+GitHub account: `badboyfarrxxx-ship-it`.
 
 The agent repo does **not** track the tool folders (`backtalk`, `ai-visualizer`,
 `barehands`, `ai-memory-vault`, `ai-marketing-skills`, `fullstack-agent`). They are
@@ -25,17 +27,12 @@ copies, refreshed at each backup.
 
 ## Status
 
-Local repos initialised and committed — `the-beasts-brain` at `81f8937`,
-`the-beast-agent` at `94e880e`. **Not yet pushed.** The push needs a one-time
-`gh auth login` from Nathan (interactive browser flow; the AI cannot run it and
-must not handle the credentials). After auth:
+**Live as of 2026-09-02.** Both repos created private on GitHub and pushed
+(`the-beasts-brain` initial `81f8937`, `the-beast-agent` `94e880e`). Nathan
+authenticated `gh` with a web login; the AI ran `gh repo create ... --source ...
+--push` for each. Local `main` tracks `origin/main` in both.
 
-```
-"C:\Program Files\GitHub CLI\gh.exe" repo create the-beasts-brain --private --source="C:\Users\badbo\The Beasts Brain" --remote=origin --push
-"C:\Program Files\GitHub CLI\gh.exe" repo create the-beast-agent  --private --source="C:\Users\badbo\my-agent"          --remote=origin --push
-```
-
-## Committing changes (once pushed)
+## Committing changes
 
 From either repo folder:
 
