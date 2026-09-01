@@ -44,8 +44,13 @@ If a live tool config changed, refresh its copy first: `cp backtalk/backtalk.jso
 tool-configs/backtalk.json` (same for `ai-visualizer` / `barehands`). A plain
 `git add -A` will not see the live files — the tool folders are gitignored.
 
-Commit cadence is not yet decided: The Beast commits at each vault checkpoint, or
-a scheduled task runs a daily auto-commit.
+## Cadence (decided 2026-09-02)
+
+**Automatic.** The Beast commits and pushes **both** repos at every vault
+checkpoint — no asking each time. Nathan chose this over a nightly scheduled task
+or manual pushes: a backup that isn't automatic goes stale. This is standing push
+authorization for these two private repos only; it does not extend to any other
+push, publish, or deploy.
 
 ## Not yet covered
 
