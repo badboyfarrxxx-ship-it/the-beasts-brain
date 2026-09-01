@@ -1,0 +1,14 @@
+# Obsidian per-session UI state (churns every launch, not worth versioning)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/workspace.json.bak
+
+# Obsidian caches / trash
+.obsidian/cache
+.obsidian/plugins/*/data.json
+.trash/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
