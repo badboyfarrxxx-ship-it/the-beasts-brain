@@ -5,65 +5,73 @@ type: reference
 ---
 # Machine drives
 
-The machine (MajesticBeast) runs one internal SSD and a stack of USB drives. As of
-2026-09-02 several of the USB drives are failing. Diagnosis below.
+The machine (MajesticBeast) runs one internal NVMe SSD (`C:`, 119 GB) plus a stack
+of USB drives hanging off a USB hub. As of 2026-09-02 the USB storage is in a bad
+way: drives dropping out, a Storage Space degraded, drive letters reshuffling on
+reboot. **Do not trust a drive letter to mean the same thing between reboots. Do
+not write to `D:` or `G:` while the Storage Space is Incomplete.**
 
-## Drive map (2026-09-02)
+## The machine itself is fine
 
-| letter | disk | bus | size | holds | state |
-|--------|------|-----|------|-------|-------|
-| `C:` | 0, KIOXIA KBG40ZNS128G NVMe | internal | 119 GB (30 free) | Windows, `my-agent`, the vault, `C:\Users\badbo\Builds\VLC` (runnable VLC) | healthy |
-| `D:` | 4, Seagate Expansion Desk | USB | 1618 GB (1063 free) | (Nathan to confirm contents) | healthy |
-| `E:` | 2, "Generic STORAGE DEVICE" | USB | 196 GB (148 free) | (unknown) | **dirty, chkdsk needed** |
-| `F:` | 4, Seagate Expansion Desk | USB | 1863 GB (577 free) | (Nathan to confirm) | healthy |
-| `G:` | 2, "Generic STORAGE DEVICE" | USB | 803 GB | `G:\vlc` (VLC source tree + 2 local patches, ~6.8 GB), `G:\Builds\installer\` (~306 MB) | **NTFS corrupted, will not mount** |
-| `H:` | 4, Seagate Expansion Desk | USB | 245 GB (245 free) | empty | healthy, usable as a recovery/backup target |
-| (none) | 3, "Storage space" virtual | Storage Spaces | 2048 GB, two partitions 242 + 1051 GB | (unknown) | **offline, {Degraded, Incomplete}** |
+Windows is on `C:\WINDOWS`, profile `C:\Users\badbo`, `C:\msys64` present, `C:` healthy
+with ~34 GB free. The vault and `my-agent` live on `C:` and are also in private GitHub
+repos ([[Vault backup]]). The runnable VLC build is on `C:` (`C:\Users\badbo\Builds\VLC\vlc.exe`)
+and works.
 
-## What is wrong
+## Timeline
 
-**G: (and E:) are on one failing USB enclosure ("Generic STORAGE DEVICE", disk 2).**
-G: began logging NTFS structure corruption at **2026-09-01 11:50 PM** and had logged
-**3,981 corruption events in 24 hours** plus repeated "Delayed Write Failed, data has
-been lost" warnings. `Test-Path G:\` fails, the volume reports filesystem type
-"Unknown". E: on the same physical disk carries a dirty bit.
+- **2026-09-01 11:50 PM** the volume then lettered `G:` (on the "Generic STORAGE DEVICE"
+  USB drive, which also held `E:`) began logging NTFS structure corruption. ~4,000
+  corruption events plus "Delayed Write Failed, data has been lost" warnings over the
+  next few hours. That `G:` held `G:\vlc` (the VLC source tree, ~6.8 GB, with the two
+  local source patches) and `G:\Builds\installer\` (~306 MB).
+- A power-cycle of that drive did not help. It kept corrupting (578 events in 10 minutes).
+- **2026-09-02 ~1:51 AM** Nathan restarted the machine.
+- After the reboot the drive letters reshuffled and several USB devices did not come back.
 
-**A Windows Storage Spaces pool is degraded.** The pool ("Storage pool", 1396 GB)
-is built from a 500 GB Seagate Barracuda (ST500DM0, USB, healthy) plus a 932 GB
-"USB3.0 high speed" drive that is now in **"Lost Communication"** state. With that
-member gone the Storage Space (disk 3, the 242 + 1051 GB letter-less partitions) is
-**Incomplete** and offline.
+## State after the reboot (2026-09-02 ~2 AM)
 
-Nothing this agent did touched G: or the Storage Space. This is USB hardware or
-connection failure.
+**Connected and working:**
+- `C:` internal NVMe. Fine.
+- `D:` and `G:` are now the **Storage Space** (a 2 TB Windows Storage Spaces virtual
+  disk, two partitions 242 GB and 1051 GB). `D:` (~48 GB used: `torrents`, `FromOneDrive`,
+  an old `msys64`, `WpSystem`, relocated Store-app folders) and `G:` (empty). The Space
+  is **`{Degraded, Incomplete}` / Warning**: its 932 GB member "USB3.0 high speed" is
+  `Warning / {Split, OK}`, its 466 GB member "ST500DM0" (Seagate Barracuda) is healthy.
+  Readable right now, but Incomplete means writes are unsafe.
 
-## What is safe
+**Present in the registry but NOT enumerating (Status "Unknown"):**
+- **"Generic STORAGE DEVICE"** (999 GB USB) which held the old `E:` and the corrupted
+  old `G:` (the VLC source). Currently not connected as a working disk.
+- **"Seagate Expansion Desk"** (4 TB USB) which before the reboot held the old `D:`,
+  `H:`, and `F:` and was healthy. Now not enumerating.
+- Several USB hubs and "Unknown USB Device (Device Descriptor Request Failed)" entries;
+  `\Driver\WudfRd failed to load` warnings at boot. Points at a USB hub with power or
+  enumeration problems.
 
-- The **runnable VLC build** is on `C:` (`C:\Users\badbo\Builds\VLC\vlc.exe`), not affected.
-- The **two VLC source patches** (`src/win32/plugin.c`, `bin/winvlc.c`) are written out
-  in full in [[Building VLC for Windows]], so the source tree is re-clonable and
-  re-patchable even if `G:\vlc` is lost. The `.exe` installer is rebuildable.
-- The Obsidian vault and `my-agent` are on `C:` and now also in private GitHub repos
-  ([[Vault backup]]).
+## What is at risk
 
-## Recovery options for G: (Nathan's call, some are risky)
+- **VLC source tree (`old G:\vlc`)**: on the "Generic STORAGE DEVICE" drive, which was
+  corrupting and is now offline. Treat as lost. Rebuildable: the two patches are in
+  [[Building VLC for Windows]], the runnable build is safe on `C:`, roughly one session
+  to re-clone and re-patch.
+- **The 4 TB "Seagate Expansion Desk"**: was healthy, now missing. Contents unknown.
+  Needs Nathan to check its power and cable.
+- **The Storage Space (`D:` / `G:`)**: running Incomplete. If it is a simple (non-redundant)
+  Space, some data may already be inaccessible and any write risks loss. Do not write
+  to it until its 932 GB member is healthy.
 
-1. **Power-cycle the enclosure first.** Unplug the "Generic STORAGE DEVICE" USB drive,
-   reconnect it to a different port with a different cable, ideally not through a hub.
-   A flaky connection produces exactly this failure pattern and a clean reconnect
-   sometimes brings the volume back readable. Non-destructive, try this before anything else.
-2. If it mounts read-only after a reconnect, **copy `G:\vlc` and `G:\Builds` off to
-   `H:` or `D:` immediately**, before any repair.
-3. `chkdsk G: /f` attempts an in-place repair. On a drive that is actively failing this
-   can also make recovery harder. Only after option 2, or if the data is judged not
-   worth a recovery-tool effort.
-4. If the data matters and chkdsk is too risky, image the partition read-only first
-   (ddrescue or similar) and recover from the image.
+## What Nathan needs to decide / check
 
-The Storage Space returns only when its missing 932 GB member is reconnected and
-communicating.
+1. Physically: is there a powered USB hub or multi-bay dock? Check its power. Reseat
+   the "Seagate Expansion Desk" (4 TB) and the "Generic STORAGE DEVICE" on a direct
+   port. Report what comes back.
+2. What is on the 4 TB Seagate, and is any of it the only copy?
+3. Is the Storage Space meant to hold anything important, or is it scratch (torrents,
+   caches, OneDrive overflow)? That decides how hard to work to repair it.
+4. Whether the old VLC-source drive ("Generic STORAGE DEVICE") is worth any recovery
+   effort, or written off.
 
 ## Not yet known
 
-What is on `D:`, `E:`, `F:`, and the offline Storage Space partitions. Nathan knows;
-this note should be filled in.
+Full contents of every drive. This note should be completed once the storage is stable.
