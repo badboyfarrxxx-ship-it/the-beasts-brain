@@ -8,8 +8,13 @@ type: reference
 The machine (MajesticBeast) runs one internal NVMe SSD (`C:`, 119 GB) plus a stack
 of USB drives hanging off a USB hub. As of 2026-09-02 the USB storage is in a bad
 way: drives dropping out, a Storage Space degraded, drive letters reshuffling on
-reboot. **Do not trust a drive letter to mean the same thing between reboots. Do
-not write to `D:` or `G:` while the Storage Space is Incomplete.**
+reboot. **Do not trust a drive letter to mean the same thing between reboots.**
+
+> **The old warning here ("do not write to `D:` or `G:`") is superseded. See
+> "2026-09-04: only three disks attached" at the bottom.** As of 2026-09-04 the Storage
+> Space is not attached at all and `D:` is a completely different device, a Lexar USB
+> flash drive. This is precisely the letter reshuffle the line above warns about:
+> **check what a letter actually is before writing to it.**
 
 ## The machine itself is fine
 
@@ -103,6 +108,41 @@ machine.
 5. The whole USB setup is fragile: loose connections took down four drives at once.
    Worth getting the hub or dock sorted and keeping anything important off it.
 
+## 2026-09-04: only three disks attached
+
+Checked with `Get-Disk` and `Get-StoragePool`. The picture is much simpler than on
+2026-09-02, and much healthier:
+
+| Disk | Device | Size | Bus | Health |
+|---|---|---|---|---|
+| 0 | KIOXIA KBG40ZNS128G NVMe | 119.2 GB | NVMe | Healthy |
+| 1 | Seagate Expansion Desk | 3726 GB | USB | Healthy |
+| 2 | Lexar USB Flash Drive | 28.9 GB | USB | Healthy |
+
+Drive letters now:
+
+- `C:` internal NVMe, **16.9 GB free**. Down from ~34 GB on 09-02, so it is getting
+  tight. Anything large belongs on `H:` or `E:`.
+- `D:` **the Lexar 28.9 GB USB flash drive**, FAT32, effectively empty. This is a
+  removable stick (`DriveType 2`), not the old Storage Space partition that used to hold
+  this letter. Currently staged as the install USB for [[Building tiny11 images]].
+- `E:` 1618 GB Seagate partition, 1062 GB free. Media, ISOs, program installers,
+  File History.
+- `F:` 1863 GB Seagate partition, 576 GB free.
+- `H:` 245 GB Seagate partition, 192 GB free. Holds `H:\tiny11builder\`.
+
+**The Storage Space is gone from the system.** `Get-StoragePool` returns only
+`Primordial`, and neither its 932 GB nor its 466 GB member disk is attached. `G:` no
+longer exists.
+
+**The dead "Generic STORAGE DEVICE" is also no longer attached**, so open item 1 from
+2026-09-02 (unplug it) is resolved. It is not visible to Windows and is not corrupting
+anything.
+
+That clears open items 1 and 2 from the list above. The Storage Space still exists as
+hardware somewhere and its degraded state was never repaired, so if those disks are
+plugged back in, the old warnings apply again and the letters will move again.
+
 ## Not yet known
 
-Full contents of `E:`, `F:`, `H:`, and the Storage Space. Fill in once stable.
+Full contents of `E:`, `F:` and `H:`. Fill in once stable.

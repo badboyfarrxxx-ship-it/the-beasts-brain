@@ -12,5 +12,6 @@ Cross-project reference material: templates, guides, voice notes, and Jobs (one 
 - [[Building VLC for Windows]]: how this machine compiles VLC from source (MSYS2 + prebuilt contribs), with every off-the-supported-path fix recorded.
 - [[backtalk voice - operating notes]]: day-to-day operation of the voice loop, including how to speak text aloud from a typed session (`python -m backtalk.mouth`).
 - [[Vault backup]]: the vault and agent config are in private GitHub repos. How to commit, restore, and what is not yet covered.
-- [[Machine drives]]: what is on each drive letter, and the 2026-09-02 USB drive failures (G: corrupted, a Storage Space degraded).
+- [[Machine drives]]: what is on each drive letter, and the 2026-09-02 USB drive failures (G: corrupted, a Storage Space degraded). Updated 2026-09-04: only three disks attached now, and D: is a different device.
+- [[Building tiny11 images]]: building a debloated Windows 11 ISO with tiny11builder, which source ISO to trust, and how to get it onto another machine.
 - [[vlc-source-patches]]: the two patched VLC source files (`plugin.c`, `winvlc.c`), recovered from File History after the source drive died.
