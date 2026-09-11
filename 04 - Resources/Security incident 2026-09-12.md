@@ -151,6 +151,11 @@ Either way, Defender was overruled and the next run took two more rounds of pass
 - **Anything on screen since 03:29**, including this session, if the VNC capability was used.
 - Not present, so not exposed: Discord, Telegram, Steam, crypto wallets, wallet extensions.
 
+**Gmail settings checked clean on 09-12, from the phone:** no forwarding address, no filters,
+no delegated access. Auto-Expunge was off, which is harmless (a mail app likely set it; it
+doesn't send or hide mail). Nathan confirmed he never set up any rules, so anything found
+there later is not his.
+
 **GitHub checked clean at 04:22:** GitHub matches the local copies for `the-beasts-brain` and
 `the-beast-agent`, every recent commit is ours, and `CLAUDE.md` is untouched. Account events
 show nothing foreign. Clones leave no event, so read access cannot be ruled out.
