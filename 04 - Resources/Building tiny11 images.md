@@ -204,6 +204,55 @@ the stick will not appear in its boot menu and the job has to be redone with Ruf
 partition is GPT with a Microsoft Basic Data GUID (`ebd0a0a2-...`), which is exactly what
 Rufus creates in GPT/UEFI mode, so firmware compatibility is otherwise the same.
 
+## The target machine: HP Pavilion TouchSmart 23-f200a
+
+Confirmed with Nathan on 2026-09-12. A 2013 all-in-one, shipped with Windows 8 64-bit.
+
+| | |
+|---|---|
+| CPU | Intel Pentium G2030, 2 cores / 2 threads, 3.0 GHz, 3 MB cache, Ivy Bridge (3rd gen) |
+| RAM | 4 GB DDR3-1600, **2 slots, 16 GB maximum** |
+| Disk | 500 GB SATA HDD, 7200 RPM |
+| Graphics | NVIDIA GeForce 710A, 1 GB DDR3 (Kepler, GK208) |
+| Display | 23 inch touchscreen, 1920 x 1080 |
+| Network | Gigabit Ethernet (RJ-45) plus 802.11b/g/n Wi-Fi |
+| USB | 4 x USB 2.0, 2 x USB 3.0 |
+
+**UEFI is not a risk on this machine.** It shipped with Windows 8 64-bit, and Microsoft's
+Windows 8 logo requirements made UEFI with Secure Boot mandatory, so the firmware is UEFI.
+HP's own startup-menu documentation for the Pavilion 23 series shows F9 listing both "UEFI
+Boot Sources" and "Legacy Boot Sources". The UEFI-only stick will boot.
+
+Keys, tapped repeatedly from the moment it powers on:
+
+- **Esc** opens the HP Startup Menu
+- **F9** Boot Device Options (pick the entry prefixed `UEFI:`)
+- **F10** BIOS Setup, where Secure Boot lives if it needs turning off
+
+Secure Boot probably does not need turning off: tiny11 modifies `boot.wim`, not the
+Microsoft-signed `bootx64.efi`, so the boot chain is still signed. Try it as-is first.
+
+### What will actually be a problem, in order
+
+1. **4 GB of RAM is the binding constraint.** Windows 11 on 4 GB is painful even debloated.
+   Two DDR3-1600 slots taking up to 16 GB, and DDR3 is nearly free second-hand, so this is
+   the single highest-value fix.
+2. **No graphics driver on the image.** Kepler's last NVIDIA branch is R470, end-of-life in
+   2024 but it does cover Windows 11. It will not be on a 21H2 image and the machine is
+   meant to stay offline, so expect Microsoft Basic Display Adapter: a usable 1080p desktop
+   with no acceleration, and rough video. The Ivy Bridge integrated graphics is equally
+   unsupported, so there is no better fallback. Fetching the R470 driver is a few hundred MB,
+   which matters while Nathan is rationing data.
+3. **Use the Ethernet port, not the Wi-Fi.** A 2013 b/g/n card is a coin flip for in-box
+   driver coverage on Windows 11; the Gigabit NIC almost certainly works out of the box.
+4. **The 7200 RPM spinning disk.** Not fatal, and better than the 5400 RPM drive these
+   often shipped with, but a cheap SATA SSD would do more for it than anything except the RAM.
+5. **The CPU is the one thing no cheap fix touches.** A 2013 budget dual core with no
+   hyperthreading. It is LGA1155, so an i5-3470 or i7-3770 is a theoretical drop-in, but
+   that is real surgery on an all-in-one.
+
+Touch should work: HP TouchSmart panels present as HID-compliant touch, which is in-box.
+
 ## Getting it onto another machine
 
 Rufus (`E:\tools\rufus-3.18.exe`) writes the ISO to a USB stick, which **erases the stick**,
