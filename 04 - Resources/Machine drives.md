@@ -329,8 +329,42 @@ re-enumeration. If the Serial Hub is still Code 10 after a restart, the repair i
 driver and firmware pack (MSI) from Microsoft for the Pro 7+, which is a real download and
 needs planning around Nathan's data.
 
-Not done unilaterally: he was mid-job and a reboot reshuffles drive letters, which is its own
-documented hazard on this machine.
+Not done unilaterally at first: he was mid-job and a reboot reshuffles drive letters, which is
+its own documented hazard on this machine. **Nathan asked for the restart at 03:24 on
+2026-09-12 and it was carried out.**
+
+#### State captured immediately before that restart (03:24:57)
+
+Compare against this after the machine comes back. Both repos were clean and pushed first,
+and there were no pending file-rename operations staged, so no half-applied update was in
+flight.
+
+- **Drive letters:** `C D E F H`. (`G:` absent because Nathan had unplugged the tiny11
+  install stick.)
+- **Devices in error:**
+  - `Surface UEFI`, Firmware, **Code 14**, needs restart
+  - `Surface ME`, Firmware, **Code 14**, needs restart
+  - `Surface Serial Hub Driver`, System, **Code 10**, cannot start
+  - `LogMeIn Hamachi Virtual Ethernet Adapter`, Net, **Code 22**, disabled (deliberate, ignore)
+- **Surface Battery:** `Present: False`, **Code 45**
+- USB fix holding: 0 remounts and 0 `disk` controller errors in the 26 minutes since 02:54,
+  against 81 and 1 in the 114 minutes before.
+
+#### What to check once it is back
+
+1. **Drive letters first, before writing anything anywhere.** They move on this machine.
+   `Get-Volume | Where-Object DriveLetter | Sort-Object DriveLetter`
+2. **Did the two Code 14 firmware devices clear?**
+   `Get-PnpDevice -PresentOnly | Where-Object Status -ne 'OK'`
+   Hamachi at Code 22 is expected and fine.
+3. **Did `Surface Serial Hub Driver` start?** If it is still Code 10, the battery will still
+   be invisible and the repair is a Surface Pro 7+ driver and firmware pack (MSI) from
+   Microsoft, which is a real download to plan around the data situation.
+4. **Is the battery back?** `Get-PnpDevice -Class Battery` should show `Present: True`, and
+   `Get-CimInstance Win32_Battery` should return something. Until it does, treat an unplug as
+   an instant hard power cut with two USB drives mounted.
+5. **Is the USB fix still holding, now that the per-device registry values have finally had a
+   re-enumeration to take effect on?** Use the one-liner in the section above. Expect zero.
 
 ### What is still wrong even if the fix holds
 
