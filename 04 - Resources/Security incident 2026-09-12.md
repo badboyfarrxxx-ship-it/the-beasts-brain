@@ -32,6 +32,21 @@ where the log starts; anything added before that date can only be seen from an a
   `Downloads\MRA.Auto.Updater`, added 2026-05-25.
 - Legitimate, leave alone: `.gradle`, the Android SDK, Android Studio, and the three
   `AndroidStudioProjects\TVRecorderSwitch*` folders (Android Studio adds these itself).
+- **Nathan removed all four at 08:21:47** (verified from event 5007). No exclusions from cracks
+  or malware remain in the log's range.
+
+**Drive letters drift, so those exclusions pointed at whatever held the letter in July.** At
+08:25 on 09-12, `E:`, `F:` and `H:` are three partitions of the 4 TB Seagate, and `G:` (the old
+160 GB drive the July crack installers came from) is not attached.
+- `H:` (245 GB) holds only `CCCOMA_X64FRE_EN-US_DV9`, an unpacked Windows 11 21H2 installer.
+  **Checked genuine:** `setup.exe`, `sources\setup.exe`, `setuphost.exe`, `bootx64.efi` and
+  `bootmgr.efi` all carry valid Microsoft signatures, and `install.wim` is the standard
+  11-edition image, build 22000.318. Unpacked 09-08, before the infection.
+- **The crack stash is on `E:`**: `E:\margrat` (Dr.Fone and ReiBoot keygens and cracks, HEU KMS
+  Activator), `E:\programs installs`, `E:\tools`, `E:\torrents`, and a
+  `Download Latest Cracks and Apps.url` shortcut at the root. Never copy anything from these
+  onto the rebuilt machine.
+- `F:` is media only.
 
 All times are local (MajesticBeast, the Surface Pro 7+). Nothing in this note is a secret: no
 passwords, tokens or cookie values were read out or recorded. The stealer's log was read with
