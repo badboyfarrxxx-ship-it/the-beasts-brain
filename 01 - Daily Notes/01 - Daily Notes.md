@@ -13,5 +13,5 @@ One file per day, `YYYY-MM-DD.md`, sorted into monthly subfolders (`08 - August 
 - [[2026-09-01]]: freed ~4.5 GB on C: and moved the VLC dev build off the G: HDD back to the SSD. Booted as The Beast and ran a full stack health check (all four tools green).
 - [[2026-09-02]]: vault backup to private GitHub, now live. Finished `CLAUDE.md` (the "Make it yours" hard lines plus the back-up-every-checkpoint rule).
 - [[2026-09-04]]: tiny11 Windows 11 image build staged on `H:`, clean source ISO identified, build made fully offline, install instructions written to the `D:` stick.
-- [[2026-09-11]]: the tiny11 build ran and succeeded, from a fresh download rather than the staged folder. Reconstructed from forensics, not a live session.
+- [[2026-09-11]]: the tiny11 build ran and succeeded, from a fresh download rather than the staged folder; and the Command Console React artifact was built (58 seeded commands, 8 platforms). Both sessions reconstructed from forensics, not live.
 - [[2026-09-12]]: verified the finished tiny11 ISO is genuinely good, flagged a second broken ISO, and corrected an instruction that would have wiped the programs drive.

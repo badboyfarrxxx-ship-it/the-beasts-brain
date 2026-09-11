@@ -6,10 +6,21 @@ created: 2026-09-12
 ---
 # Security incident 2026-09-12: infostealer and remote-access tool
 
-**Status as of 04:28 on 2026-09-12: ACTIVE. The malware is still running on the Surface.**
-Containment (kill, quarantine, Defender scan) was attempted by The Beast and **blocked by the
-Claude Code auto-mode safety classifier** before anything ran. Waiting on Nathan to either end
-the process himself in Task Manager or authorise a retry. Update this line when it changes.
+**Status as of 08:05 on 2026-09-12: CONTAINED, not clean.** The process was already gone at
+07:42, the Startup shortcut and every dropped file are in
+`C:\Users\badbo\QUARANTINE-2026-09-12-malware\` (moved, not deleted; never run anything in it),
+and there are no connections to the control server. Defender checked at 08:05: real-time
+protection, behaviour monitoring and Tamper Protection all on, quick scan finished 07:28.
+**Still open:** the four exclusions and the Allow entries (below) need an admin shell to remove,
+credentials are unrotated, and the install still needs wiping.
+
+**Allowed-threat list at 08:05** (all set to Allow, action 6). Someone removed three older Allow
+entries at 07:24 (2147890949, 2147968251, 2147593794); the log doesn't say who. Five remain:
+- `2147814523` Trojan:Win32/Wacatac.H!ml: **this incident**, allowed at 01:01:49.
+- `242420` PUA:Win32/Presenoker: `OneDrive\Desktop\New folder\Patch.exe`, 2026-05-26.
+- `452397` PUABundler BitTorrent: `D:\btweb_installer.exe`, 2026-06-05.
+- `326563` PUABundler Yandex: an Internet Download Accelerator keygen installer on G:, 2026-06-12.
+- `311958` PUABundler uTorrent: a cracked uTorrent Pro installer on G:, 2026-07-01.
 
 All times are local (MajesticBeast, the Surface Pro 7+). Nothing in this note is a secret: no
 passwords, tokens or cookie values were read out or recorded. The stealer's log was read with
