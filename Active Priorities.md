@@ -18,7 +18,7 @@ The single queue of open work across everything. Tag each item with its project 
 - [ ] **Get `Program Files` and `Users` off a USB enclosure.** `D:` is a SanDisk SSD in a no-name ASMedia case on the same hub tree that drops out, and Windows currently cannot see the battery, so an unplug is an instant hard power cut mid-write. This is the combination that corrupted a drive on 09-01. See [[Machine drives]].
 - [ ] Replace the daisy-chained Genesys hubs with one powered USB 3 hub into the USB-C port.
 - [ ] Delete the stray duplicate `01 - Daily Notes\2026-09-11.md` (vault root, old frontmatter
-  format, superseded — its content is now merged into [[2026-09-11]]). It came back read-only
+  format, superseded; its content is now merged into [[2026-09-11]]). It came back read-only
   when staged, likely open in another app; close that first.
 
 ### Completed Tasks
