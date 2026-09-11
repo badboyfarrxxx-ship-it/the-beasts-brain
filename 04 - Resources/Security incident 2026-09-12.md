@@ -11,16 +11,27 @@ created: 2026-09-12
 `C:\Users\badbo\QUARANTINE-2026-09-12-malware\` (moved, not deleted; never run anything in it),
 and there are no connections to the control server. Defender checked at 08:05: real-time
 protection, behaviour monitoring and Tamper Protection all on, quick scan finished 07:28.
-**Still open:** the four exclusions and the Allow entries (below) need an admin shell to remove,
-credentials are unrotated, and the install still needs wiping.
+**08:11:24: Nathan removed all four exclusions and all five Allow entries** from an admin
+shell. Verified from Defender's event 5007 log, with protection still on afterwards.
+**Still open:** credentials are unrotated, and the install still needs wiping.
 
-**Allowed-threat list at 08:05** (all set to Allow, action 6). Someone removed three older Allow
+**Allowed-threat list at 08:05, before removal** (all set to Allow, action 6). Someone removed three older Allow
 entries at 07:24 (2147890949, 2147968251, 2147593794); the log doesn't say who. Five remain:
 - `2147814523` Trojan:Win32/Wacatac.H!ml: **this incident**, allowed at 01:01:49.
 - `242420` PUA:Win32/Presenoker: `OneDrive\Desktop\New folder\Patch.exe`, 2026-05-26.
 - `452397` PUABundler BitTorrent: `D:\btweb_installer.exe`, 2026-06-05.
 - `326563` PUABundler Yandex: an Internet Download Accelerator keygen installer on G:, 2026-06-12.
 - `311958` PUABundler uTorrent: a cracked uTorrent Pro installer on G:, 2026-07-01.
+
+**Older exclusions still active after 08:11** (from replaying every event 5007 back to 2026-05-14,
+where the log starts; anything added before that date can only be seen from an admin shell):
+- `G:\` and `H:\`, **whole drives**, added 2026-07-27 04:29. Nothing on either drive is scanned,
+  and both hold cracks and activators. Scan them before anything on them touches the rebuilt
+  machine.
+- `Downloads\[FTUApps.com] - AOMEI Partition Assistant Technician Edition v10.3.0 [RePack]` and
+  `Downloads\MRA.Auto.Updater`, added 2026-05-25.
+- Legitimate, leave alone: `.gradle`, the Android SDK, Android Studio, and the three
+  `AndroidStudioProjects\TVRecorderSwitch*` folders (Android Studio adds these itself).
 
 All times are local (MajesticBeast, the Surface Pro 7+). Nothing in this note is a secret: no
 passwords, tokens or cookie values were read out or recorded. The stealer's log was read with
