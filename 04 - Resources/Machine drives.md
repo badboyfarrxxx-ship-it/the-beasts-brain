@@ -10,11 +10,12 @@ of USB drives hanging off a USB hub. As of 2026-09-02 the USB storage is in a ba
 way: drives dropping out, a Storage Space degraded, drive letters reshuffling on
 reboot. **Do not trust a drive letter to mean the same thing between reboots.**
 
-> **The old warning here ("do not write to `D:` or `G:`") is superseded. See
-> "2026-09-04: only three disks attached" at the bottom.** As of 2026-09-04 the Storage
-> Space is not attached at all and `D:` is a completely different device, a Lexar USB
-> flash drive. This is precisely the letter reshuffle the line above warns about:
-> **check what a letter actually is before writing to it.**
+> **Read "2026-09-12: a Storage Space is back, and it is now load-bearing" at the bottom
+> first. Everything above it about `D:` and `G:` is history.** `D:` has meant three
+> different things in ten days: a degraded Storage Space partition (09-02), a Lexar USB
+> flash drive (09-04), and now a healthy single-SSD Storage Space holding `Program Files`
+> and `Users` (09-12). **Check what a letter actually is before writing to it, every single
+> time.**
 
 ## The machine itself is fine
 
@@ -142,6 +143,49 @@ anything.
 That clears open items 1 and 2 from the list above. The Storage Space still exists as
 hardware somewhere and its degraded state was never repaired, so if those disks are
 plugged back in, the old warnings apply again and the letters will move again.
+
+## 2026-09-12: a Storage Space is back, and it is now load-bearing
+
+Checked with `Get-Disk`, `Get-Volume`, `Get-StoragePool`, `Get-VirtualDisk` and
+`Get-PhysicalDisk`. **The 09-04 picture above is out of date on two counts.**
+
+| Disk | Device | Size | Bus | Letters |
+|---|---|---|---|---|
+| 0 | KIOXIA KBG40ZNS128G NVMe | 119.2 GB | NVMe | `C:` |
+| 1 | Seagate Expansion Desk | 3726 GB | USB | `E:`, `F:`, `H:` |
+| 3 | "Storage space" (virtual) | 238 GB | Spaces | `D:` |
+
+- `C:` 117.9 GB, **30.4 GB free** (was 16.9 GB on 09-04; a 4.79 GB ISO was moved off it on
+  09-12, and something else freed the rest).
+- `D:` **the Storage Space**, 238 GB, 214.8 GB free.
+- `E:` 1617.9 GB, 1015.7 GB free. Label "Emby/Plex". Media, ISOs, program installers,
+  File History.
+- `F:` 1863 GB, 576 GB free. Label "Plex/Emby".
+- `H:` 245.1 GB, 239.8 GB free. Effectively empty now. The `H:\tiny11builder\` folder from
+  09-04 is **gone**; a copy of its contents survives in a recycle-bin recovery set at
+  `D:\downloads\C_Local Disk_2026-09-10_232719\Recycle Bin\C\tiny11builder\`.
+- **The Lexar 28.9 GB flash drive is not attached.** No removable drive of any kind is
+  attached. The only USB device is the 4 TB Seagate.
+
+**`D:` is not the old degraded pool and not a USB stick.** It is a brand new `Simple`
+virtual disk on a single **SanDisk SD7SB6S256G1122** (238.5 GB SSD), pool and disk both
+reporting `OK / Healthy`. The old two-member pool with the faulted 932 GB "USB3.0 high
+speed" member is gone.
+
+**`D:` now holds installed software**, not scratch: `Program Files`, `Program Files (x86)`,
+`Users`, `ProgramData`, `WindowsApps`, `DeliveryOptimization`, `winRAR`, `downloads`. Git
+itself lives at `D:\Program Files\Git`.
+
+Two things follow from that, and both matter:
+
+1. **Any instruction that says "the USB stick is `D:`" is now a data-destruction
+   instruction.** The 09-04 tiny11 instructions said exactly that and have been corrected.
+   See [[Building tiny11 images]]. Identify removable media by size and label, never by a
+   remembered letter. This is the third time in ten days that a letter has changed meaning.
+2. **`Simple` resiliency means no redundancy.** One SSD, no mirror, no parity, and the
+   programs drive sits on it. If that SanDisk fails, everything installed to `D:` is gone
+   and has to be reinstalled. File History covers `C:\Users\badbo`, not `D:`. Worth deciding
+   deliberately whether that is acceptable rather than discovering it the hard way.
 
 ## Not yet known
 
