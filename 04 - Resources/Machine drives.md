@@ -279,6 +279,20 @@ Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='Microsoft-Window
 Zero over an idle hour means fixed. Anything repeating means it is the hub or the cabling
 after all, and the next step is a powered hub or fewer devices in the chain.
 
+**Result, measured at 03:11 on 2026-09-12:**
+
+| Window | Length | Remount events for `E:`/`F:`/`H:` |
+|---|---|---|
+| 01:00 to 02:54 (before the fix) | 114 min | **81** |
+| 02:54 to 03:11 (after the fix) | 17 min | **0** |
+
+At the pre-fix rate of 0.71 events per minute, seventeen idle minutes should have produced
+about twelve. It produced none. **Power management was the cause, and the fix works.**
+
+Worth noting that this was achieved by the `powercfg` half alone. The per-device registry
+values have still not taken effect, because nothing has been replugged or rebooted since
+they were written, so there is more headroom here once the machine restarts.
+
 ### The battery is invisible, and it matters for the drives (2026-09-12)
 
 Nathan confirmed the Surface has a battery. Windows cannot see it. `Win32_Battery`,
