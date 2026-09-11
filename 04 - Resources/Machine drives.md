@@ -187,11 +187,17 @@ Two things follow from that, and both matter:
    and has to be reinstalled. File History covers `C:\Users\badbo`, not `D:`. Worth deciding
    deliberately whether that is acceptable rather than discovering it the hard way.
 
-### 2026-09-12 02:13: `E:` dropped off the bus and came back
+### 2026-09-12: `E:` dropped off the bus TWICE in one session
 
-Mid-session, a `Copy-Item` from `E:` failed with `Cannot find drive. A drive with the name
-'E' does not exist.` Checked immediately: the Seagate was back, `Online / Healthy`, with
-`E:`, `F:` and `H:` all present. Total outage under a minute, no intervention.
+**02:13** a `Copy-Item` from `E:` failed with `Cannot find drive. A drive with the name 'E'
+does not exist.` **02:38** an edit to a file on `E:` failed with
+`ENOENT: no such file or directory, lstat 'E:\windows images-iso recovery'`. Both times the
+Seagate was back `Online / Healthy` within seconds of checking, with `E:`, `F:` and `H:` all
+present, and no intervention of any kind.
+
+Twice in twenty-five minutes, under nothing heavier than small file copies, is not a fluke.
+The drive reports healthy because the drive **is** healthy; what is failing is the
+connection, exactly as on 09-02.
 
 It took a mounted ISO with it: the tiny11 image mounted at `I:` was gone when `E:` returned,
 so anything depending on that mount had to be redone.

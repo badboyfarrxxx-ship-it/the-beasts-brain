@@ -253,6 +253,30 @@ Microsoft-signed `bootx64.efi`, so the boot chain is still signed. Try it as-is 
 
 Touch should work: HP TouchSmart panels present as HID-compliant touch, which is in-box.
 
+### What it is for, and what that changes (Nathan, 2026-09-12)
+
+**A browsing and media box.** Not a second build machine. That settles two things the
+generic advice had wrong:
+
+- **"Keep it offline" does not apply.** A browsing box is online by definition, and 21H2
+  left support in October 2023, so it stops getting security patches. Acceptable for a home
+  machine behind NAT, but only with Defender left on (tiny11maker keeps it; only the Core
+  script strips it) and the browser kept current, because the browser is the real attack
+  surface on a machine that only browses. Worth one big update pass to a supported build
+  when Nathan has data to spare: the upgrade bypasses are baked into the image and the
+  G2030 has the POPCNT and SSE4.2 instructions newer builds require.
+- **Video decode is the weak spot, and it is worse than it first looks.** With no NVIDIA
+  driver there is no hardware decode at all, so a 2-core 3.0 GHz CPU does everything in
+  software. 1080p H.264 is fine; VP9 and AV1 are not, and those are exactly what YouTube
+  serves by default. **Forcing H.264 in the browser (h264ify or equivalent) is the single
+  biggest difference between unwatchable and fine.** Installing the R470 driver later buys a
+  smoother desktop and H.264 hardware decode but still not VP9 or AV1, because the 710A's
+  video engine predates both. Force H.264 either way.
+- For local files, VLC decodes 1080p H.264 in software comfortably on this CPU. Nathan
+  already builds VLC on this machine, see [[Building VLC for Windows]].
+- 4 GB of RAM plus Chrome is the daily annoyance. The RAM upgrade matters more for this use
+  than for any other.
+
 ## Getting it onto another machine
 
 Rufus (`E:\tools\rufus-3.18.exe`) writes the ISO to a USB stick, which **erases the stick**,
