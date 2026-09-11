@@ -366,6 +366,38 @@ flight.
 5. **Is the USB fix still holding, now that the per-device registry values have finally had a
    re-enumeration to take effect on?** Use the one-liner in the section above. Expect zero.
 
+#### Result of the restart (checked 03:31 to 04:00, 2026-09-12)
+
+- Restarted at 03:28:25. Drive letters came back identical: `C D E F H`.
+- **The USB fix held through the reboot:** 3 mounts at boot (one each for E, F, H), both power
+  settings still zero, and all six devices' registry values survived re-enumeration.
+- **The restart fixed nothing else.** `Surface UEFI` and `Surface ME` are still Code 14, the
+  Serial Hub is still Code 10, and the battery is still Code 45.
+- **Why the firmware will not flash:** the UEFI capsule status for both reads `0xC00002DE`,
+  which `certutil` decodes as `STATUS_INSUFFICIENT_POWER`. The running firmware is still UEFI
+  32.103.143 and ME 15.0.2751.1; the staged 33.105.143 and 15.0.2834.2 were attempted and refused.
+
+#### Root cause of the Serial Hub fault: IObit Driver Booster, 2026-08-28 19:23
+
+- Every device on the Serial Hub (the battery, the Type Cover's `Surface Hid Mini Driver`,
+  Surface Integration, the SMF clients) was last seen on 2026-08-21 and was **removed at 19:23 on
+  2026-08-28.**
+- The archived setup log `C:\Windows\INF\setupapi.dev.20260911_182232.log` shows **IObit
+  Driver Booster 13.6.0** (`DpInstX64.exe`, extracting to `%TEMP%\Dbz*`) force-installing
+  generic Intel drivers from 19:20 to 19:26 that evening, including **`iaLPSS2_UART2.inf`
+  5.123.1.1030 onto the Serial IO UART at 19:23:26**. Windows itself ranked that driver
+  "Outranked"; Driver Booster forced it in anyway.
+- Before that, the UART was bound to `oem100.inf` (`tigerlakepch-lpsystemlpss.inf`), which for
+  this device is a **null driver (`Needs_NO_DRV`)**. The Serial Hub worked with the UART left
+  driverless from 2026-05-14 to 2026-08-28. A real UART driver taking the port away from it
+  fits the Serial Hub's `STATUS_INVALID_DEVICE_REQUEST`.
+- Driver Booster ran again on 2026-09-11 (eight `%TEMP%\Dbz*` folders, 17:28 to 19:36), and
+  IObit Advanced SystemCare 19.5 is still installed and starts at every login.
+- **The fix** is to put the UART back on `oem100.inf`, which is still in the driver store, as is
+  Microsoft's `ialpss2_uart2_tgl.inf` (`oem2`). Not done: it was parked when the security
+  incident was found, and this machine is going to be reinstalled anyway. See
+  [[Security incident 2026-09-12]].
+
 ### What is still wrong even if the fix holds
 
 A Surface Pro 7+ with two ports is carrying a 4 TB drive, a USB SSD holding the programs
