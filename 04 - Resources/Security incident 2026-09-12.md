@@ -151,6 +151,7 @@ Either way, Defender was overruled and the next run took two more rounds of pass
 - **Anything on screen since 03:29**, including this session, if the VNC capability was used.
 - Not present, so not exposed: Discord, Telegram, Steam, crypto wallets, wallet extensions.
 
+**Gmail password changed and all other devices signed out on 09-12, from the phone.**
 **Gmail settings checked clean on 09-12, from the phone:** no forwarding address, no filters,
 no delegated access. Auto-Expunge was off, which is harmless (a mail app likely set it; it
 doesn't send or hide mail). Nathan confirmed he never set up any rules, so anything found
