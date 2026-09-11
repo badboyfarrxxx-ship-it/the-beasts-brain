@@ -10,16 +10,6 @@ of USB drives hanging off a USB hub. As of 2026-09-02 the USB storage is in a ba
 way: drives dropping out, a Storage Space degraded, drive letters reshuffling on
 reboot. **Do not trust a drive letter to mean the same thing between reboots.**
 
-> **What the machine actually is (confirmed 2026-09-12): a Microsoft Surface Pro 7+.**
-> Intel Tiger Lake, 8 GB RAM, 128 GB KIOXIA BG4A NVMe, chassis type 9 (laptop).
-> **It has one USB-A port and one USB-C port.** Every other storage device on this machine
-> therefore hangs off a chain of hubs, not because anyone chose that but because there is
-> nowhere else to plug them. That single fact explains most of this note.
->
-> **It has a battery, and Windows cannot see it. See "The battery is invisible" below.**
-> Do not read `Win32_Battery` returning nothing as "this is a desktop"; that was an
-> assumption made on 09-12 and Nathan corrected it.
-
 > **Read "2026-09-12: a Storage Space is back, and it is now load-bearing" at the bottom
 > first. Everything above it about `D:` and `G:` is history.** `D:` has meant three
 > different things in ten days: a degraded Storage Space partition (09-02), a Lexar USB
@@ -206,127 +196,8 @@ Seagate was back `Online / Healthy` within seconds of checking, with `E:`, `F:` 
 present, and no intervention of any kind.
 
 Twice in twenty-five minutes, under nothing heavier than small file copies, is not a fluke.
-The drive reports healthy because the drive **is** healthy.
-
-### The actual diagnosis (2026-09-12 02:54)
-
-**It was never "twice". The drive re-enumerates constantly, and always has.** The System
-event log tells the story: `Microsoft-Windows-Ntfs` event 98 ("Volume X is healthy") fires
-on every *mount*, and the `\Device\HarddiskVolumeNNN` number climbs by one each time. Between
-01:01 and 02:51 that number went from **173 to 254**, with `E:`, `F:` and `H:` remounting
-together roughly **28 times in under two hours**, at intervals from 80 seconds to 20 minutes.
-The `disk` error at 01:54:47 names `\Device\Harddisk2\DR102`, and that DR counter tracks the
-same re-enumeration.
-
-The two failures that were actually noticed only got noticed because they happened to land on
-a file operation. The remounts at 02:15:04 and 02:39:33 are the recoveries from them.
-
-**The decisive clue is when it does NOT drop.** There are zero remounts during the 7-minute
-robocopy (01:50 to 01:57) and zero during the 11-minute DISM split (02:01 to 02:12). It only
-drops when idle. A loose cable fails under vibration and load; **this fails at rest, which is
-the signature of power management, not a connector.**
-
-Confirmed: **USB selective suspend was enabled** (index 1, AC and DC) and **hard disk idle
-spindown was set to 30 minutes**. Windows was suspending the bridge, the bridge was not
-resuming cleanly, so Windows tore the device down and re-enumerated it.
-
-### The USB tree, as it really is
-
-```
-Intel USB 3.10 xHCI (DEV_9A13)
-└── USB Root Hub (USB 3.0)
-    └── Generic SuperSpeed USB Hub   [Genesys Logic 05E3:0626]
-        └── USB Attached SCSI (UAS)  [Seagate 0BC2:331A, serial MSFT30NAABXV2R]
-            └── Seagate Expansion Desk  ->  E:, F:, H:
-```
-
-The Seagate is genuine and uses UAS. It sits **behind a Genesys Logic hub**, not on the
-machine directly.
-
-### Correction: `D:` is not an internal SSD
-
-The 09-12 entry above called `D:` a "single-SSD Storage Space" and implied it was internal.
-**It is not.** The pool's only member is a **SanDisk SD7SB6S256G1122 enumerated as
-`USBSTOR`**, sitting behind a cheap **ASMedia bridge (`USB\VID_174C&PID_55AA`) with the
-fake serial `12345678934A`**. So `Program Files`, `Program Files (x86)`, `Users`,
-`ProgramData` and `WindowsApps` live on a bare SSD in a no-name USB enclosure, on the same
-hub tree that has been dropping out all night. That is considerably worse than "no
-redundancy": if it drops out the way the Seagate does, software dies mid-execution.
-
-### What was changed, 2026-09-12 02:54 (all reversible)
-
-Applied from an elevated shell, verified by reading the settings back:
-
-- **USB selective suspend: disabled**, AC and DC (`0x00000000` both).
-- **Hard disk idle spindown: never**, AC and DC (`0x00000000` both, was `0x1e` = 30 min).
-- Set `EnhancedPowerManagementEnabled`, `SelectiveSuspendEnabled`, `AllowIdleIrpInD3` and
-  `DeviceSelectiveSuspended` to `0` under `Device Parameters` for: both USB 3.0 Root Hubs,
-  the Genesys SuperSpeed hub, the Genesys USB2 hub, the Seagate UAS device, and the SanDisk
-  bridge. These need a replug or a reboot to take effect; the powercfg changes were live
-  immediately.
-
-To undo: `powercfg /setacvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3
-48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1` (and `/setdcvalueindex`), then
-`powercfg /setactive SCHEME_CURRENT`, plus `powercfg /change disk-timeout-ac 30`.
-
-**How to check whether it worked**, at any time, without guessing:
-
-```powershell
-Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='Microsoft-Windows-Ntfs'; Id=98; StartTime=(Get-Date).AddHours(-1)} |
-  Where-Object { $_.Message -match 'Volume (E|F|H):' } | Measure-Object
-```
-
-Zero over an idle hour means fixed. Anything repeating means it is the hub or the cabling
-after all, and the next step is a powered hub or fewer devices in the chain.
-
-### The battery is invisible, and it matters for the drives (2026-09-12)
-
-Nathan confirmed the Surface has a battery. Windows cannot see it. `Win32_Battery`,
-`Win32_PortableBattery` and `root\WMI BatteryStatus` all return nothing or "invalid class".
-`Get-PnpDevice -Class Battery` explains why:
-
-- **Surface Battery** is `Present: False`, **Code 45**, "this hardware device is not
-  connected to the computer".
-
-And the cause is one level down, in the devices currently reporting errors:
-
-- **Surface Serial Hub Driver: Code 10, "This device cannot start."**
-- **Surface UEFI: Code 14**, "cannot work properly until you restart your computer"
-- **Surface ME: Code 14**, same
-
-The Surface Serial Hub is the bus carrying the Surface Aggregator Module, the embedded
-controller that presents the battery, the keyboard cover and the thermal sensors to Windows.
-**With that bus failing to start, the battery cannot enumerate, which is exactly the Code 45.**
-Two firmware devices simultaneously asking for a restart says a Surface firmware or driver
-update is staged and the machine has not been rebooted since.
-
-**Why this belongs in a note about drives:** if Windows cannot see the battery, it believes
-it is on permanent mains, so there is no low-battery warning and no graceful shutdown. Pull
-the charger and the machine stops dead. With a 4 TB drive and the SSD that holds
-`Program Files` both hanging off USB, an abrupt power cut mid-write is precisely how the
-09-01 NTFS corruption happened. This is a live risk, not a cosmetic driver complaint.
-
-**Next step: reboot the Surface.** It is needed three times over: to clear the two Code 14
-firmware devices, to give the Surface Serial Hub a chance to start and bring the battery
-back, and because the per-device USB power settings applied above only take effect on
-re-enumeration. If the Serial Hub is still Code 10 after a restart, the repair is a Surface
-driver and firmware pack (MSI) from Microsoft for the Pro 7+, which is a real download and
-needs planning around Nathan's data.
-
-Not done unilaterally: he was mid-job and a reboot reshuffles drive letters, which is its own
-documented hazard on this machine.
-
-### What is still wrong even if the fix holds
-
-A Surface Pro 7+ with two ports is carrying a 4 TB drive, a USB SSD holding the programs
-directory, and a card reader, through daisy-chained no-name hubs. Power management was the
-trigger, but the architecture is the underlying problem. In rough order of value:
-
-1. Get `Program Files` and `Users` off a USB enclosure. That is the one that can corrupt
-   running software rather than merely annoy.
-2. A single **powered** (mains-adapter) USB 3 hub, straight into the USB-C port, replacing
-   the daisy chain.
-3. Retire the Genesys chain rather than adding to it.
+The drive reports healthy because the drive **is** healthy; what is failing is the
+connection, exactly as on 09-02.
 
 It took a mounted ISO with it: the tiny11 image mounted at `I:` was gone when `E:` returned,
 so anything depending on that mount had to be redone.
