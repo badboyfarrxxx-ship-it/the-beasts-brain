@@ -187,6 +187,34 @@ Two things follow from that, and both matter:
    and has to be reinstalled. File History covers `C:\Users\badbo`, not `D:`. Worth deciding
    deliberately whether that is acceptable rather than discovering it the hard way.
 
+### 2026-09-12 02:13: `E:` dropped off the bus and came back
+
+Mid-session, a `Copy-Item` from `E:` failed with `Cannot find drive. A drive with the name
+'E' does not exist.` Checked immediately: the Seagate was back, `Online / Healthy`, with
+`E:`, `F:` and `H:` all present. Total outage under a minute, no intervention.
+
+It took a mounted ISO with it: the tiny11 image mounted at `I:` was gone when `E:` returned,
+so anything depending on that mount had to be redone.
+
+**The loose-USB fragility from 09-02 is not fixed, it is just quiet.** The whole 4 TB
+Seagate, which is `E:`, `F:` and `H:`, hangs off one USB connection. When it blinks, three
+drive letters vanish at once along with any ISO mounted from them. Two practical
+consequences: do not leave a long job reading from `E:` unattended and assume it will
+survive, and treat a sudden "drive does not exist" as a dropout to re-check rather than as
+a missing file.
+
+Item 5 on the 09-02 open list (get the hub or dock sorted) is still open and just earned
+itself a fresh piece of evidence.
+
+### Removable media attached 2026-09-12
+
+- Disk 4, USB, 14.91 GB, single GPT partition, `G:`, FAT32, label `CCCOMA_X64F`. No
+  manufacturer, model or serial reported, which is normal for a cheap USB controller.
+  Written on 09-12 as the tiny11 install stick. See [[Building tiny11 images]].
+- Note that `G:` is also the letter the source ISO mounted at during the 09-11 build. The
+  same letter meaning two different things inside 24 hours, which is the point of the
+  warning at the top of this note.
+
 ## Not yet known
 
 Full contents of `E:`, `F:` and `H:`. Fill in once stable.

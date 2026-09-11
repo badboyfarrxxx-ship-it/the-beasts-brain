@@ -11,9 +11,9 @@ wikilinks: [[Machine drives]]
 Master note for building a debloated Windows 11 install image with
 [tiny11builder](https://github.com/ntdevlabs/tiny11builder) on this machine.
 
-**Status as of 2026-09-12: the image is BUILT and VERIFIED. What is left is writing it to
-a USB stick and installing it on the second computer.** No USB stick is currently attached
-to this machine, which is the only thing blocking the next step.
+**Status as of 2026-09-12: the image is built, verified, and written to a bootable USB
+stick.** What is left is booting the second computer from it and installing. See
+"Writing the stick without Rufus" below for how the stick was made and the one trap in it.
 
 ## The finished image
 
@@ -138,6 +138,71 @@ Dismount-WindowsImage -Path <scriptfolder>\scratchdir -Discard
 ```
 
 then delete the `tiny11` and `scratchdir` folders under the script's drive root.
+
+## Writing the stick without Rufus (the method that worked, 2026-09-12)
+
+Rufus is a GUI that needs a human at the keyboard. A UEFI Windows installer stick does not
+actually need it: UEFI boots any removable FAT32 partition that has
+`\EFI\BOOT\BOOTX64.EFI`, so copying the ISO's contents is enough. The only obstacle is that
+`install.wim` is 4.11 GB, over the FAT32 4 GB file limit, so it has to be split into `.swm`
+parts, which Windows Setup picks up automatically.
+
+The working sequence, given a stick already FAT32 and empty:
+
+1. Mount the ISO: `Mount-DiskImage -ImagePath <iso> -PassThru`, then read its letter from
+   `Get-Volume`. Works unelevated.
+2. Copy everything except the oversized file:
+   `robocopy <iso>:\ <stick>:\ /E /XF install.wim /R:1 /W:1`. Works unelevated.
+3. Split the image onto the stick, **elevated**:
+   ```
+   dism.exe /English /Split-Image /ImageFile:<iso>:\sources\install.wim ^
+            /SWMFile:<stick>:\sources\install.swm /FileSize:3800 ^
+            /LogPath:C:\Windows\Temp\split.log
+   ```
+4. Copy on the extras (browser installer, this job's instructions).
+
+**The trap, and it cost a full diagnosis round: do not use the PowerShell
+`Split-WindowsImage` cmdlet. Use `dism.exe /Split-Image`.** The cmdlet fails with a bare
+`Access is denied. (0x80070005)` in about one second even from a process holding a genuine
+administrator token, verified by checking `IsInRole(Administrator)` returning `True` in the
+same process, and with `Get-WindowsImage` reading the very same file successfully one line
+earlier. `dism.exe` with identical arguments, same elevated user, same source and
+destination, completes normally. It is a cmdlet defect, not a permissions problem, so do not
+waste time chasing permissions when it happens.
+
+A second, smaller trap: unelevated, `Split-WindowsImage` fails earlier and differently, with
+`Fail to write to the logfile: Access to the path 'C:\WINDOWS\Logs\DISM\dism.log' is denied`.
+Passing `-LogPath` gets past that one and straight into the real access-denied above, which
+makes the first error look like it was the whole problem. It is not.
+
+Elevation from a Claude Code session works: `Start-Process powershell -Verb RunAs
+-ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File','<script>'` puts a UAC prompt
+on Nathan's screen and runs properly once accepted. Have the script write its result to a
+status file so the unelevated session can read the outcome.
+
+### How to check the stick is actually good
+
+Read the WIM header of each part directly, which needs no elevation. Bytes `0x28` and `0x2A`
+are the part number and total parts, `0x2C` is the image count:
+
+```
+$fs=[System.IO.File]::OpenRead($path); $b=New-Object byte[] 208; $fs.Read($b,0,208); $fs.Close()
+[BitConverter]::ToUInt16($b,0x28)   # part number
+[BitConverter]::ToUInt16($b,0x2A)   # total parts
+[BitConverter]::ToUInt32($b,0x2C)   # image count
+```
+
+A correct split reads part 1 of 2 and part 2 of 2, each with 1 image. Then confirm no file on
+the stick is 4,294,967,295 bytes or larger, and that `efi\boot\bootx64.efi`, `sources\boot.wim`,
+`bootmgr.efi`, `setup.exe` and `autounattend.xml` are all present.
+
+### The one real limitation of doing it this way
+
+**The stick is UEFI-only.** Copying files writes no MBR boot sector, so there is no legacy
+BIOS boot path. If the target machine is old enough to be BIOS-only, or is stuck in CSM mode,
+the stick will not appear in its boot menu and the job has to be redone with Rufus. The
+partition is GPT with a Microsoft Basic Data GUID (`ebd0a0a2-...`), which is exactly what
+Rufus creates in GPT/UEFI mode, so firmware compatibility is otherwise the same.
 
 ## Getting it onto another machine
 
