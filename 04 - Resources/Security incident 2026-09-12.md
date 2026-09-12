@@ -48,6 +48,16 @@ where the log starts; anything added before that date can only be seen from an a
   onto the rebuilt machine.
 - `F:` is media only.
 
+**Defender scans of the drives (report-only, `-DisableRemediation`: nothing moved or deleted):**
+- `H:\`: clean, 1 h 53 m.
+- `E:\margrat`: **8 threats** (one is in `GlassWireSetup.exe`; names pending a full-output rescan).
+- `E:\tools`: **2 threats** (one is `Patch.exe`, the crack patch Defender flagged in May).
+- Counts come from `%TEMP%\MpCmdRun.log`. Report-only scans log counts but no names and write
+  no Defender events, so the per-threat detail only exists in MpCmdRun's console output.
+- `E:\torrents`, `E:\ziped folders`: clean.
+- The first run was cut off when the Claude Code session ended. Resumed for the rest of `E:`
+  (`New folder*`, `New f(2)`, `programs installs`, the root files); results to be added here.
+
 All times are local (MajesticBeast, the Surface Pro 7+). Nothing in this note is a secret: no
 passwords, tokens or cookie values were read out or recorded. The stealer's log was read with
 every value withheld; only its key names were looked at.
