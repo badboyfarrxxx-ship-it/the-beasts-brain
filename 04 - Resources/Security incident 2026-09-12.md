@@ -193,7 +193,17 @@ no longer push the backup repos (by design).
 claude.ai kills the Claude Code session running on this Surface, so it is the final login
 revoked, right before the wipe. The accounts that unlock everything else (Gmail, Microsoft,
 GitHub) were done first. Still to do: Claude, anything with a saved card, and the rest of the
-Chrome and Edge password lists. Vault commits stay local until the rebuilt
+Chrome and Edge password lists.
+
+**Pre-wipe backup to `H:\Surface backup 2026-09-12\` done 09-13 01:36, verified by file count**
+(copied, not moved; nothing on C: was changed): the vault (368 files), `my-agent` without its
+Python environments (606), `AndroidStudioProjects` (159), `C:\pr` (78), `Pictures` (17),
+`.claude` as `dot-claude` (811, **`.credentials.json` deliberately left out**),
+`efs-recovery-badbo.pfx` and `.gitconfig`, and the 27 OneDrive files that exist only locally.
+Left out on purpose: the other 1,411 OneDrive files (cloud-only placeholders, already safe in
+OneDrive), program files and shortcuts from OneDrive (including the four "The Beast" desktop
+`.bat` launchers), `Downloads`, `AppData`, `.ollama`, `.gradle`, `Builds` and `C:\Aomei`. A
+leftover `OneDrive` subfolder on H: holds 4 files from an aborted first run. Vault commits stay local until the rebuilt
 machine is signed in. Don't sign GitHub back in on this install.
 **Gmail settings checked clean on 09-12, from the phone:** no forwarding address, no filters,
 no delegated access. Auto-Expunge was off, which is harmless (a mail app likely set it; it
