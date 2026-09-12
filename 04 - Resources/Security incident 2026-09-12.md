@@ -50,8 +50,20 @@ where the log starts; anything added before that date can only be seen from an a
 
 **Defender scans of the drives (report-only, `-DisableRemediation`: nothing moved or deleted):**
 - `H:\`: clean, 1 h 53 m.
-- `E:\margrat`: **8 threats** (one is in `GlassWireSetup.exe`; names pending a full-output rescan).
-- `E:\tools`: **2 threats** (one is `Patch.exe`, the crack patch Defender flagged in May).
+- `E:\margrat`: **9 detections across 10 files** (Defender's summary says 8; it doesn't count
+  the "Unknown" one). Full-output rescan 11:02 to 11:37; the
+  first run's `GlassWireSetup.exe` mention was a signature-lookup line, not a detection):
+  - **Trojans:** `Kepavll!rfn` in `HEU KMS Activator 63.3.2 Portable.exe` and in
+    `FoneDog Toolkit for iOS 2.1.78\crack\VJSCHSTILOGOYB.exe` (the same family Defender caught in
+    June); `Vigorf.A` in `Tenorshare ReiBoot Pro 8.1.13 incl keygen\Keygen.zip`;
+    `OffLoader.PGOI!MTB` in `Wondershare Dr.Fone v19.6.9.3 (2025) + Crack (B4tman).exe`.
+  - **Hack tools:** `KMSActivator!pz` in `fonedog-toolkit-for-android...\UMP.v1.3\Patch.exe`;
+    `HackTool:Win32/crack` in the AOMEI Partition Assistant 10.3.0 repack.
+  - **PUA:** BitTorrent bundler `btweb_installer.exe`; `Vigua.A` in `UMP.v1.3.zip`;
+    `AndroidOS/Adfraud` in a modded "USTV" APK from a 145-app cracked APK pack.
+  - **Unknown:** `Wondershare Dr.Fone Toolkit for Android 8.3.2.62 FULL+Crack\Setup.exe`.
+- `E:\tools`: **2 threats**: `HackTool:Win32/KMSActivator!pz` in `Patch.exe`,
+  `HackTool:Win32/Keygen` in `Keygen.exe`.
 - Counts come from `%TEMP%\MpCmdRun.log`. Report-only scans log counts but no names and write
   no Defender events, so the per-threat detail only exists in MpCmdRun's console output.
 - `E:\torrents`, `E:\ziped folders`: clean.
