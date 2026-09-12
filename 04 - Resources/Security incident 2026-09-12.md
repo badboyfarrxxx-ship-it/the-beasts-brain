@@ -216,6 +216,22 @@ show nothing foreign. Clones leave no event, so read access cannot be ruled out.
    anything with a saved card, then every other site in the Chrome and Edge password lists.
 3. **Reinstall Windows on the Surface.** Back up only data files (documents, the vault is already
    on GitHub), never programs or anything from `Downloads` or `Temp`.
+   **Facts for choosing the install media (checked 09-12):**
+   - **Licence:** the Surface's firmware key is **Home** (`[4.0] Core OEM:DM`). The running Pro
+     is `RETAIL channel, Licensed`, no KMS host set, no activator tasks left. Given the activator
+     history (Microsoft Toolkit on 09-08), whether Pro is a genuine digital licence is unproven.
+     Stock Microsoft media installs Home automatically from the firmware key.
+   - **The tiny11 image is Pro only, 21H2 build 22000.318**, out of support. It was built on
+     09-11 02:45, before the infection, so the image itself is trustworthy. From reading
+     `tiny11maker.ps1` (release 05-06-24): it keeps Defender, Windows Update and the Store; it
+     removes Edge **and the WebView2 runtime**, OneDrive, Teams, Phone Link, Quick Assist and
+     consumer apps; it **turns off BitLocker device encryption**; it sets telemetry to 0 and
+     bypasses the TPM, Secure Boot, CPU and RAM checks.
+   - **Its `autounattend.xml` has no disk section**, so Setup still shows the disk picker and
+     can't wipe a drive by itself. It picks image index 1, uses Compact OS, blanks the product
+     key prompt and hides the Microsoft-account screens.
+   - Smart App Control, which blocks unsigned apps like this incident's lure, only exists on a
+     clean install of 22H2 or later. A 21H2 install can never have it.
 4. Keep IObit (Advanced SystemCare, Driver Booster) off the rebuilt machine. It caused the
    Serial Hub failure on 2026-08-28 and is still installed today.
 5. No cracked software, keygens or activators on the rebuilt machine.
