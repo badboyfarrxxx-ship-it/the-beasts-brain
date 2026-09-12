@@ -232,6 +232,15 @@ show nothing foreign. Clones leave no event, so read access cannot be ruled out.
      key prompt and hides the Microsoft-account screens.
    - Smart App Control, which blocks unsigned apps like this incident's lure, only exists on a
      clean install of 22H2 or later. A 21H2 install can never have it.
+   - **Alternatives researched 09-12:**
+     - A **current tiny11 exists**: tiny11builder's September 2025 release is tested on 24H2
+       and 25H2 and works with every edition, so a Home build would activate from the firmware
+       key. The copy on this machine is the older 05-06-24 release. Build it on a clean
+       machine (the HP), never on this Surface, and read the new script before trusting it.
+     - **Linux on the Surface Pro 7+** (linux-surface kernel): touchscreen, pen, Type Cover
+       keyboard and touchpad, battery status, Wi-Fi, sleep, speakers and buttons all work;
+       **the cameras don't**. Claude Desktop has had an official Linux beta since 2026-06-30
+       (Ubuntu 22.04+ and Debian 12+; no Computer Use or voice dictation yet).
 4. Keep IObit (Advanced SystemCare, Driver Booster) off the rebuilt machine. It caused the
    Serial Hub failure on 2026-08-28 and is still installed today.
 5. No cracked software, keygens or activators on the rebuilt machine.
