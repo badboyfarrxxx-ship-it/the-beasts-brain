@@ -183,9 +183,11 @@ Sign-in activity showed nothing unfamiliar.
 2FA, sessions, tokens, OAuth apps and SSH keys done. **Verification from the Surface failed:**
 straight afterwards `gh auth status` still validated the GitHub CLI OAuth token (`gho_`, scopes
 `repo`, `workflow`, `gist`, `read:org`) and `git ls-remote` still read the private vault repo.
-The stolen GitHub CLI grant is still live. **Open: revoke "GitHub CLI" under Settings →
-Applications → Authorized OAuth Apps, then re-verify from the Surface.** Once it's dead, this
-Surface can't push the backup repos (by design). Vault commits stay local until the rebuilt
+Changing the password doesn't revoke OAuth app tokens. Nathan then revoked **GitHub CLI** and
+**Git Credential Manager** under Settings → Applications → Authorized OAuth Apps. **Re-verified
+from the Surface: `gh` gets 401 Bad credentials, and Git Credential Manager's stored token is
+rejected (git falls back to prompting). Both stolen GitHub logins are dead.** This Surface can
+no longer push the backup repos (by design). Vault commits stay local until the rebuilt
 machine is signed in. Don't sign GitHub back in on this install.
 **Gmail settings checked clean on 09-12, from the phone:** no forwarding address, no filters,
 no delegated access. Auto-Expunge was off, which is harmless (a mail app likely set it; it
