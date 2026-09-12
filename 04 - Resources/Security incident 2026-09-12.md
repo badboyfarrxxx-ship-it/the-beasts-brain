@@ -187,7 +187,13 @@ Changing the password doesn't revoke OAuth app tokens. Nathan then revoked **Git
 **Git Credential Manager** under Settings → Applications → Authorized OAuth Apps. **Re-verified
 from the Surface: `gh` gets 401 Bad credentials, and Git Credential Manager's stored token is
 rejected (git falls back to prompting). Both stolen GitHub logins are dead.** This Surface can
-no longer push the backup repos (by design). Vault commits stay local until the rebuilt
+no longer push the backup repos (by design).
+
+**Anthropic/Claude goes last, by Nathan's decision (09-12).** "Log out of all devices" at
+claude.ai kills the Claude Code session running on this Surface, so it is the final login
+revoked, right before the wipe. The accounts that unlock everything else (Gmail, Microsoft,
+GitHub) were done first. Still to do: Claude, anything with a saved card, and the rest of the
+Chrome and Edge password lists. Vault commits stay local until the rebuilt
 machine is signed in. Don't sign GitHub back in on this install.
 **Gmail settings checked clean on 09-12, from the phone:** no forwarding address, no filters,
 no delegated access. Auto-Expunge was off, which is harmless (a mail app likely set it; it
