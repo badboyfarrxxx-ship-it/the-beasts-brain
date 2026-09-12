@@ -242,6 +242,8 @@ show nothing foreign. Clones leave no event, so read access cannot be ruled out.
      key prompt and hides the Microsoft-account screens.
    - Smart App Control, which blocks unsigned apps like this incident's lure, only exists on a
      clean install of 22H2 or later. A 21H2 install can never have it.
+   - **Decision (09-13): stock Windows 11 from Microsoft.** Nathan is writing the installer USB
+     on the HP, a clean machine, not on this Surface.
    - **Alternatives researched 09-12:**
      - A **current tiny11 exists**: tiny11builder's September 2025 release is tested on 24H2
        and 25H2 and works with every edition, so a Home build would activate from the firmware
