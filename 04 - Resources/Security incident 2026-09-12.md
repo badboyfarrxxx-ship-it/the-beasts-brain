@@ -162,6 +162,7 @@ Either way, Defender was overruled and the next run took two more rounds of pass
 - Not present, so not exposed: Discord, Telegram, Steam, crypto wallets, wallet extensions.
 
 **Gmail password changed and all other devices signed out on 09-12, from the phone.**
+2-Step Verification confirmed on.
 **Gmail settings checked clean on 09-12, from the phone:** no forwarding address, no filters,
 no delegated access. Auto-Expunge was off, which is harmless (a mail app likely set it; it
 doesn't send or hide mail). Nathan confirmed he never set up any rules, so anything found
