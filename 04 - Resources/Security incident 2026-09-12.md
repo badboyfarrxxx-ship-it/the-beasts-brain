@@ -313,6 +313,66 @@ and when Defender did catch a later copy, that detection was overridden.
   30e8d598-2c60-49e4-953b-a6f620da1371; TopazTerminator proof of concept.
 - `clip-stash.beer` flagged Dangerous: Kaspersky Threat Intelligence Portal.
 
+## 2026-09-16: `D:` scanned after the rebuild
+
+`D:` (the SanDisk case, 238 GB) was unplugged for the rebuild per the reinstall plan and left
+that way, unchecked, until reconnected on 09-16. Report-only Defender scan
+(`-Scan -ScanType 3 -File D:\ -DisableRemediation`, nothing moved or deleted), signatures
+updated first to 1.459.219.0. Started 03:48, finished 04:12.
+
+**1 confirmed threat, the same family as this incident:**
+- `Trojan:Win32/Wacatac.B!ml` in
+  `D:\downloads\C_Local Disk_2026-09-10_232305\Deleted Files\C\Users\badbo\Downloads\AOMEI Partition Assistant Technician 10.10.1 Repack\AOMEI Partition Assistant 10.10.1 TE.exe`.
+  This is a **recovered-deleted copy** of the exact AOMEI 10.10.1 repack already confirmed on
+  `E:\programs installs` on 09-13. It had been deleted from `C:\Users\badbo\Downloads` at some
+  point, then restored into this `D:\downloads\C_Local Disk_*` folder by an AOMEI recovery scan
+  on 09-10, before the infection: the recovery tool recovered a trojan copy of itself.
+
+**2 more "Unknown" hits, same folder, recovered copies of the older confirmed-bad repack:**
+- `...\[FTUApps.com] - AOMEI Partition Assistant Technician Edition v10.3.0 Multilingual [RePack]\AOMEI.Partition.Assistant.v10.3.0.exe`
+  and `...(1).exe`, both inside the same `C_Local Disk_2026-09-10_232305\Deleted Files\` set.
+  The v10.3.0 repack is the one Defender confirmed as `HackTool:Win32/crack` on `E:` on 09-12;
+  here the cloud-reputation lookup came back "Unknown" rather than a named match, but it is the
+  same file.
+
+**6 more "Unknown" hits, read as false positives on legitimate developer tools, not recovered
+files:**
+- 6x in `D:\Program Files\Git\mingw64\` (`libp11-kit-0.dll`, `libnghttp2-14.dll`, `liblzma-5.dll`,
+  each present in both `bin\` and `git-core\`): standard Git for Windows MinGW runtime DLLs,
+  flagged `queryfilertsig` (a cloud reputation lookup came back inconclusive), not a signature
+  match.
+- 1x a class file inside Android Studio's `r8.jar` (the Android build tool), same
+  `queryfilertsig` flag.
+
+**Not flagged:** `D:\Users`, `D:\Program Files (x86)`, `D:\ProgramData`, `D:\WindowsApps`,
+`D:\winRAR`, `D:\DeliveryOptimization`, and everything in `D:\downloads` outside the recovery
+folder above (a GitHub Copilot installer, a PhoenixOS ISO, a laser-cutter project, and two more
+`C_Local Disk_*` recovery sets not yet individually inspected by name).
+
+**`D:\badbo`, explained:** genuinely empty (no reparse point, no hidden/system files), created
+9 July 2026, over two months before `D:\Users\badbo` (8 September) which is the real profile
+folder. A leftover from before this Storage Space's current setup, unrelated to the actual
+profile.
+
+**The other two `C_Local Disk_*` recovery sets, both scanned clean**, no threats and not even a
+reputation-unknown hit: `C_Local Disk_2026-09-10_232719` is the tiny11builder source files
+already noted in [[Machine drives]]; `C_Local Disk_2026-09-11_064115` is 130 small numbered
+`.zip` fragments consistent with a file-carving/undelete recovery, contents not individually
+opened but Defender cleared all of them.
+
+**Quarantined 04:18 to 04:22, on Nathan's decision.** A real (remediating) scan of just the
+affected folder, this time without `-DisableRemediation`, turned up a **second copy** of the
+confirmed trojan the report-only pass hadn't listed: `AOMEI Partition Assistant 10.10.1 TE(1).exe`
+alongside `TE.exe`, both under the same ThreatID `2147735505`. Defender quarantined both itself;
+confirmed gone from disk and recorded in `Get-MpThreat`. Defender does not act on "Unknown"
+reputation-only hits (no named threat to bind an action to), so the two v10.3.0 files were moved
+by hand into `C:\Users\Fredy 2\QUARANTINE-2026-09-16-malware\D-downloads-AOMEI-v10.3.0\`, moved
+not deleted, never to be run, matching the 09-12 `QUARANTINE-2026-09-12-malware` convention.
+Verified gone from their original location afterward. The `AOMEI Partition Assistant Technician
+10.10.1 Repack` folder now holds only two harmless 42-byte `cdanielo11*.txt` files (a repacker's
+signature, never flagged); the v10.3.0 RePack folder is empty. Nothing outside the targeted
+folder was touched by the remediating scan.
+
 ## Related
 
 - [[Machine drives]]: the Surface's hardware, drives and the Serial Hub fault.

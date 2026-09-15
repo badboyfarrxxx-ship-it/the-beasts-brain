@@ -432,6 +432,84 @@ itself a fresh piece of evidence.
   same letter meaning two different things inside 24 hours, which is the point of the
   warning at the top of this note.
 
+## 2026-09-16: after the rebuild
+
+The Surface was wiped and rebuilt onto tiny11 25H2 on 2026-09-15 (see
+[[Security incident 2026-09-12]]). The Windows account is now `Fredy 2`, so the profile is
+`C:\Users\Fredy 2`. **Everything above this section describes the old install.** Checked on
+09-16 with `Get-Disk`, `Get-Partition`, `Get-Volume`, `mountvol`, `powercfg` and
+`Get-PnpDevice`:
+
+| Disk | Device | Size | Bus | Letters |
+|---|---|---|---|---|
+| 0 | KIOXIA KBG40ZNS128G NVMe | 119 GB | NVMe | `C:` |
+| 1 | Seagate Expansion Desk | 3726 GB | USB | `E:` (dismounted), `H:`, `F:` |
+
+- `C:` is partition 3 of disk 0, 118 GB.
+- The Seagate's partitions, in on-disk order: **1 = `E:`** (1618 GB, File History), **2 = `H:`**
+  (245 GB, label `H:`, holds `Surface backup 2026-09-12`), **3 = `F:`** (1863 GB, label
+  `F: Private`). All three are on one USB cable, so none can be unplugged without the others.
+- **`D:` reconnected and scanned 09-16.** The SanDisk case (the Storage Space that held the old
+  `Program Files` and `Users`) was unplugged after the rebuild (the "Disk 3 has been surprise
+  removed" event at 01:07:01 matches it coming out), then reconnected the same day and given a
+  report-only Defender scan. One confirmed trojan and two likely-same-thing hits, all recovered
+  copies of already-known-bad AOMEI repacks inside an AOMEI recovery set, plus six near-certain
+  false positives on Git and Android Studio files. Full detail in
+  [[Security incident 2026-09-12#2026-09-16: D: scanned after the rebuild]]. Quarantine of the
+  three real hits is Nathan's call, still open.
+
+### `E:` is deliberately dismounted
+
+`E:` holds a Windows File History mirror of the whole old profile at
+`E:\FileHistory\badbo\MAJESTICBEAST\`, including the known-bad
+`AOMEI Partition Assistant Technician 10.10.1 Repack` and the
+`Download Latest Cracks and Apps.url` lure. It shares a cable with the backup and the media, so
+it was isolated in software instead of unplugged: `mountvol E: /P`, run elevated early on
+09-16. Verified afterwards: the volume reads "not mountable until a volume mount point is
+created", partition 1 has no letter and `IsOffline: True`, and `F:` and `H:` are
+`Healthy / OK`. It stays dismounted across reboots and replugs.
+
+**`E:` missing is intended, not a fault.** To remount it on purpose, from an elevated prompt:
+
+```
+mountvol E: \\?\Volume{12920787-a58e-11f1-90b0-d4548b588599}\
+```
+
+### The USB power fix, re-applied
+
+The rebuild wiped the 09-12 fix, because power settings live in the Windows install, not on the
+drive. Read back on 09-16: USB selective suspend was `1` (on) and disk spindown `0x1e`
+(30 minutes), AC and DC, which is the exact pre-fix state. Nathan re-ran the `powercfg` half
+from an elevated prompt, and all four values then read `0x00000000`. The per-device registry
+values were not re-applied.
+
+**Result:** an idle hour from 01:20:16 to 02:20:16 on 09-16 had **0** remounts and **0** `disk`
+controller events. The fix holds on the rebuild. The check is now a saved script:
+
+```
+powershell -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\beast-jobs\remount-check.ps1" -Minutes 60
+```
+
+**For any future reinstall: re-apply this fix as part of setup, before trusting the Seagate.**
+
+### The battery is back
+
+Every Surface device on the rebuild reports `OK`, including `Surface Serial Hub Driver`,
+`Surface UEFI`, `Surface ME` and `Surface Hid Mini Driver`. `Surface Battery` is
+`Present: True`, and `Win32_Battery` returns a reading (49%, on AC, at the 09-16 check). No
+present device of any class is in an error state. That fits the diagnosis above that the
+Serial Hub fault was IObit Driver Booster's forced UART driver, which the wipe removed.
+Windows can warn before the battery runs out again, so pulling the charger is no longer an
+instant hard power cut with the Seagate mounted. **Never install IObit software on this
+machine again** (step 16 of the reinstall plan).
+
+### Still true from before
+
+The architecture warning above still stands: a two-port Surface running a 4 TB drive through a
+hub chain. The power fix stopped the idle drop-outs; it does nothing for loose cables. The hub
+layout was not re-inspected on the rebuild. A single powered USB 3 hub is still the right
+upgrade.
+
 ## Not yet known
 
 Full contents of `E:`, `F:` and `H:`. Fill in once stable.
