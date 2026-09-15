@@ -67,8 +67,21 @@ where the log starts; anything added before that date can only be seen from an a
 - Counts come from `%TEMP%\MpCmdRun.log`. Report-only scans log counts but no names and write
   no Defender events, so the per-threat detail only exists in MpCmdRun's console output.
 - `E:\torrents`, `E:\ziped folders`: clean.
-- The first run was cut off when the Claude Code session ended. Resumed for the rest of `E:`
-  (`New folder*`, `New f(2)`, `programs installs`, the root files); results to be added here.
+- The first run was cut off when the Claude Code session ended. Resumed detached for the rest
+  of `E:` and **finished 2026-09-13 04:50**:
+  - `E:\programs installs`: **16 threat families** (plus a string of "Unknown" hits inside
+    cracked APKs). The worst: **`Ransom:Win32/Cobra`** (a keygen inside a SafeWallet crack),
+    **`Trojan:Win32/Wacatac.B!ml`** in the AOMEI Partition Assistant 10.10.1 repack (the same
+    family as this incident), `Phonzy.A` in the Internet Download Accelerator keygens,
+    `Kepavll` in the FoneDog iOS crack, `Zilla` in a "pre-activated" ESET NOD32, `Vigorf.A` in
+    an Android keygen, plus Lucky Patcher, a call-recorder spy tool, adware APKs, the
+    Microsoft Toolkit and AutoKMS activators, and keygens for AutoCAD, uTorrent and iMazing.
+  - `E:\New folder (2)`: 3 (iMazing patch, a KMS activator `Patch.exe`, KMSAuto in an Office
+    2016 activator rar).
+  - Clean: `New folder`, `New folder (3)`, `New folder (4)`, `New f(2)`, and the three root
+    files.
+  - **Everything is report-only; nothing has been moved.** Whether it all goes to Defender's
+    quarantine is Nathan's call. The recommendation is yes, all of it.
 
 All times are local (MajesticBeast, the Surface Pro 7+). Nothing in this note is a secret: no
 passwords, tokens or cookie values were read out or recorded. The stealer's log was read with
