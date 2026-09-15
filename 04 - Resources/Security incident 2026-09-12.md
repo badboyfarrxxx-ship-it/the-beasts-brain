@@ -255,8 +255,20 @@ show nothing foreign. Clones leave no event, so read access cannot be ruled out.
      key prompt and hides the Microsoft-account screens.
    - Smart App Control, which blocks unsigned apps like this incident's lure, only exists on a
      clean install of 22H2 or later. A 21H2 install can never have it.
-   - **Decision (09-13): stock Windows 11 from Microsoft.** Nathan is writing the installer USB
-     on the HP, a clean machine, not on this Surface.
+   - **What Nathan actually made (verified 09-15): tiny11 built from Windows 11 25H2**, not stock
+     Windows. It's on a 29.8 GB Lexar stick written by Rufus (NTFS plus Rufus's `UEFI:NTFS`
+     helper partition, label `DVD_ROM`), files dated 2026-09-14 04:39 to 05:09. Its
+     `install.wim` holds one image, **Windows 11 Pro, build 26200.8037**; `setup.exe`,
+     `sources\setup.exe`, `bootx64.efi` and `bootmgr.efi` are validly Microsoft-signed; and its
+     `autounattend.xml` is byte-for-byte tiny11's (no disk section).
+     **Provenance, checked:** the source is `H:\tiny11.-.nov24\tiny11builder-main\Win11_25H2_English_x64_v2.iso`,
+     a genuine Microsoft ISO (volume label `CCCOMA_X64FRE_EN-US_DV9`, created 2026-03-08),
+     copied onto H: at 2026-09-12 22:32 from a file last modified 20:41, with no browser
+     download stamp, so it arrived from another machine. `dism.log` shows **no image build on
+     this Surface after 09-11** (only Disk Cleanup and DirectX housekeeping sessions), and
+     Rufus's log here dates from 09-08. **Conclusion: built off-Surface; the stick is
+     trustworthy.** Remaining caveat: it's **Pro only**, and the Surface's firmware key is
+     Home, so activation after install isn't guaranteed.
    - **Alternatives researched 09-12:**
      - A **current tiny11 exists**: tiny11builder's September 2025 release is tested on 24H2
        and 25H2 and works with every edition, so a Home build would activate from the firmware
