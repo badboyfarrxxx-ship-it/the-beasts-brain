@@ -11,7 +11,9 @@ Read this file at the start of every conversation to understand who I am, how I 
 
 ## Vault location
 
-This vault lives at `C:\Users\badbo\The Beasts Brain`. If you use Claude Desktop, claude.ai, or any AI other than Claude Code, you have to point it at this path (set it in your MCP / filesystem connector, and tell the AI "my vault is here"). An AI can't read or maintain a vault it can't find.
+This vault lives at `C:\Users\Fredy 2\The Beasts Brain`. If you use Claude Desktop, claude.ai, or any AI other than Claude Code, you have to point it at this path (set it in your MCP / filesystem connector, and tell the AI "my vault is here"). An AI can't read or maintain a vault it can't find.
+
+(Path updated 2026-09-16 after the Surface rebuild. It was `C:\Users\badbo\The Beasts Brain` on the old install, which is the path you will still see quoted throughout the older daily notes; those are left as written, since they record what was true at the time.)
 
 ---
 
