@@ -424,7 +424,25 @@ ever individually named by any scan. Browsing the names (large "Android Paid/Mod
 games) reads as a mass pirated-Android-app collection well beyond the original crack stash.
 Flagged for Nathan's decision rather than quarantined, since it was never part of the
 09-12/09-13 report or the "go ahead" given for the four named folders. Report-only scan of the
-whole folder launched to get a proper before-deciding picture; result pending.
+whole folder launched to get a proper before-deciding picture.
+
+**Result (08:23 to 09:29, 1h6m, 3,965 files, 32.4 GB): 1 confirmed threat, 17 near-certain false
+positives.** `PUA:AndroidOS/Adfraud` in
+`E:\programs installs\apk mobile apps\USTV v7.7 free United State television channels Premium
+Mod Apk {CracksHash}.apk` (23.8 MB) — the same threat already named in the original 09-12/09-13
+report's summary ("AndroidOS/Adfraud in a modded 'USTV' APK"), confirming it is one and the same
+file, not a new find, but one the earlier remediating pass over the whole `programs installs`
+tree on this date had missed (it does not appear in that pass's `Get-MpThreatDetection` log).
+Moved by hand into `E-programs-installs\`, same convention, same folder, confirmed gone.
+
+The 17 "Unknown" hits are read as false positives: native `.so` libraries, image assets, and
+base64-encoded resource blobs inside otherwise-ordinary apps (GO Launcher, CoPilot, Collage
+Maker, TSF Shell, Super Manager, Pudding Camera), the identical pattern already seen and
+dismissed on `D:`'s legitimate Git DLLs. Left in place, not quarantined.
+
+**The 1,771-item folder itself remains Nathan's decision.** Scanning answers whether Defender's
+signatures flag anything (almost nothing does, one file out of 3,965), not whether the
+collection itself should be kept. That question is separate and still open.
 
 ## Related
 
