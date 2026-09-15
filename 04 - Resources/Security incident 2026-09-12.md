@@ -373,6 +373,59 @@ Verified gone from their original location afterward. The `AOMEI Partition Assis
 signature, never flagged); the v10.3.0 RePack folder is empty. Nothing outside the targeted
 folder was touched by the remediating scan.
 
+## 2026-09-16: `E:` crack stash quarantined, on Nathan's decision ("go ahead")
+
+`E:` was remounted (it had been dismounted since earlier on 09-16; see [[Machine drives]]) and a
+real, remediating scan run against the same four folders identified on 09-12/09-13:
+`E:\margrat`, `E:\tools`, `E:\programs installs`, `E:\New folder (2)`. Signatures updated first
+(1.459.223.0, no updates needed). Total run 04:29 to 06:52 (2h23m), detached and watched.
+
+**`margrat`, `tools` and `New folder (2)`: fully clean, verified.** Every named threat from the
+09-12/09-13 report and from this scan's own `Get-MpThreatDetection` log was checked against the
+actual file on disk (not just the "Cleaning finished" log line), and all are confirmed gone:
+`Trojan:Win32/OffLoader.PGOI!MTB` (Dr.Fone), `HackTool:Win32/KMSActivator!pz` (×2, FoneDog
+Android patch and `E:\tools\Patch.exe`), `Trojan:Win32/Vigorf.A` (ReiBoot keygen),
+`Trojan:Win32/Kepavll!rfn` (FoneDog iOS crack), `HackTool:Win32/crack` (HEU KMS Activator, and
+the margrat/`New folder (2)` AOMEI v10.3.0 copies), `HackTool:Win32/Keygen` (`E:\tools\Keygen.exe`,
+`New folder (2)\tools\Patch-iMazing.2.x.rar`), `HackTool:Win32/AutoKMS` (KMSAuto in the Office
+2016 activator rar).
+
+**`programs installs` (153 GB, 9723 files): Defender's own remediation partially failed, and its
+own success flags were not fully reliable.** The batch failed with
+`[Failed][0x800700df] The file size exceeds the limit allowed and cannot be saved`, a Defender
+quarantine size cap. Root cause found by direct verification: even where `Get-MpThreatDetection`
+logged `ActionSuccess: True`, some flagged items survived, apparently because Defender removed a
+loose extracted copy but left the archive container it came from. Every one of the 16 detected
+threat families was checked by direct file-existence test, not by trusting the log:
+
+- **Removed successfully by Defender itself**, confirmed gone: `Ransom:Win32/Cobra!pz` (the
+  SafeWallet keygen, the worst finding of the whole incident), the AOMEI 10.10.1 Repack `.rar`
+  and its extracted `TE.exe`, the AOMEI v10.3.0 exe, `Microsoft.Toolkit` activator zip, the
+  `Call.Recorder` spy-tool rar, the `SimCity Deluxe` modded APK, the ESET NOD32 pre-activated
+  installer, the FoneDog iOS crack exe, the `Handy.Apps.EasyMoney` keygen rar, and the loose
+  `KeyGen.exe`/`KeyGen1.exe` inside the Internet Download Accelerator keygen folder.
+- **Survived Defender's pass and moved by hand** into
+  `C:\Users\Fredy 2\QUARANTINE-2026-09-16-malware\E-programs-installs\` (moved not deleted, never
+  to be run), sizes logged at move time:
+  - `Autodesk AutoCAD Civil 3D 2018.0.2 (x64) FULL [www.Tech-Tools.ME.rar` — 6240.2 MB. This is
+    what tripped the size-limit failure; `HackTool:Win32/Keygen!pz` on the `xf-adsk2018_x64v3.exe`
+    keygen inside.
+  - Four Lucky Patcher v8.4.1 APKs (`Installer.apk`, `Installer (73).apk`, `Installer (153).apk`,
+    `Standalone (155).apk`), ~6 MB each, `Trojan:AndroidOS/LuckyPatcher!AMTB`.
+  - `Internet Download Accelerator...\Keygen.zip` (the archive itself, loose exes already
+    removed by Defender), `Trojan:Win32/Phonzy.A!ml`.
+  - `DigiDNA iMazing 2.10.3.0 Final + Patch.zip` (94.9 MB, the archive itself), containing the
+    `Patch-iMazing.2.x.rar` payload originally flagged under `HackTool:Win32/Keygen`.
+
+**New finding, not part of the approved scope, not acted on:** `E:\programs installs\apk mobile
+apps` holds **1,771 top-level items** (3,965 files, 32.4 GB total), of which only a handful were
+ever individually named by any scan. Browsing the names (large "Android Paid/Modded Apps" packs,
+`Netflix`/`MovieBox` mod APKs, a `Magisk` root tool, dozens of pirated 2010-2012-era mobile
+games) reads as a mass pirated-Android-app collection well beyond the original crack stash.
+Flagged for Nathan's decision rather than quarantined, since it was never part of the
+09-12/09-13 report or the "go ahead" given for the four named folders. Report-only scan of the
+whole folder launched to get a proper before-deciding picture; result pending.
+
 ## Related
 
 - [[Machine drives]]: the Surface's hardware, drives and the Serial Hub fault.
