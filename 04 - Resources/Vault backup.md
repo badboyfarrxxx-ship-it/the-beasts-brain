@@ -13,8 +13,8 @@ off-machine protection).
 
 | repo | local path | contents |
 |------|-----------|----------|
-| [`the-beasts-brain`](https://github.com/badboyfarrxxx-ship-it/the-beasts-brain) (private) | `C:\Users\badbo\The Beasts Brain` | the whole vault: every note, plus the stable `.obsidian/` config |
-| [`the-beast-agent`](https://github.com/badboyfarrxxx-ship-it/the-beast-agent) (private) | `C:\Users\badbo\my-agent` | `CLAUDE.md`, `.claude/settings.json`, and `tool-configs/` (copies of the three tool `.json` files) |
+| [`the-beasts-brain`](https://github.com/badboyfarrxxx-ship-it/the-beasts-brain) (private) | `C:\Users\Fredy 2\The Beasts Brain` | the whole vault: every note, plus the stable `.obsidian/` config |
+| [`the-beast-agent`](https://github.com/badboyfarrxxx-ship-it/the-beast-agent) (private) | `C:\Users\Fredy 2\my-agent` | `CLAUDE.md`, `.claude/settings.json`, and `tool-configs/` (copies of the three tool `.json` files) |
 
 GitHub account: `badboyfarrxxx-ship-it`.
 
@@ -31,6 +31,12 @@ kept as copies in `tool-configs/`, refreshed at each backup.
 (`the-beasts-brain` initial `81f8937`, `the-beast-agent` `94e880e`). Nathan
 authenticated `gh` with a web login, then the AI ran `gh repo create ... --source
 ... --push` for each. Local `main` tracks `origin/main` in both.
+
+**Cut off 2026-09-12, re-established 2026-09-16.** The GitHub logins were revoked in
+the [[Security incident 2026-09-12]], so pushes stopped at `2572cc9`. After the Surface
+rebuild (the account is now `Fredy 2`, not `badbo`), Nathan signed in again and pushed
+both repos himself: `the-beasts-brain` to `b7e4f45` (the 12 commits held back since
+09-12, plus a rebuild checkpoint), `the-beast-agent` to `fd8e579`.
 
 ## Committing changes
 
@@ -52,6 +58,10 @@ task or manual pushes, on the reasoning that a backup that isn't automatic goes
 stale. This is standing push authorization for these two private repos only. It
 does not extend to any other push, publish, or deploy.
 
+On the rebuilt Surface this only works when the Claude session has a working shell.
+As of 2026-09-16 the Claude desktop shell is failing on every command, so checkpoint
+pushes fall to Nathan until that's fixed.
+
 ## Not yet covered
 
 The backtalk voice line's local source edits (`backtalk/backtalk/mouth.py`,
@@ -61,6 +71,11 @@ tracked patch file or a fork is a separate open task.
 
 ## Tools
 
-- `gh` (GitHub CLI) 2.98.0, installed 2026-09-02 via `winget install GitHub.cli`,
-  at `C:\Program Files\GitHub CLI\gh.exe` (a freshly opened terminal has it on PATH).
-- Global git identity: `Nathan` / `badboyfarrxxx@gmail.com`.
+- Git for Windows, installed 2026-09-16 on the rebuilt Surface via
+  `winget install --id Git.Git`. Its bundled Git Credential Manager holds the GitHub
+  sign-in.
+- `gh` (GitHub CLI) is **not** installed on the rebuild. The old install had 2.98.0 from
+  2026-09-02. Nothing in the routine backup needs it; it was only used to create the
+  repos.
+- Global git identity: `Nathan` / `badboyfarrxxx@gmail.com`, set again 2026-09-16
+  after the rebuild.
