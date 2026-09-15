@@ -275,6 +275,16 @@ show nothing foreign. Clones leave no event, so read access cannot be ruled out.
      the only disk Setup can see. **After the install, the vault and `my-agent` come back from
      `H:\Surface backup 2026-09-12\`**: the vault's unpushed commits exist only there and on the
      old C:.
+   - **Pre-wipe additions to the H: backup (09-15):** final `/MIR` sync of the vault (408 files,
+     newest commit on H: matches C:), `my-agent` (606) and `.claude` (820, no credentials file);
+     Edge bookmarks (2; Chrome had none) in `browser-bookmarks\`; Nathan's **WSL Ubuntu disk**
+     from 09-13 (`ext4.vhdx`, 1,522,532,352 bytes, copy verified) in `wsl-linux\`. Claude
+     desktop's own sandbox VM (about 9 GB in AppData) was not kept, since it rebuilds itself.
+   - **Step-by-step instructions** for Nathan are in `H:\Surface backup 2026-09-12\REINSTALL STEPS.txt`,
+     also on the Lexar stick and sent to his phone. The stick also carries a Google-signed
+     `ChromeSetup.exe`, since tiny11 removes Edge. Key Surface-specific step: a Rufus stick
+     boots via `UEFI:NTFS`, signed by Microsoft's third-party CA, so Surface Secure Boot may
+     need "Microsoft & 3rd party CA" to boot it, set back to "Microsoft Only" afterwards.
    - **Alternatives researched 09-12:**
      - A **current tiny11 exists**: tiny11builder's September 2025 release is tested on 24H2
        and 25H2 and works with every edition, so a Home build would activate from the firmware
