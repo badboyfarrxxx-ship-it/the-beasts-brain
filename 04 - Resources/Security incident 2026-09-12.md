@@ -269,6 +269,12 @@ show nothing foreign. Clones leave no event, so read access cannot be ruled out.
      Rufus's log here dates from 09-08. **Conclusion: built off-Surface; the stick is
      trustworthy.** Remaining caveat: it's **Pro only**, and the Surface's firmware key is
      Home, so activation after install isn't guaranteed.
+   - **Install target (Nathan, 09-15): the Surface's internal 119 GB KIOXIA NVMe (disk 0),**
+     replacing the compromised Windows. Before the wipe: bookmarks and a final sync to H:,
+     Claude "log out everywhere", then unplug the Seagate and the SanDisk USB case so disk 0 is
+     the only disk Setup can see. **After the install, the vault and `my-agent` come back from
+     `H:\Surface backup 2026-09-12\`**: the vault's unpushed commits exist only there and on the
+     old C:.
    - **Alternatives researched 09-12:**
      - A **current tiny11 exists**: tiny11builder's September 2025 release is tested on 24H2
        and 25H2 and works with every edition, so a Home build would activate from the firmware
