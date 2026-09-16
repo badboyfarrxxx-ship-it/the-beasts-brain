@@ -444,6 +444,69 @@ dismissed on `D:`'s legitimate Git DLLs. Left in place, not quarantined.
 signatures flag anything (almost nothing does, one file out of 3,965), not whether the
 collection itself should be kept. That question is separate and still open.
 
+## 2026-09-16: the rest of `E:` scanned (~392 GB beyond the crack stash)
+
+`E:` turned out to hold far more than the four folders named in the 09-12/09-13 report. Full
+top-level inventory taken (27 folders, 8 loose root files, not already handled or previously
+confirmed clean): `SSD` (98.8 GB), `windows images-iso recovery` (57.6 GB), `FileHistory`
+(57.9 GB, the File History mirror already covered above), `torrents` (22.4 GB),
+`Books Dummies Series` (26.7 GB), `dash cam` (22.4 GB), `other` (40.9 GB), `pdfs` (40.2 GB),
+`pic` (7.2 GB), `realme 7 5g` (8.6 GB, a phone backup), five `nathanfarr*`-named folders,
+`ziped folders`, `Android`, plus several loose files including one nobody recognized,
+`PAssist_UnlDemo_20260828.24024978.exe`.
+
+Report-only scan (`-DisableRemediation`), signatures updated first, detached: 10:00 to 11:26
+(1h26m). **Almost entirely clean.** Only three locations had any finding, and `PAssist_UnlDemo`
+and every other loose root file came back clean.
+
+**5 confirmed named threats total, all quarantined, on Nathan's decision (same "go ahead"
+scope: this is more of the same crack/keygen/activator category already approved).**
+
+- **`FileHistory`: 2.** `Adware:Win32/Agent` and `HackTool:Win32/crack`, both **versioned File
+  History snapshots of files already known**: a 2026-09-01 snapshot of the same AOMEI 10.10.1
+  trojan repack already quarantined from `D:` and `programs installs`, and an orphaned
+  `$OF\78589\78595.exe`. Not new malware, just backup copies of what's already been dealt with
+  elsewhere.
+- **`SSD`: 2.** `HackTool:Win32/KMSActivator!pz` and `HackTool:Win32/Keygen`, both inside a
+  numbered-recovery `.exe` (`0024473.exe`, `0038780.exe`).
+- **`windows images-iso recovery`: 1.** `HackTool:Win32/AutoKMS`, `KMSAuto Net.exe` inside a
+  triple-nested duplicate folder (see below).
+- All 5 moved into `C:\Users\Fredy 2\QUARANTINE-2026-09-16-malware\E-rest-of-drive\`, moved not
+  deleted, confirmed gone from source.
+
+**Technique banked: paths over Windows' 260-character `MAX_PATH` limit.** The `windows images-
+iso recovery` find sat at a 319-character path, three identically-named folders deep (an
+"extract into itself" duplication of an Office 2016 + activator package). PowerShell's own
+cmdlets (`Get-ChildItem`, `Test-Path`, even raw `[System.IO.File]::Exists` with a `\\?\` prefix)
+could not see it at all under Windows PowerShell 5.1, since its .NET Framework base does not
+reliably support long paths even with the prefix; only Defender's own scanner, which uses lower-
+level APIs, could reach it. **Fix: `robocopy` has its own long-path handling and doesn't hit
+this limit.** `robocopy <source> <dest> /E /MOVE` moved the whole 4.47 GB, 87-file, 8-directory
+nested tree in 27 seconds; its own transfer summary (87/87 copied, 0 failed, bytes matched
+exactly) is the right way to verify success here, since PowerShell enumeration will keep failing
+at the same depth on either side of the move. Worth reaching for `robocopy` first, not last, any
+time a path this deep needs touching. In passing: that Office package included files named
+`stream.x64.x-none.dat.cobra` — an unsettling name-match with `Ransom:Win32/Cobra`, this
+incident's worst finding — but Defender's own scan of that exact folder looked at them and
+flagged nothing; very likely legitimate Office Click-to-Run streaming metadata, and moot either
+way now that the whole folder is quarantined.
+
+**`SSD` is not another crack stash; it's a whole-drive data-recovery dump from May 2026, and
+its remaining ~5,800 "Unknown" hits are a separate decision, not yet made.** Breakdown of the
+recovery set (`SSD\F__2026-05-07_010020\Recycle Bin\Other Missing Files\`, 48,645 files,
+98.8 GB total): `Videos` 56.24 GB, `Other files` 21.28 GB, `Compressed files` 11.69 GB, `Images`
+6.87 GB, `Documents` 2.13 GB, `Audios` 0.5 GB, `Webpages` 0.13 GB. Two-thirds of it, by size, is
+ordinary recovered personal media and documents. The ~5,800 "Unknown" (reputation-only, no named
+threat) hits are concentrated in `Compressed files` and `Other files`, which together hold
+thousands of individually obscure recovered `.exe`/archive fragments with no established cloud
+reputation, the same low-confidence-noise pattern already seen and dismissed on `D:`'s Git DLLs
+and `apk mobile apps`'s app internals, just at a much larger scale here. Not verified
+individually (that many files is not practical to hand-check), and not touched. **This is
+Nathan's call, same as `apk mobile apps`**: leave it, do something else, or wipe it.
+
+**`E:` is still mounted and not yet re-isolated.** Needs `mountvol E: /P` from an elevated
+prompt once Nathan is done with it.
+
 ## Related
 
 - [[Machine drives]]: the Surface's hardware, drives and the Serial Hub fault.
