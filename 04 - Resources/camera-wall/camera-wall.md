@@ -41,13 +41,66 @@ battery.
    with it off, and Tapo, Reolink and EZVIZ each want a separate camera account
    or verification code rather than the app login.
 3. `npm run discover` — ONVIF multicast probe plus a port sweep, writes
-   `discovered.json` with the brand guessed from each MAC address.
+   `discovered.json` with the brand guessed from each MAC address. For any
+   camera whose brand is unclear, `npm run probe -- --host <ip> --user <u>
+   --pass <p>` finds its stream URL by trying the known ones.
 4. Fill usernames and passwords into `cameras.json` (gitignored, `chmod 600`).
    Secrets can be written `"env:VAR_NAME"` and kept in the environment instead —
    worth doing here given [[Security incident 2026-09-12]].
 5. `npm run check` — says per camera whether it answers, what codec it sends,
    and what is wrong when it does not.
 6. `npm start`, open `http://127.0.0.1:8480`, set a password on first run.
+
+## The four apps in this house
+
+Asked on 2026-09-19: eufy, Yi IoT, "Smart home", and VicoHome. They land in
+three different places, and only one of them is easy.
+
+**eufy — works locally.** Switch RTSP on per camera in the eufy app (camera
+Settings > General or Advanced > RTSP, sometimes called NVR Mode), and set a
+username and password on that screen. The app prints the URL. Wired indoor cams
+stream from the camera's own IP; anything paired to a HomeBase streams from the
+HomeBase IP instead. Battery models with no RTSP toggle need eufy-security-ws or
+Scrypted in front of them. Brand key: `eufy`.
+
+**Yi IoT — usually needs firmware.** Stock YI IoT has no RTSP on most models.
+The fix is the yi-hack firmware on an SD card — `yi-hack-v4`, `yi-hack-MStar` or
+`yi-hack-allwinner` depending on the chipset — which then serves
+`/ch0_0.h264` (main) and `/ch0_1.h264` (sub). A few YI IoT rebadges do have an
+RTSP switch in the app, so probe before reflashing anything. Brand key: `yi`.
+
+**"Smart home" — a coin flip, and worth one minute to settle.** If it is the
+Tuya platform (the app is usually called Smart Life, Tuya Smart or Smart Home,
+and pairs devices by QR code), the same boards ship under hundreds of names:
+many are cloud P2P only, plenty answer RTSP or ONVIF on the LAN, sometimes after
+a switch called ONVIF or Local RTSP. `probe` tells you which. If nothing
+answers, `tuya-ipc-terminal` bridges Tuya's local P2P to RTSP without the cloud.
+Brand key: `tuya` (`smartlife` and `smarthome` are aliases). If the app turns out
+to be something else — SmartThings, or a vendor's own "Smart Home" — say so and
+this gets a proper entry.
+
+**VicoHome — almost certainly not.** The battery models send video to VicoHome's
+cloud and it only comes back through their app; there is no published local API.
+It gets a link tile that says so. Worth one probe run in case a given unit is a
+mains-powered rebadge with RTSP underneath. Brand key: `vicohome`.
+
+## Finding the URL when the brand is a dead end
+
+`node bin/camera-wall.js probe --host 192.168.1.60 --user admin --pass secret`
+
+Tries 32 known stream paths (both common ports, three at a time so a cheap
+camera does not fall over), prints every one that answers with its codec and
+resolution, and ends with a config entry ready to paste. This is the answer for
+the rebadged half of the market, where the brand on the box tells you nothing
+about the firmware inside. When it finds nothing, the camera genuinely has no
+local stream and the options are a bridge or a different camera.
+
+Not implemented on purpose: ONVIF `GetStreamUri`, which would ask an ONVIF
+camera for its URL directly. It needs WS-Security auth that cannot be verified
+here without a real camera on the network, and a wrong implementation would
+report false negatives. The path probe covers the same ground by measurement
+rather than by protocol, so it is the honest version until there is hardware to
+test against.
 
 ## What cannot be shown, and why
 
@@ -80,6 +133,9 @@ against real hardware:
   itself when plugged back in, with no page reload.
 - Password setup, sign-in, sign-out, the rate limit and the WebSocket auth
   rejection all behave.
+- The path prober finds both streams on a camera, picks main and sub by
+  resolution, and prints a paste-ready config entry (tested against a stubbed
+  camera, and against a dead host for the nothing-found path).
 
 Not verified: live H.264 playback in the browser, because the headless Chromium
 in the build environment has no H.264 decoder. Everything up to the decoder was

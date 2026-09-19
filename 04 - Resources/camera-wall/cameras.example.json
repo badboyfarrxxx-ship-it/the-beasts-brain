@@ -22,36 +22,38 @@
   },
   "cameras": [
     {
-      "id": "front-door",
-      "name": "Front Door",
-      "brand": "tapo",
+      "id": "living-room",
+      "name": "Living Room",
+      "brand": "eufy",
       "host": "192.168.1.51",
-      "username": "camerawall",
-      "password": "env:TAPO_PASS"
+      "username": "eufy",
+      "password": "env:EUFY_RTSP_PASS",
+      "note": "RTSP switched on in the eufy app; username and password are the ones set on that screen."
     },
     {
-      "id": "driveway",
-      "name": "Driveway",
-      "brand": "reolink",
+      "id": "back-door",
+      "name": "Back Door",
+      "brand": "tuya",
       "host": "192.168.1.52",
       "username": "admin",
-      "password": "env:REOLINK_PASS",
-      "audio": true
+      "password": "env:TUYA_CAM_PASS",
+      "note": "Smart Life / Smart Home camera. If it never connects, run: npm run probe -- --host 192.168.1.52"
     },
     {
-      "id": "shed",
-      "name": "Shed",
-      "brand": "generic",
-      "url": "rtsp://admin:secret@192.168.1.53:554/onvif1",
-      "subUrl": "rtsp://admin:secret@192.168.1.53:554/onvif2",
-      "mode": "auto"
+      "id": "landing",
+      "name": "Landing",
+      "brand": "yi",
+      "host": "192.168.1.53",
+      "username": "admin",
+      "password": "env:YI_CAM_PASS",
+      "note": "Yi IoT camera. Stock firmware usually has no RTSP; this path is what yi-hack serves."
     },
     {
-      "id": "doorbell",
-      "name": "Doorbell",
-      "brand": "ring",
+      "id": "front-garden",
+      "name": "Front Garden",
+      "brand": "vicohome",
       "type": "link",
-      "note": "Ring has no local stream. This tile opens the Ring web app."
+      "note": "VicoHome battery camera: no local stream, so this tile opens their app."
     }
   ]
 }

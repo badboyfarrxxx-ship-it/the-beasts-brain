@@ -44,6 +44,10 @@ export const BRANDS = {
     snapshotAuth: 'digest',
   },
   annke: { alias: 'hikvision', label: 'Annke (Hikvision OEM)' },
+  smartlife: { alias: 'tuya', label: 'Smart Life (Tuya app)' },
+  smarthome: { alias: 'tuya', label: 'Smart Home (Tuya app)' },
+  yiiot: { alias: 'yi', label: 'Yi IoT' },
+  kami: { alias: 'yi', label: 'Kami (YI brand)' },
   lorex: { alias: 'hikvision', label: 'Lorex (Hikvision OEM; some models are Dahua OEM)' },
   dahua: {
     label: 'Dahua',
@@ -103,7 +107,28 @@ export const BRANDS = {
     label: 'Eufy / Anker',
     port: 554,
     main: 'rtsp://{user}:{pass}@{host}:{port}/live0',
-    note: 'Only the models with "RTSP" in HomeBase settings. The rest need eufy-security-ws or Scrypted to bridge them.',
+    sub: 'rtsp://{user}:{pass}@{host}:{port}/live1',
+    note: 'Turn on RTSP per camera in the eufy app (camera Settings > General/Advanced > RTSP or NVR Mode); it prints the URL and you set the username and password there. Wired indoor cams stream from the camera IP; HomeBase-paired cams stream from the HomeBase IP. Battery models that offer no RTSP toggle need eufy-security-ws or Scrypted.',
+  },
+  yi: {
+    label: 'YI / Yi IoT / Kami',
+    port: 554,
+    main: 'rtsp://{user}:{pass}@{host}:{port}/ch0_0.h264',
+    sub: 'rtsp://{user}:{pass}@{host}:{port}/ch0_1.h264',
+    note: 'Stock YI IoT firmware has no RTSP on most models: it needs the yi-hack firmware (yi-hack-v4 / yi-hack-MStar / yi-hack-allwinner, chosen by chipset) on an SD card, which then serves this path. A few YI IoT rebadges do have an RTSP toggle in the app. Run "probe" against the camera before assuming either way.',
+  },
+  tuya: {
+    label: 'Tuya / Smart Life / Smart Home',
+    port: 554,
+    main: 'rtsp://{user}:{pass}@{host}:{port}/stream1',
+    sub: 'rtsp://{user}:{pass}@{host}:{port}/stream2',
+    note: 'The Tuya platform sells the same hardware under hundreds of names. Most are cloud P2P only, but a fair number answer RTSP or ONVIF on the LAN, sometimes after an "ONVIF" or "Local RTSP" switch in the app. Run "probe" — it settles it in a minute. If nothing answers, tuya-ipc-terminal (local P2P to RTSP) or Home Assistant is the bridge.',
+  },
+  vicohome: {
+    cloudOnly: true,
+    label: 'VicoHome / Vicoo',
+    appUrl: 'https://www.vicohome.io/',
+    bridge: 'No local stream: the video only comes back through the VicoHome app.',
   },
   // Cloud-only: these brands deliberately expose no local stream. Listed so the
   // app can say why instead of failing silently.

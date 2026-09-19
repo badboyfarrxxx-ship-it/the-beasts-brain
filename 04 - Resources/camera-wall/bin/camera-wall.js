@@ -8,7 +8,14 @@ import { locate, version, probe } from '../src/ffmpeg.js';
 import { hashPassword } from '../src/auth.js';
 import { brandList, buildUrls } from '../src/brands.js';
 import { localSubnets, onvifProbe, sweep, arpTable, vendorFor, guessBrand } from '../src/discover.js';
+import { probeHost, pickStreams, CANDIDATE_PATHS } from '../src/probe.js';
 import { setLevel } from '../src/log.js';
+
+// Piping output into `head` or `more` closes stdout early; that is not a crash.
+stdout.on('error', (err) => {
+  if (err.code === 'EPIPE') process.exit(0);
+  throw err;
+});
 
 const args = process.argv.slice(2);
 const command = args[0] || 'start';
@@ -175,6 +182,71 @@ const COMMANDS = {
     say('Fill in the usernames and passwords, paste the entries into cameras.json, then run: npm run check');
   },
 
+  // Finds the stream URL of a camera whose brand you do not know, by trying the
+  // paths the cheap-camera world actually uses.
+  async probe() {
+    const host = flags.host || flags._[0];
+    if (!host) {
+      return say('Which camera? e.g. node bin/camera-wall.js probe --host 192.168.1.60 --user admin --pass secret');
+    }
+    const config = safeLoad() || {};
+    const { ffprobe } = await locate(config);
+    if (!ffprobe) return say('ffprobe not found. Install ffmpeg first: winget install Gyan.FFmpeg');
+
+    const ports = flags.port ? [Number(flags.port)] : [554, 8554];
+    say(`Trying ${CANDIDATE_PATHS.length} known stream paths on ${host}, ports ${ports.join(' and ')}.`);
+    say('A minute or two, depending on how slow the camera is to say no.');
+    say('');
+
+    const hits = await probeHost(config, {
+      host,
+      ports,
+      username: flags.user,
+      password: flags.pass,
+      onResult: ({ ok, path, port, info, done, total }) => {
+        if (ok) {
+          const v = info.video;
+          stdout.write('\r\u001b[2K'); // wipe the progress counter first
+          say(`  FOUND  :${port}${path}  ${v.codec} ${v.width}x${v.height}`);
+        } else if (done % 8 === 0 || done === total) {
+          stdout.write(`\r  tried ${done}/${total}`);
+        }
+      },
+    });
+    stdout.write('\n');
+
+    if (!hits.length) {
+      say('');
+      say('Nothing answered. That means one of:');
+      say('  - RTSP is off in the app, or needs a switch called ONVIF / Local RTSP / NVR Mode');
+      say('  - the username and password are wrong (many cameras want a separate camera account)');
+      say('  - this camera is cloud-only and has no local stream at all (VicoHome, Ring, Blink, Nest, Arlo)');
+      say('  - the camera is on a different network from this machine (guest or IoT wifi)');
+      return;
+    }
+
+    const picked = pickStreams(hits);
+    say('');
+    say('Working streams:');
+    for (const hit of hits) {
+      const v = hit.info.video;
+      say(`  ${String(hit.port).padEnd(5)} ${hit.path.padEnd(34)} ${v.codec} ${v.width}x${v.height}   (${hit.hint})`);
+    }
+    say('');
+    say('Config entry for this camera:');
+    const entry = {
+      id: flags.id || `camera-${host.split('.').pop()}`,
+      name: flags.name || `Camera ${host.split('.').pop()}`,
+      url: picked.main.url.replace(/:\/\/[^@/]+@/, '://USER:PASS@'),
+    };
+    if (picked.sub) entry.subUrl = picked.sub.url.replace(/:\/\/[^@/]+@/, '://USER:PASS@');
+    say(JSON.stringify(entry, null, 2));
+    if (!picked.sub) {
+      say('');
+      say('Only one stream found, so the grid and the full-size view both use it.');
+    }
+  },
+
   async 'set-password'() {
     const config = loadConfig(flags.config);
     const password = await ask('New password: ', { silent: true });
@@ -218,6 +290,9 @@ const COMMANDS = {
         Find cameras on this network and write discovered.json.
   check
         Test ffmpeg and every configured camera, and say what is wrong with the ones that fail.
+  probe --host 192.168.1.60 [--user admin --pass secret] [--port 554]
+        Try every known stream path against one camera and print the ones that work.
+        This is the answer for a rebadged camera whose brand you cannot identify.
   set-password
         Set the password for the web page.
   brands

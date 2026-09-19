@@ -44,7 +44,9 @@ camera ──RTSP──> ffmpeg ──fragmented MP4──> WebSocket ──> br
 4. **Write `cameras.json`.** Copy `cameras.example.json`, paste in the
    discovered entries, add usernames and passwords.
 5. **`npm run check`** tells you, per camera, whether it answers and what codec
-   it sends. Fix anything it flags before opening the page.
+   it sends. For any camera it cannot reach, `npm run probe -- --host <ip>
+   --user <u> --pass <p>` tries 32 known stream paths and prints the ones that
+   work, with a config entry ready to paste.
 6. **`npm start`**, open the address, set a password on first run.
 
 ## cameras.json
@@ -77,6 +79,19 @@ camera ──RTSP──> ffmpeg ──fragmented MP4──> WebSocket ──> br
 Any secret can be written as `"env:VARIABLE_NAME"` and read from the
 environment instead of sitting in the file.
 
+## The four app ecosystems in this house
+
+| app | what actually happens |
+|---|---|
+| **eufy** | Works locally. Switch RTSP on per camera in the eufy app (camera Settings > General or Advanced > RTSP / NVR Mode) and set a username and password there — that screen prints the URL. Wired indoor cams stream from the camera's own IP; cams paired to a HomeBase stream from the HomeBase IP. Battery models with no RTSP toggle need eufy-security-ws or Scrypted. |
+| **Yi IoT** | Usually needs firmware. Stock YI IoT has no RTSP on most models; the yi-hack firmware (yi-hack-v4, yi-hack-MStar or yi-hack-allwinner, picked by chipset) on an SD card adds it, and then `/ch0_0.h264` is the stream. A few YI IoT rebadges do have an RTSP switch in the app. `probe` settles which one you have. |
+| **Smart Home / Smart Life (Tuya)** | Coin flip. The Tuya platform sells the same boards under hundreds of names. Many are cloud P2P only, but plenty answer RTSP or ONVIF on the LAN, sometimes after a switch called ONVIF or Local RTSP. `probe` answers it in a minute. If nothing answers, tuya-ipc-terminal bridges Tuya's local P2P to RTSP. |
+| **VicoHome** | Almost certainly not. The battery models send video to VicoHome's cloud and it comes back only through their app; there is no published local API. Run `probe` once in case yours is a mains-powered rebadge, then give it a link tile. |
+
+Rule of thumb for all four: if `probe` finds nothing, the camera is not being
+stubborn, it genuinely has no local stream — and the fix is a bridge
+(Scrypted, go2rtc, Home Assistant) or a different camera.
+
 ## The cameras that cannot be shown
 
 Ring, Blink, Nest and Arlo have no local stream at all — the video goes to the
@@ -107,6 +122,7 @@ cameras — streams directly once RTSP is switched on.
 | `npm start` | run the wall. `-- --port 9000 --host 0.0.0.0 --verbose` are accepted. |
 | `npm run check` | test ffmpeg and every camera, and explain each failure. |
 | `npm run discover` | find cameras on the network, write `discovered.json`. |
+| `npm run probe -- --host 192.168.1.60 --user admin --pass x` | try every known stream path against one camera and print the ones that answer. This is how you identify a rebadged camera. |
 | `npm run set-password` | change the web password. |
 | `node bin/camera-wall.js brands` | list brands, their quirks, and which are cloud-only. |
 | `node bin/camera-wall.js url --brand reolink --host 192.168.1.50 --user admin --pass x` | print the URLs for a brand. |
@@ -125,7 +141,7 @@ without touching the config.
 |---|---|
 | "camera rejected the username or password" | Tapo and Reolink want a separate camera account, not the app login. |
 | "connection refused" | RTSP is off in the vendor app, or the port is not 554. |
-| "wrong stream path for this model" | try another `brand`, or paste the real URL into `url`. |
+| "wrong stream path for this model" | run `probe` against it and paste the URL it finds into `url`. |
 | "camera did not answer" | wrong IP, or the camera is on a different wifi (guest/IoT network). |
 | tile says `re-encoded` | the camera sends H.265. Working as intended, but it costs CPU — switch the camera to H.264 in its app if you can. |
 | "ffmpeg not found" | `winget install Gyan.FFmpeg`, then a new terminal. |

@@ -10,6 +10,7 @@
     "start": "node bin/camera-wall.js start",
     "discover": "node bin/camera-wall.js discover",
     "check": "node bin/camera-wall.js check",
+    "probe": "node bin/camera-wall.js probe",
     "set-password": "node bin/camera-wall.js set-password"
   }
 }
