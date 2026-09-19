@@ -122,7 +122,7 @@ export const BRANDS = {
     port: 6554,
     main: 'rtsp://{user}:{pass}@{host}:{port}/stream0',
     sub: 'rtsp://{user}:{pass}@{host}:{port}/stream1',
-    note: 'In the app: camera Settings > look for "ONVIF" or "Onvif Switch", turn it on, then Reset Password and set one with a capital letter in it. The username is always admin, never your Smart Life login. Port is usually 6554, sometimes 8554 or 554, and the path varies by manufacturer — set "url": "auto" and the app finds it. Models with no ONVIF switch are cloud-only and need go2rtc as a bridge.',
+    note: 'In the app: camera Settings > look for "ONVIF" or "Onvif Switch", turn it on, then Reset Password and set one with a capital letter in it. The username is always admin, never your Smart Life login. Port is usually 6554, sometimes 8554 or 554, and the path varies by manufacturer — set "url": "auto" and the app finds it. Models with no ONVIF switch are cloud-only: go2rtc can bridge them, but its Tuya source needs a Tuya Smart account, not a Smart Life one.',
   },
   vicohome: {
     cloudOnly: true,
@@ -130,6 +130,14 @@ export const BRANDS = {
     appUrl: 'https://www.vicohome.io/',
     bridge: 'No local stream: the video only comes back through the VicoHome app.',
   },
+  go2rtc: {
+    label: 'go2rtc bridge',
+    port: 8554,
+    main: 'rtsp://{host}:{port}/{path}',
+    sub: 'rtsp://{host}:{port}/{path}',
+    note: 'For a camera reached through go2rtc rather than directly. Set host to the machine running go2rtc (127.0.0.1 if it is this one) and path to the stream name from go2rtc.yaml. Define a second go2rtc stream ending _sub and point subUrl at it if you want a cheaper grid tile.',
+  },
+
   // Cloud-only: these brands deliberately expose no local stream. Listed so the
   // app can say why instead of failing silently.
   ring:  { cloudOnly: true, label: 'Ring',  appUrl: 'https://account.ring.com/',            bridge: 'Scrypted or go2rtc (unofficial, breaks when Ring changes its API)' },

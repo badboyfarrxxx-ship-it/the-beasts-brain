@@ -95,28 +95,53 @@ different camera.
 
 ### Bridging a cloud-only Tuya camera with go2rtc
 
-[go2rtc](https://github.com/AlexxIT/go2rtc) has a native Tuya source that logs
-in with your Smart Life account and pulls the camera's stream without the ONVIF
-switch. It is a single .exe on Windows, and it re-serves anything it can reach
-as ordinary RTSP, which is exactly what this app wants.
+[go2rtc](https://github.com/AlexxIT/go2rtc) has a native Tuya source and
+re-serves the camera as ordinary RTSP, which is what this app wants. It is a
+single .exe on Windows with one YAML file.
 
-`go2rtc.yaml` next to the exe:
+**Read this first: go2rtc's Tuya source does not accept Smart Life accounts.**
+Its own README says so outright — you need a **Tuya Smart** account (same
+company, different app), and the camera has to be removed from Smart Life and
+re-added in Tuya Smart. That is the cost of this route, and it is worth knowing
+before you start rather than after.
+
+Two ways in:
+
+**1. Tuya Smart account** — simpler, no developer account, nothing to renew:
 
 ```yaml
 streams:
-  back_door: tuya://m1.tuyaeu.com?device_id=DEVICE_ID&email=YOU@EXAMPLE.COM&password=YOUR_SMART_LIFE_PASSWORD
+  back_door: tuya://protect-us.ismartlife.me?device_id=DEVICE_ID&email=YOU@EXAMPLE.COM&password=TUYA_SMART_PASSWORD
+  back_door_sub: tuya://protect-us.ismartlife.me?device_id=DEVICE_ID&email=YOU@EXAMPLE.COM&password=TUYA_SMART_PASSWORD&resolution=sd
 ```
 
-Use the regional host your account is on (`m1.tuyaeu.com`, `m1.tuyaus.com`,
-`m1.tuyacn.com`). The device id comes from the Smart Life app under the
-camera's Device Information. Then point a camera here at the bridge:
+Region hosts: `protect-eu` (Europe central), `protect-we` (Europe west),
+`protect-us` (America west), `protect-ue` (America east), `protect-in` (India),
+`protect` (China) — all `.ismartlife.me`. Easier than guessing: go2rtc's own web
+interface has **Add → Tuya**, which signs in and prints the URL for each camera.
+`resolution=sd` gives the low-resolution stream, which is what grid tiles want.
+
+**2. Tuya IoT Platform (Cloud API)** — keeps the camera paired in Smart Life,
+but needs a developer project, an app-account link, and a subscription to the
+**IoT Video Live Stream** service (a free trial that has to be renewed, which is
+the catch):
+
+```yaml
+streams:
+  back_door: tuya://openapi.tuyaus.com?device_id=DEVICE_ID&uid=UID&client_id=CLIENT_ID&client_secret=CLIENT_SECRET
+```
+
+Either way the camera entry here just points at the bridge:
 
 ```json
-{ "id": "back-door", "name": "Back Door", "url": "rtsp://127.0.0.1:8554/back_door" }
+{ "id": "back-door", "name": "Back Door", "brand": "go2rtc", "host": "127.0.0.1", "path": "back_door" }
 ```
 
-go2rtc also has an `onvif://` source that asks a camera for its current stream
-path, which is another way at the models whose path moves.
+**go2rtc.yaml holds an account password in plain text.** Keep it outside this
+repo, or anywhere else that gets committed or synced.
+
+go2rtc also has an `onvif://` source, which is another route to a camera whose
+stream path moves.
 
 ## The cameras that cannot be shown
 

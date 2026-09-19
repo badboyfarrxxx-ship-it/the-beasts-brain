@@ -87,20 +87,34 @@ mains-powered rebadge with RTSP underneath. Brand key: `vicohome`.
 
 ## Bridging a cloud-only Tuya camera
 
-go2rtc (single .exe on Windows, one YAML file) has a native Tuya source that
-signs in with the Smart Life account itself, so it reaches cameras that never
-expose ONVIF, and re-serves them as ordinary RTSP:
+go2rtc (single .exe on Windows, one YAML file) has a native Tuya source and
+re-serves the camera as plain RTSP.
+
+**Its Tuya source does not accept Smart Life accounts** — go2rtc's own README
+states this, and the camera has to be removed from Smart Life and re-added in
+the **Tuya Smart** app. Checked 2026-09-19 against the source and README after
+an earlier session claimed otherwise from memory.
 
 ```yaml
 streams:
-  back_door: tuya://m1.tuyaeu.com?device_id=DEVICE_ID&email=YOU@EXAMPLE.COM&password=SMART_LIFE_PASSWORD
+  back_door: tuya://protect-us.ismartlife.me?device_id=ID&email=YOU@EXAMPLE.COM&password=TUYA_SMART_PASSWORD
+  back_door_sub: tuya://protect-us.ismartlife.me?device_id=ID&email=…&password=…&resolution=sd
 ```
 
-Regional host as appropriate (`m1.tuyaeu.com`, `m1.tuyaus.com`,
-`m1.tuyacn.com`); the device id is in the Smart Life app under the camera's
-Device Information. The camera entry here then just points at
-`rtsp://127.0.0.1:8554/back_door`. go2rtc also has an `onvif://` source, which
-is another route to a camera whose path moves.
+Region hosts are `protect-eu`, `protect-we`, `protect-us`, `protect-ue`,
+`protect-in` and `protect`, all on `.ismartlife.me`. go2rtc's web interface has
+**Add > Tuya**, which signs in and prints the right URL, which beats guessing
+the region.
+
+The alternative keeps the Smart Life pairing but needs a Tuya IoT Platform
+project, an app-account link and a subscription to the IoT Video Live Stream
+service (free trial, needs renewing):
+`tuya://openapi.tuyaus.com?device_id=ID&uid=UID&client_id=ID&client_secret=SECRET`.
+
+The camera entry here then uses the `go2rtc` brand:
+`{ "brand": "go2rtc", "host": "127.0.0.1", "path": "back_door" }`.
+`go2rtc.yaml` holds an account password in plain text, so it stays out of this
+repo.
 
 ## "url": "auto"
 
