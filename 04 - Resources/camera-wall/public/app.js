@@ -236,6 +236,7 @@ function labelFor(state) {
     idle: 'Not connected',
     connecting: 'Connecting…',
     starting: 'Connecting…',
+    searching: 'Looking for this camera\u2019s stream…',
     retrying: 'Camera unreachable — retrying',
     error: 'Camera unreachable',
     cloud: 'Cloud-only camera',

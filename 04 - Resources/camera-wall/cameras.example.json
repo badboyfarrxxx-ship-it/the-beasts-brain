@@ -36,8 +36,9 @@
       "brand": "tuya",
       "host": "192.168.1.52",
       "username": "admin",
-      "password": "env:TUYA_CAM_PASS",
-      "note": "Smart Life / Smart Home camera. If it never connects, run: npm run probe -- --host 192.168.1.52"
+      "password": "env:TUYA_ONVIF_PASS",
+      "note": "Smart Life camera. ONVIF switched on in the app, password reset there (needs a capital letter). \"url\": \"auto\" finds the port and path, because Tuya models differ and some change it after a reboot.",
+      "url": "auto"
     },
     {
       "id": "landing",
@@ -46,7 +47,8 @@
       "host": "192.168.1.53",
       "username": "admin",
       "password": "env:YI_CAM_PASS",
-      "note": "Yi IoT camera. Stock firmware usually has no RTSP; this path is what yi-hack serves."
+      "note": "Yi IoT camera running yi-hack. \"url\": \"auto\" finds the path; without the hack firmware there is no local stream to find.",
+      "url": "auto"
     },
     {
       "id": "front-garden",

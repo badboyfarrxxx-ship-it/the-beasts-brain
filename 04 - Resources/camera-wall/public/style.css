@@ -204,7 +204,8 @@ button:focus-visible, select:focus-visible, input:focus-visible, .tile:focus-vis
 .tile[data-state="live"] .dot { background: var(--ok); }
 .tile[data-state="connecting"] .dot,
 .tile[data-state="starting"] .dot,
-.tile[data-state="retrying"] .dot { background: var(--warn); }
+.tile[data-state="retrying"] .dot,
+.tile[data-state="searching"] .dot { background: var(--warn); }
 .tile[data-state="error"] .dot { background: var(--bad); }
 .tile[data-state="cloud"] .dot { background: var(--accent); }
 

@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { Fmp4Splitter } from './mp4.js';
 import { locate, probe, fmp4Args, mjpegArgs } from './ffmpeg.js';
+import { resolveCamera, cachedUrls } from './resolver.js';
 import { logger } from './log.js';
 
 const log = logger('stream');
@@ -39,6 +40,7 @@ class BaseStream extends EventEmitter {
     clearTimeout(this.idleTimer);
     this.idleTimer = null;
     if (this.state === 'idle' || this.state === 'error') this.start();
+    else if (this.state === 'searching') { /* already looking */ }
     else this.primeSubscriber(subscriber);
     this.emitStatus();
     return () => this.unsubscribe(subscriber);
@@ -78,6 +80,32 @@ class BaseStream extends EventEmitter {
     };
   }
 
+  // A camera on "url": "auto" has no URL until it is found. Two failures in a
+  // row means the remembered path has gone stale, so look again.
+  async ensureUrl() {
+    const cam = this.cam;
+    if (!cam.autoResolve) return true;
+    const stale = this.failures >= 2;
+    if (cam.urls?.main && !stale) return true;
+
+    if (!stale) {
+      const hit = cachedUrls(this.manager.config, cam);
+      if (hit) {
+        cam.urls = hit;
+        return true;
+      }
+    }
+
+    this.setState('searching');
+    const found = await resolveCamera(this.manager.config, cam, { force: stale });
+    if (!found) {
+      this.setState('error', 'no stream found on this camera — run "probe" against it');
+      return false;
+    }
+    cam.urls = found;
+    return true;
+  }
+
   async start() {
     if (this.child || this.retryTimer) return;
     const { ffmpeg } = await locate(this.manager.config);
@@ -87,6 +115,7 @@ class BaseStream extends EventEmitter {
     }
     let args;
     try {
+      if (!(await this.ensureUrl())) return;
       args = await this.buildArgs();
     } catch (e) {
       this.setState('error', e.message);

@@ -8,7 +8,8 @@ import { locate, version, probe } from '../src/ffmpeg.js';
 import { hashPassword } from '../src/auth.js';
 import { brandList, buildUrls } from '../src/brands.js';
 import { localSubnets, onvifProbe, sweep, arpTable, vendorFor, guessBrand } from '../src/discover.js';
-import { probeHost, pickStreams, CANDIDATE_PATHS } from '../src/probe.js';
+import { probeHost, pickStreams, CANDIDATE_PATHS, DEFAULT_PORTS } from '../src/probe.js';
+import { resolveCamera, cachedUrls } from '../src/resolver.js';
 import { setLevel } from '../src/log.js';
 
 // Piping output into `head` or `more` closes stdout early; that is not a crash.
@@ -86,6 +87,8 @@ const COMMANDS = {
   },
 
   async check() {
+    // check prints its own per-camera status; the log lines just interleave.
+    if (!flags.verbose) setLevel('warn');
     const config = safeLoad();
     const { ffmpeg, ffprobe } = await locate(config || {});
     say(`ffmpeg:  ${ffmpeg || 'NOT FOUND — winget install Gyan.FFmpeg'}`);
@@ -104,6 +107,16 @@ const COMMANDS = {
         continue;
       }
       stdout.write(`  ${cam.name.padEnd(22)} checking… `);
+      if (cam.autoResolve) {
+        const known = cachedUrls(config, cam);
+        const found = known || (await resolveCamera(config, cam));
+        if (!found) {
+          say('NO STREAM FOUND — probed every known path and port, nothing answered');
+          continue;
+        }
+        cam.urls = found;
+        stdout.write(`found ${found.main.replace(/:\/\/[^@/]*@/, '://')} … `);
+      }
       const info = await probe(config, cam.urls.sub || cam.urls.main, cam.transport, 15000);
       if (!info) {
         say('NO ANSWER — wrong IP, wrong password, or RTSP is off in the app');
@@ -193,9 +206,8 @@ const COMMANDS = {
     const { ffprobe } = await locate(config);
     if (!ffprobe) return say('ffprobe not found. Install ffmpeg first: winget install Gyan.FFmpeg');
 
-    const ports = flags.port ? [Number(flags.port)] : [554, 8554];
-    say(`Trying ${CANDIDATE_PATHS.length} known stream paths on ${host}, ports ${ports.join(' and ')}.`);
-    say('A minute or two, depending on how slow the camera is to say no.');
+    const ports = flags.port ? [Number(flags.port)] : DEFAULT_PORTS;
+    say(`Checking ports ${ports.join(', ')} on ${host}, then trying ${CANDIDATE_PATHS.length} known stream paths on whichever answer.`);
     say('');
 
     const hits = await probeHost(config, {
@@ -203,6 +215,13 @@ const COMMANDS = {
       ports,
       username: flags.user,
       password: flags.pass,
+      onPorts: (open, tried) => {
+        if (!open.length) {
+          say(`  no RTSP port open (tried ${tried.join(', ')})`);
+          return;
+        }
+        say(`  open: ${open.join(', ')} — probing ${CANDIDATE_PATHS.length} paths on each`);
+      },
       onResult: ({ ok, path, port, info, done, total }) => {
         if (ok) {
           const v = info.video;

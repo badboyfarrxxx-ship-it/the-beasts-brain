@@ -119,10 +119,10 @@ export const BRANDS = {
   },
   tuya: {
     label: 'Tuya / Smart Life / Smart Home',
-    port: 554,
-    main: 'rtsp://{user}:{pass}@{host}:{port}/stream1',
-    sub: 'rtsp://{user}:{pass}@{host}:{port}/stream2',
-    note: 'The Tuya platform sells the same hardware under hundreds of names. Most are cloud P2P only, but a fair number answer RTSP or ONVIF on the LAN, sometimes after an "ONVIF" or "Local RTSP" switch in the app. Run "probe" — it settles it in a minute. If nothing answers, tuya-ipc-terminal (local P2P to RTSP) or Home Assistant is the bridge.',
+    port: 6554,
+    main: 'rtsp://{user}:{pass}@{host}:{port}/stream0',
+    sub: 'rtsp://{user}:{pass}@{host}:{port}/stream1',
+    note: 'In the app: camera Settings > look for "ONVIF" or "Onvif Switch", turn it on, then Reset Password and set one with a capital letter in it. The username is always admin, never your Smart Life login. Port is usually 6554, sometimes 8554 or 554, and the path varies by manufacturer — set "url": "auto" and the app finds it. Models with no ONVIF switch are cloud-only and need go2rtc as a bridge.',
   },
   vicohome: {
     cloudOnly: true,

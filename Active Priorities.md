@@ -18,8 +18,10 @@ The single queue of open work across everything. Tag each item with its project 
   `npm run discover` to get the IPs, then per app:
     - [ ] **eufy** — switch RTSP on per camera in the app (Settings > General/Advanced > RTSP or
       NVR Mode), set a username and password there. This one should just work.
-    - [ ] **Smart home (likely Tuya/Smart Life)** — `npm run probe -- --host <ip>` to find out
-      whether it has a local stream at all. If not, `tuya-ipc-terminal` is the bridge.
+    - [ ] **Smart Life (Tuya)** — in the app: camera Settings > ONVIF ("Onvif Switch") > on,
+      then Reset Password (needs a capital letter). Username is then `admin`, port usually 6554.
+      Set the camera to `"url": "auto"` in `cameras.json` and it finds the path itself. No ONVIF
+      switch on that model means it is cloud-only: bridge it with go2rtc's `tuya://` source.
     - [ ] **Yi IoT** — probe first; if nothing answers it needs yi-hack firmware on an SD card
       (`yi-hack-v4` / `-MStar` / `-allwinner`, by chipset) before it will serve RTSP.
     - [ ] **VicoHome** — almost certainly cloud-only; give it a link tile after one probe run.

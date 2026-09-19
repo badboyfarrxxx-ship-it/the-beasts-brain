@@ -69,28 +69,56 @@ The fix is the yi-hack firmware on an SD card — `yi-hack-v4`, `yi-hack-MStar` 
 `/ch0_0.h264` (main) and `/ch0_1.h264` (sub). A few YI IoT rebadges do have an
 RTSP switch in the app, so probe before reflashing anything. Brand key: `yi`.
 
-**"Smart home" — a coin flip, and worth one minute to settle.** If it is the
-Tuya platform (the app is usually called Smart Life, Tuya Smart or Smart Home,
-and pairs devices by QR code), the same boards ship under hundreds of names:
-many are cloud P2P only, plenty answer RTSP or ONVIF on the LAN, sometimes after
-a switch called ONVIF or Local RTSP. `probe` tells you which. If nothing
-answers, `tuya-ipc-terminal` bridges Tuya's local P2P to RTSP without the cloud.
-Brand key: `tuya` (`smartlife` and `smarthome` are aliases). If the app turns out
-to be something else — SmartThings, or a vendor's own "Smart Home" — say so and
-this gets a proper entry.
+**Smart Life (Tuya) — depends on the model, and it is worth five minutes to find
+out.** Confirmed by Nathan on 2026-09-19 as Tuya Smart Life. In the app: camera
+Settings, find **ONVIF** (often labelled "Onvif Switch"), turn it on, then
+**Reset Password** and set one containing a capital letter. After that the
+username is always `admin` — never the Smart Life login — and the password is
+the ONVIF one. The port is usually **6554**, sometimes 8554 or 554, and the path
+differs by manufacturer (`/stream0`, `/stream_0`, `/stream1`, `/onvif1`), which
+is why Tuya cameras should be configured `"url": "auto"`. A model with no ONVIF
+switch is cloud-only and needs go2rtc in front of it. Brand key: `tuya`
+(`smartlife` and `smarthome` are aliases).
 
 **VicoHome — almost certainly not.** The battery models send video to VicoHome's
 cloud and it only comes back through their app; there is no published local API.
 It gets a link tile that says so. Worth one probe run in case a given unit is a
 mains-powered rebadge with RTSP underneath. Brand key: `vicohome`.
 
+## Bridging a cloud-only Tuya camera
+
+go2rtc (single .exe on Windows, one YAML file) has a native Tuya source that
+signs in with the Smart Life account itself, so it reaches cameras that never
+expose ONVIF, and re-serves them as ordinary RTSP:
+
+```yaml
+streams:
+  back_door: tuya://m1.tuyaeu.com?device_id=DEVICE_ID&email=YOU@EXAMPLE.COM&password=SMART_LIFE_PASSWORD
+```
+
+Regional host as appropriate (`m1.tuyaeu.com`, `m1.tuyaus.com`,
+`m1.tuyacn.com`); the device id is in the Smart Life app under the camera's
+Device Information. The camera entry here then just points at
+`rtsp://127.0.0.1:8554/back_door`. go2rtc also has an `onvif://` source, which
+is another route to a camera whose path moves.
+
+## "url": "auto"
+
+A camera set to `"url": "auto"` has no URL written down. On first use the app
+probes it, remembers the port and path in `.camera-wall-urls.json` beside the
+config, and rebuilds the URL from that plus the credentials in `cameras.json` —
+so the cache file holds no secrets. After two failures in a row it goes looking
+again, which is what covers the Tuya firmwares that move their path after a
+reboot.
+
 ## Finding the URL when the brand is a dead end
 
 `node bin/camera-wall.js probe --host 192.168.1.60 --user admin --pass secret`
 
-Tries 32 known stream paths (both common ports, three at a time so a cheap
-camera does not fall over), prints every one that answers with its codec and
-resolution, and ends with a config entry ready to paste. This is the answer for
+Checks ports 554, 6554 and 8554, then tries 35 known stream paths on whichever
+are open, three at a time so a cheap camera does not fall over. Prints every
+path that answers with its codec and resolution, and ends with a config entry
+ready to paste. This is the answer for
 the rebadged half of the market, where the brand on the box tells you nothing
 about the firmware inside. When it finds nothing, the camera genuinely has no
 local stream and the options are a bridge or a different camera.
@@ -136,6 +164,9 @@ against real hardware:
 - The path prober finds both streams on a camera, picks main and sub by
   resolution, and prints a paste-ready config entry (tested against a stubbed
   camera, and against a dead host for the nothing-found path).
+- `"url": "auto"` resolves cold (tile reports "searching", then starts on the
+  found URL), reuses the cache on the next run, and writes no credentials into
+  the cache file.
 
 Not verified: live H.264 playback in the browser, because the headless Chromium
 in the build environment has no H.264 decoder. Everything up to the decoder was

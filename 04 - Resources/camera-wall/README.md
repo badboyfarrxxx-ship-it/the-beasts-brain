@@ -68,6 +68,7 @@ camera ──RTSP──> ffmpeg ──fragmented MP4──> WebSocket ──> br
 | `brand` | picks the RTSP URL shape. `npm run brands` lists them. |
 | `host` | the camera's IP. Give it a DHCP reservation in the router or it will move. |
 | `url` / `subUrl` | full RTSP URLs, for a camera no brand template fits. Overrides `brand`. |
+| `url: "auto"` | find the stream by probing the camera, remember it, and find it again if it moves. Needs `host`. This is the right setting for Tuya. |
 | `snapshotUrl` | still-image URL, used for stills mode. Basic and Digest auth both work. |
 | `mode` | `auto` (default, probes the codec), `copy` (never re-encode), `transcode` (always). |
 | `player` | `auto`, or `mjpeg` to pin a camera to server-side JPEG. |
@@ -85,12 +86,37 @@ environment instead of sitting in the file.
 |---|---|
 | **eufy** | Works locally. Switch RTSP on per camera in the eufy app (camera Settings > General or Advanced > RTSP / NVR Mode) and set a username and password there — that screen prints the URL. Wired indoor cams stream from the camera's own IP; cams paired to a HomeBase stream from the HomeBase IP. Battery models with no RTSP toggle need eufy-security-ws or Scrypted. |
 | **Yi IoT** | Usually needs firmware. Stock YI IoT has no RTSP on most models; the yi-hack firmware (yi-hack-v4, yi-hack-MStar or yi-hack-allwinner, picked by chipset) on an SD card adds it, and then `/ch0_0.h264` is the stream. A few YI IoT rebadges do have an RTSP switch in the app. `probe` settles which one you have. |
-| **Smart Home / Smart Life (Tuya)** | Coin flip. The Tuya platform sells the same boards under hundreds of names. Many are cloud P2P only, but plenty answer RTSP or ONVIF on the LAN, sometimes after a switch called ONVIF or Local RTSP. `probe` answers it in a minute. If nothing answers, tuya-ipc-terminal bridges Tuya's local P2P to RTSP. |
+| **Smart Life (Tuya)** | Depends on the model, and it is worth five minutes to find out. In the app: camera Settings → **ONVIF** (sometimes "Onvif Switch") → turn it on → **Reset Password** and set one containing a capital letter. The username is then always `admin`, never your Smart Life login. Port is usually **6554**, sometimes 8554 or 554, and the path differs by manufacturer — so set `"url": "auto"` and let the app find it. No ONVIF switch in the app means that model is cloud-only: bridge it with go2rtc (below). |
 | **VicoHome** | Almost certainly not. The battery models send video to VicoHome's cloud and it comes back only through their app; there is no published local API. Run `probe` once in case yours is a mains-powered rebadge, then give it a link tile. |
 
 Rule of thumb for all four: if `probe` finds nothing, the camera is not being
-stubborn, it genuinely has no local stream — and the fix is a bridge
-(Scrypted, go2rtc, Home Assistant) or a different camera.
+stubborn, it genuinely has no local stream — and the fix is a bridge or a
+different camera.
+
+### Bridging a cloud-only Tuya camera with go2rtc
+
+[go2rtc](https://github.com/AlexxIT/go2rtc) has a native Tuya source that logs
+in with your Smart Life account and pulls the camera's stream without the ONVIF
+switch. It is a single .exe on Windows, and it re-serves anything it can reach
+as ordinary RTSP, which is exactly what this app wants.
+
+`go2rtc.yaml` next to the exe:
+
+```yaml
+streams:
+  back_door: tuya://m1.tuyaeu.com?device_id=DEVICE_ID&email=YOU@EXAMPLE.COM&password=YOUR_SMART_LIFE_PASSWORD
+```
+
+Use the regional host your account is on (`m1.tuyaeu.com`, `m1.tuyaus.com`,
+`m1.tuyacn.com`). The device id comes from the Smart Life app under the
+camera's Device Information. Then point a camera here at the bridge:
+
+```json
+{ "id": "back-door", "name": "Back Door", "url": "rtsp://127.0.0.1:8554/back_door" }
+```
+
+go2rtc also has an `onvif://` source that asks a camera for its current stream
+path, which is another way at the models whose path moves.
 
 ## The cameras that cannot be shown
 
@@ -141,7 +167,8 @@ without touching the config.
 |---|---|
 | "camera rejected the username or password" | Tapo and Reolink want a separate camera account, not the app login. |
 | "connection refused" | RTSP is off in the vendor app, or the port is not 554. |
-| "wrong stream path for this model" | run `probe` against it and paste the URL it finds into `url`. |
+| "wrong stream path for this model" | set `"url": "auto"`, or run `probe` and paste what it finds into `url`. |
+| "no stream found on this camera" | an `auto` camera whose every known path came back empty. Check the ONVIF switch and password in the vendor app, then bridge it. |
 | "camera did not answer" | wrong IP, or the camera is on a different wifi (guest/IoT network). |
 | tile says `re-encoded` | the camera sends H.265. Working as intended, but it costs CPU — switch the camera to H.264 in its app if you can. |
 | "ffmpeg not found" | `winget install Gyan.FFmpeg`, then a new terminal. |

@@ -1,5 +1,9 @@
 # Real camera config: hostnames, usernames, passwords. Never commit this.
 cameras.json
+# Stream paths found by "url": "auto" (no credentials in it, but it is local state)
+.camera-wall-urls.json
+discovered.json
+
 # Saved stills and clips
 captures/
 node_modules/

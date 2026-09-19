@@ -142,6 +142,7 @@ function publicCamera(cam) {
     enabled: cam.enabled,
     audio: !!cam.audio,
     player: cam.player || 'auto',
+    autoResolve: !!cam.autoResolve,
     appUrl: cam.appUrl || null,
     note: cam.note || cam.bridgeNote || null,
     configError: cam.configError || null,

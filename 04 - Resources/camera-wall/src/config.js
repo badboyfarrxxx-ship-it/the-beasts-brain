@@ -123,6 +123,15 @@ function prepareCamera(entry, i, config, seen) {
     cam.mode = cam.mode || config.defaults.mode;
     cam.player = cam.player === 'mjpeg' ? 'mjpeg' : 'auto';
     cam.audio = cam.audio ?? config.defaults.audio;
+    if (cam.url === 'auto') {
+      // The path is found by probing the camera on first use and remembered.
+      if (!cam.host) throw new Error('"url": "auto" needs "host" set to the camera IP');
+      cam.autoResolve = true;
+      cam.url = null;
+      cam.urls = { main: null, sub: null, snapshot: cam.snapshotUrl || null, snapshotAuth: cam.snapshotAuth || 'basic' };
+      return cam;
+    }
+
     cam.urls = buildUrls(cam);
     if (!cam.urls.main) {
       throw new Error('no stream URL — set "url", or set "brand" and "host"');
