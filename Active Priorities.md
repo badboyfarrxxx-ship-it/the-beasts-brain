@@ -16,8 +16,8 @@ The single queue of open work across everything. Tag each item with its project 
 - [ ] **Point [[camera-wall]] at the real cameras.** The app is built and tested against fake
   cameras; these steps are all on the camera side. First `winget install Gyan.FFmpeg`, then
   `npm run discover` to get the IPs, then per app:
-    - [ ] **eufy** — switch RTSP on per camera in the app (Settings > General/Advanced > RTSP or
-      NVR Mode), set a username and password there. This one should just work.
+    - [x] **eufy** — done 2026-09-19, live on the wall. This proved the whole chain (ffmpeg,
+      server, browser) on real hardware.
     - [ ] **Smart Life (Tuya)** — in the app: camera Settings > ONVIF ("Onvif Switch") > on,
       then Reset Password (needs a capital letter). Username is then `admin`, port usually 6554.
       Set the camera to `"url": "auto"` in `cameras.json` and it finds the path itself. No ONVIF

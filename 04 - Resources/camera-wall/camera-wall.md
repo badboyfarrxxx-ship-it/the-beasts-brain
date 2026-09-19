@@ -149,8 +149,13 @@ or WireGuard rather than opening a port.
 
 ## What was verified on 2026-09-19
 
-Tested against fake cameras (ffmpeg serving H.264 and H.265 over HTTP), not yet
-against real hardware:
+**First real camera confirmed the same night:** Nathan installed ffmpeg and Node
+on the Surface, switched RTSP on in the eufy app, and the eufy tile came up live
+on the wall. That is the whole chain proven on real hardware — camera, ffmpeg,
+server, browser.
+
+The rest was tested against fake cameras (ffmpeg serving H.264 and H.265 over
+HTTP):
 
 - The stream captured over the WebSocket is a valid MP4 — 278 frames, 18.5s,
   640x360 H.264, decodes frame-perfect in ffmpeg.
@@ -174,4 +179,9 @@ verified, and Chrome and Edge on Windows both decode H.264.
 
 ## Still open
 
-Real cameras. Nothing here has met one yet.
+- **Smart Life (Tuya)** — ONVIF switch and password in the app, then `"url": "auto"`.
+  go2rtc's `tuya://` source for any model with no ONVIF switch.
+- **Yi IoT** — probe first; yi-hack firmware if nothing answers.
+- **VicoHome** — expected to be cloud-only; link tile after one probe run.
+- Live H.264 playback is now proven in a real browser by the eufy tile, which
+  closes the one gap the build environment could not test.

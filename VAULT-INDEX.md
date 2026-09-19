@@ -25,6 +25,11 @@ I'm Nathan. I haven't put much on the record yet — this profile fills itself i
 
 - **[[Margaret McMahon]]** — my partner.
 
+## Daily Routine
+
+- **Timezone: UTC+10, Australian east coast.** Taken from this machine's own commit timestamps
+  on 2026-09-19. Use it when timestamping daily note sessions.
+
 ## Vault Structure
 
 ```
