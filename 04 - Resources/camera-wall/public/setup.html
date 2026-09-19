@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Camera Wall — first run</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="centered">
+<form id="form" class="card">
+  <h1>Set a password</h1>
+  <p class="hint">This page can see every camera in the house. Pick a password before it opens.
+     It is stored as a scrypt hash in <code>cameras.json</code>.</p>
+  <label for="password">New password</label>
+  <input id="password" type="password" autocomplete="new-password" minlength="8" autofocus required>
+  <label for="confirm">Again</label>
+  <input id="confirm" type="password" autocomplete="new-password" minlength="8" required>
+  <button type="submit">Save and open the wall</button>
+  <p id="error" class="error" hidden></p>
+</form>
+<script type="module" src="/setup.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "camera-wall",
+  "version": "1.0.0",
+  "private": true,
+  "description": "One web page that shows every IP camera in the house at once. No dependencies, no cloud, runs on the machine you are sitting at.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "bin": { "camera-wall": "bin/camera-wall.js" },
+  "scripts": {
+    "start": "node bin/camera-wall.js start",
+    "discover": "node bin/camera-wall.js discover",
+    "check": "node bin/camera-wall.js check",
+    "probe": "node bin/camera-wall.js probe",
+    "set-password": "node bin/camera-wall.js set-password"
+  }
+}

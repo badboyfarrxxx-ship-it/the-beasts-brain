@@ -1,0 +1,61 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8480
+  },
+  "auth": {
+    "enabled": true,
+    "username": "nathan",
+    "passwordHash": null
+  },
+  "ffmpeg": {
+    "path": null,
+    "ffprobePath": null
+  },
+  "defaults": {
+    "transport": "tcp",
+    "mode": "auto",
+    "audio": false,
+    "idleTimeoutSec": 20,
+    "snapshotCacheSec": 5,
+    "maxTranscodeHeight": 720
+  },
+  "cameras": [
+    {
+      "id": "living-room",
+      "name": "Living Room",
+      "brand": "eufy",
+      "host": "192.168.1.51",
+      "username": "eufy",
+      "password": "env:EUFY_RTSP_PASS",
+      "note": "RTSP switched on in the eufy app; username and password are the ones set on that screen."
+    },
+    {
+      "id": "back-door",
+      "name": "Back Door",
+      "brand": "tuya",
+      "host": "192.168.1.52",
+      "username": "admin",
+      "password": "env:TUYA_ONVIF_PASS",
+      "note": "Smart Life camera. ONVIF switched on in the app, password reset there (needs a capital letter). \"url\": \"auto\" finds the port and path, because Tuya models differ and some change it after a reboot.",
+      "url": "auto"
+    },
+    {
+      "id": "landing",
+      "name": "Landing",
+      "brand": "yi",
+      "host": "192.168.1.53",
+      "username": "admin",
+      "password": "env:YI_CAM_PASS",
+      "note": "Yi IoT camera running yi-hack. \"url\": \"auto\" finds the path; without the hack firmware there is no local stream to find.",
+      "url": "auto"
+    },
+    {
+      "id": "front-garden",
+      "name": "Front Garden",
+      "brand": "vicohome",
+      "type": "link",
+      "note": "VicoHome battery camera: no local stream, so this tile opens their app."
+    }
+  ]
+}

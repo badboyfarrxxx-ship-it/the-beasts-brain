@@ -34,6 +34,7 @@ I'm Nathan. I haven't put much on the record yet — this profile fills itself i
 03 - Archive        ← Completed projects and old notes
 04 - Resources      ← Cross-project reference material, templates, Jobs
    ├─ Marketing/    ← Jared Rhodenizer's marketing playbook (read before marketing work)
+   ├─ camera-wall/  ← the IP camera wall app (code + its guide note)
    └─ vlc-source-patches/  ← the two recovered patched VLC .c files
 ```
 

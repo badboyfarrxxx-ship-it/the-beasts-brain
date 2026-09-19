@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
+<title>Camera Wall</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="wall">
+<header id="bar">
+  <h1>Camera Wall</h1>
+  <div class="spacer"></div>
+  <div class="controls">
+    <label class="field">
+      <span>Layout</span>
+      <select id="layout" title="Tiles per row">
+        <option value="auto">Auto</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </label>
+    <label class="field">
+      <span>Mode</span>
+      <select id="mode" title="Live video costs CPU and bandwidth; stills are cheap">
+        <option value="live">Live video</option>
+        <option value="stills">Stills only</option>
+      </select>
+    </label>
+    <button id="mute" class="toggle" aria-pressed="true" title="Audio (M)">Muted</button>
+    <button id="fullscreen" class="toggle" title="Fullscreen (F)">Fullscreen</button>
+    <button id="cameras-btn" class="toggle" title="Show or hide cameras">Cameras</button>
+    <button id="signout" class="toggle" title="Sign out">Sign out</button>
+  </div>
+</header>
+
+<div id="status-strip" hidden></div>
+
+<main id="grid" class="grid"></main>
+
+<section id="empty" class="empty" hidden>
+  <h2>No cameras configured yet</h2>
+  <p>Edit <code>cameras.json</code> next to the app, then reload this page. Run
+     <code>npm run discover</code> to find the cameras on your network and print a starter config.</p>
+</section>
+
+<dialog id="picker">
+  <form method="dialog">
+    <h2>Cameras</h2>
+    <p class="hint">Unticked cameras stay configured but are hidden from the wall on this device.</p>
+    <div id="picker-list"></div>
+    <menu><button value="close">Done</button></menu>
+  </form>
+</dialog>
+
+<div id="focus" class="focus" hidden>
+  <div class="focus-inner">
+    <div id="focus-slot"></div>
+  </div>
+  <div class="focus-bar">
+    <span id="focus-name"></span>
+    <div class="spacer"></div>
+    <button id="focus-snap" title="Save a still (S)">Save still</button>
+    <button id="focus-close" title="Back to the wall (Esc)">Close</button>
+  </div>
+</div>
+
+<footer id="hint">
+  <span><b>Click</b> a tile to open it &middot; <b>1-9</b> jump to a camera &middot; <b>F</b> fullscreen &middot; <b>M</b> audio &middot; <b>S</b> save a still &middot; <b>Esc</b> back</span>
+</footer>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>
