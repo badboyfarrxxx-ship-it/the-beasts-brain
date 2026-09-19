@@ -1,0 +1,57 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8480
+  },
+  "auth": {
+    "enabled": true,
+    "username": "nathan",
+    "passwordHash": null
+  },
+  "ffmpeg": {
+    "path": null,
+    "ffprobePath": null
+  },
+  "defaults": {
+    "transport": "tcp",
+    "mode": "auto",
+    "audio": false,
+    "idleTimeoutSec": 20,
+    "snapshotCacheSec": 5,
+    "maxTranscodeHeight": 720
+  },
+  "cameras": [
+    {
+      "id": "front-door",
+      "name": "Front Door",
+      "brand": "tapo",
+      "host": "192.168.1.51",
+      "username": "camerawall",
+      "password": "env:TAPO_PASS"
+    },
+    {
+      "id": "driveway",
+      "name": "Driveway",
+      "brand": "reolink",
+      "host": "192.168.1.52",
+      "username": "admin",
+      "password": "env:REOLINK_PASS",
+      "audio": true
+    },
+    {
+      "id": "shed",
+      "name": "Shed",
+      "brand": "generic",
+      "url": "rtsp://admin:secret@192.168.1.53:554/onvif1",
+      "subUrl": "rtsp://admin:secret@192.168.1.53:554/onvif2",
+      "mode": "auto"
+    },
+    {
+      "id": "doorbell",
+      "name": "Doorbell",
+      "brand": "ring",
+      "type": "link",
+      "note": "Ring has no local stream. This tile opens the Ring web app."
+    }
+  ]
+}

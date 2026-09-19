@@ -1,0 +1,5 @@
+# Real camera config: hostnames, usernames, passwords. Never commit this.
+cameras.json
+# Saved stills and clips
+captures/
+node_modules/

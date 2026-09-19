@@ -17,3 +17,5 @@ One file per day, `YYYY-MM-DD.md`, sorted into monthly subfolders (`08 - August 
 - [[2026-09-12]]: verified the tiny11 ISO and wrote the USB stick; fixed the USB dropouts; found, contained and began remediating an infostealer and remote-access tool (see [[Security incident 2026-09-12]]).
 - [[2026-09-13]]: Surface rebuild prep. Backup to H: and the E: scan relaunched as standalone processes; data cost of a stock Windows reinstall priced.
 - [[2026-09-15]]: held off re-signing GitHub on the compromised Surface; E: scan results recorded (ransomware among the cracks); tiny11 install on the HP started.
+- [[2026-09-16]]: restore from H: finished and verified (WSL back after DISM-enabling the virtualization features); both repos pushed to GitHub by hand; the dead Claude shell diagnosed as a missing Git Bash; D: scanned and one confirmed trojan found.
+- [[2026-09-19]]: built [[camera-wall]], a local Node + ffmpeg web app that shows every IP camera in the house on one page. Tested end to end against fake cameras; real cameras still to come.
