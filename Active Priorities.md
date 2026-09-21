@@ -32,5 +32,8 @@ The single queue of open work across everything. Tag each item with its project 
 - [ ] Delete the stray duplicate `01 - Daily Notes\2026-09-11.md` (vault root, old frontmatter
   format, superseded; its content is now merged into [[2026-09-11]]). It came back read-only
   when staged, likely open in another app; close that first.
+- [ ] **my-agent: reinstall Obsidian** (`winget install --id Obsidian.Obsidian -e`), then open `C:\Users\Fredy 2\The Beasts Brain` as a vault by hand. Not installed on the rebuild as of 09-21.
+- [ ] **my-agent: run the voice line once end to end** after the venv rebuild (`uv run python -m backtalk.main` from `backtalk\`, other memory hogs closed first), then delete the rebuild banner in `CLAUDE.md`. See [[backtalk voice - operating notes]].
+- [ ] **my-agent: back up backtalk's local commits** (`0b9cec7`, `8190423`) as a patch file in `tool-configs\` or a private fork. They exist only in the local clone.
 
 ### Completed Tasks

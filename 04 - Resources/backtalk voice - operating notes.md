@@ -128,6 +128,21 @@ untracked and safe.
 If device indices ever shift (hardware added/removed), switch `backtalk.json` to a
 name substring instead, e.g. `"tts_device": "Omnisonic"`.
 
+## Rebuilding the venv (checked 2026-09-21)
+
+The `.venv` is not in the backup, so a wipe means recreating it. From the backtalk folder:
+
+1. `uv sync --inexact` (about 160 packages, torch is the big download)
+2. `uv pip install pip`
+3. `uv run python -m spacy download en_core_web_sm`
+
+`uv sync` installs neither `pip` nor the spaCy model, and kokoro needs both. `webrtcvad`
+installs as the prebuilt `webrtcvad-wheels`, so no C++ Build Tools are needed. The local
+source patches (wake-phrase gate in `ears.py`, WASAPI output in `mouth.py`, `tts_device` in
+`config.py`) are committed in the backtalk repo (`0b9cec7`, merged in `8190423`), so a
+restored folder keeps them; a fresh clone from upstream would not. The snapshot branch and tag
+`pre-upstream-merge` mark the state before the last upstream merge.
+
 ## When it breaks
 
 Read `backtalk\TROUBLESHOOTING.md` (Windows notes near the end) and `logs\backtalk.log`.
