@@ -140,8 +140,12 @@ The `.venv` is not in the backup, so a wipe means recreating it. From the backta
 installs as the prebuilt `webrtcvad-wheels`, so no C++ Build Tools are needed. The local
 source patches (wake-phrase gate in `ears.py`, WASAPI output in `mouth.py`, `tts_device` in
 `config.py`) are committed in the backtalk repo (`0b9cec7`, merged in `8190423`), so a
-restored folder keeps them; a fresh clone from upstream would not. The snapshot branch and tag
-`pre-upstream-merge` mark the state before the last upstream merge.
+restored folder keeps them. A fresh clone from upstream would not, so since 2026-09-22 they are
+also backed up in the my-agent repo as `tool-configs\backtalk-local.bundle` (full history) and
+`tool-configs\backtalk-local.patch` (one plain diff), both tested to restore. Restore steps are in
+`tool-configs\README.md`. The snapshot branch and tag `pre-upstream-merge` mark the state before
+the last upstream merge. If the source changes again, rebuild the bundle and patch (commands in
+the same README).
 
 ## When it breaks
 
