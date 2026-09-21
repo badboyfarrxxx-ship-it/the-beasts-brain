@@ -1,5 +1,5 @@
 ---
-status: active
+status: completed
 project: personal
 type: guide
 created: 2026-09-04
