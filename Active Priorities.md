@@ -27,7 +27,7 @@ The single queue of open work across everything. Tag each item with its project 
   Then `npm run check` to confirm, and fill in `cameras.json`.
 - [ ] Decide whether the broken 693 MB tiny11 ISO gets deleted. It is parked at `E:\windows images-iso recovery\tiny11 iso - BROKEN DO NOT USE\` pending an OK. `E:` has no drive letter since 09-22, so reach it as `\\?\Volume{12920787-a58e-11f1-90b0-d4548b588599}\windows images-iso recovery\...` (see [[Machine drives]]).
 - [ ] **Replace the daisy-chained Genesys hubs with one powered USB 3 hub into the USB-C port.** The external drives (`D:`, `E:`, `F:`, `H:`) still hang off the hub tree that dropped out and corrupted a drive on 09-01. Less urgent since the rebuild, because Windows sees the battery again and `Program Files`/`Users` are now on the internal `C:` (both checked 09-22). See [[Machine drives]].
-- [ ] **Post the backtalk Whisper-loop issue upstream** (Nathan, on GitHub at jaredrhod/backtalk). Draft ready at `my-agent\draftsacktalk-issue-whisper-repetition-loop.md`; review, then post. See [[backtalk voice - operating notes]].
+- [ ] **Post the backtalk Whisper-loop issue upstream** (Nathan, on GitHub at jaredrhod/backtalk). Draft ready at `my-agent/drafts/backtalk-issue-whisper-repetition-loop.md`; review, then post. See [[backtalk voice - operating notes]].
 
 ### Completed Tasks
 - [x] **SECURITY: reinstall Windows on the Surface.** Wiped and rebuilt onto tiny11 25H2 on 2026-09-15. Checked 09-22: Windows sees the battery again (`SurfaceBattery`), which confirms the Serial Hub fault went with the old install. Keep IObit off this machine. See [[Security incident 2026-09-12]].
