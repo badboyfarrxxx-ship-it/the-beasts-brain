@@ -10,17 +10,24 @@ wikilinks:
 # backtalk (voice) — operating notes
 
 Operational reference for [[backtalk]], the voice loop for The Beast. Setup lives in
-`C:\Users\badbo\my-agent\backtalk\` (`README.md`, `backtalk.md`, `TROUBLESHOOTING.md`).
-This note covers day-to-day operation, not install.
+`C:\Users\Fredy 2\my-agent\backtalk\` (`README.md`, `backtalk.md`, `TROUBLESHOOTING.md`).
+This note covers day-to-day operation, not install. (Paths were `C:\Users\badbo\...` before
+the 2026-09-15 rebuild; older daily notes still show those.)
 
 ## Config
 
-`C:\Users\badbo\my-agent\backtalk\backtalk.json` (untracked — updates never touch it):
+`C:\Users\Fredy 2\my-agent\backtalk\backtalk.json` (untracked, so updates never touch it; a
+copy is kept in my-agent's `tool-configs\`). Values as checked 2026-09-22:
 
-- `agent_dir` → `C:\Users\badbo\my-agent` (the folder whose CLAUDE.md is The Beast)
-- `name` → "The Beast"; `ptt_key` → backtick `` ` ``; `mic_mode` → `ptt`
+- `agent_dir` → `C:\Users\Fredy 2\my-agent` (the folder whose CLAUDE.md is The Beast)
+- `name` → "The Beast"; `ptt_key` → `caps_lock`; `mic_mode` → `open` (always listening)
+- `wake_phrase` → "hey beast" (the transcription-based gate from the local patch); `wake_word`
+  empty (openWakeWord off); `wake_debug` → `true`
 - `voice` → `bm_fable` (Kokoro built-in, British male). Nathan picked it from a full audition on 2026-08-29 (the earlier default was `bm_lewis`). Engine is the free offline one, not ElevenLabs.
+- `tts_device` → `8` (output device index, from the local patch; see "Audio output device" below)
+- `stt_model` → `base.en` (already the smaller model; the 8 GB RAM fallback in CLAUDE.md is in effect)
 - `permission_mode` → `ask`
+- `greeting` → "Hello Nathan, what are we working on today?"
 - `extra_dirs` → the vault; `barehands_state_dir` → barehands `state/`
 
 Never hand-edit `permission_mode` while the voice line is running — change it by asking in a
@@ -33,7 +40,7 @@ announce that a long background job finished — instantiate `Mouth()` and use
 **`say_chunk(text)`**, not `say(text)`:
 
 ```
-cd C:/Users/badbo/my-agent/backtalk
+cd "C:/Users/Fredy 2/my-agent/backtalk"
 uv run --quiet python -c "import time; from backtalk.mouth import Mouth; m=Mouth(); m.say_chunk('the whole message as one string'); m.wait_done(180); time.sleep(1)"
 ```
 
@@ -125,8 +132,17 @@ update can conflict or overwrite them. After any `./update.bat` / "pull the late
 backtalk", re-check these two files and reapply if lost. `backtalk.json` is
 untracked and safe.
 
-If device indices ever shift (hardware added/removed), switch `backtalk.json` to a
-name substring instead, e.g. `"tts_device": "Omnisonic"`.
+**Rechecked after the rebuild (2026-09-22):** device 8 is still the right one, now named
+"Speakers (Surface High Definition Audio)" on Windows WASAPI (the rebuild's generic driver
+dropped the "Omnisonic" name). MME is 0-3, DirectSound 4-7, WASAPI 8-9, WDM-KS 10 and up. So
+`"tts_device": 8` needs no change, but it survived by luck: the numbering depends on what's
+plugged in. To list devices, from the backtalk folder:
+`.venv/Scripts/python.exe -c "import sounddevice as sd; print(sd.query_devices())"`.
+
+If device indices ever shift (hardware added/removed), switch `backtalk.json` to a name
+substring instead. "Omnisonic" no longer matches anything; check the list first, and note
+that a bare "Speakers" matches several host APIs, so pick one that is unique to the WASAPI
+entry.
 
 ## Rebuilding the venv (checked 2026-09-21)
 
