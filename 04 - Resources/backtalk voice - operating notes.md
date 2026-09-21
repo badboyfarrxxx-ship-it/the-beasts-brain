@@ -97,7 +97,9 @@ captures the next utterance.
 
 `wake_debug` is **off**. When on, it logs every utterance the open mic transcribes into
 `logs\backtalk.log`, so room conversation ends up on disk. Turn it on only while tuning, then
-off again.
+off again. The 09-22 lines were scrubbed from the log on Nathan's OK; to do the same
+again, remove lines matching `^<date> .* \[ears\] wake heard:` (the file can be edited while
+the voice line runs; it appends).
 
 ## Running the voice line
 
