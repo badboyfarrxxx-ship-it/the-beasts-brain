@@ -24,7 +24,6 @@ The single queue of open work across everything. Tag each item with its project 
       (`yi-hack-v4` / `-MStar` / `-allwinner`, by chipset) before it will serve RTSP.
     - [ ] **VicoHome** — almost certainly cloud-only; give it a link tile after one probe run.
   Then `npm run check` to confirm, and fill in `cameras.json`.
-- [ ] Decide whether the broken 693 MB tiny11 ISO gets deleted. It is parked at `E:\windows images-iso recovery\tiny11 iso - BROKEN DO NOT USE\` pending an OK. `E:` has no drive letter since 09-22, so reach it as `\\?\Volume{12920787-a58e-11f1-90b0-d4548b588599}\windows images-iso recovery\...` (see [[Machine drives]]).
 - [ ] **Replace the daisy-chained Genesys hubs with one powered USB 3 hub into the USB-C port.** The external drives (`D:`, `E:`, `F:`, `H:`) still hang off the hub tree that dropped out and corrupted a drive on 09-01. Less urgent since the rebuild, because Windows sees the battery again and `Program Files`/`Users` are now on the internal `C:` (both checked 09-22). See [[Machine drives]].
 
 ### Completed Tasks
@@ -38,3 +37,4 @@ The single queue of open work across everything. Tag each item with its project 
 - [x] **my-agent: run the voice line once end to end.** Done 09-22 on the rebuilt machine: brain connected, turns transcribed, replies heard through the speakers (Nathan confirmed). Along the way: wake bar set to 0.76, debug logging off, and a Whisper repetition loop fixed with local patch `cd7198b`. Rebuild banner removed from `CLAUDE.md`. See [[backtalk voice - operating notes]].
 - [x] **Post the backtalk Whisper-loop issue upstream.** Posted 09-22 by Nathan as [jaredrhod/backtalk#54](https://github.com/jaredrhod/backtalk/issues/54), from the draft in `my-agent/drafts/`. See [[backtalk voice - operating notes]].
 - [x] **tiny11: install the HP from the stick.** Done; Nathan confirmed on 09-22 that the install (started 09-15) finished. See [[Building tiny11 images]].
+- [x] **Delete the broken tiny11 ISO.** Deleted on Nathan's OK on 09-22: the `tiny11 iso - BROKEN DO NOT USE` folder on `E:` (946 files, 1.38 GB, including the 208-byte stub `install.wim`). The working ISO and its instructions stay. See [[Building tiny11 images]].
