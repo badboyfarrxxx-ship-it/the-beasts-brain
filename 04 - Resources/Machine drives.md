@@ -20,9 +20,10 @@ reboot. **Do not trust a drive letter to mean the same thing between reboots.**
 > Windows sees the battery again (`Win32_Battery` returns `SurfaceBattery`), so the
 > invisible-battery fault went with the old install. `Program Files` and `Users` are back on
 > the internal `C:` (profile `C:\Users\Fredy 2`), not on a USB drive. Mounted: `C:`, plus
-> external `D:`, `F:`, `H:` on the hub tree, **and `E:`, which should not be** (see "`E:` is
-> deliberately dismounted" at the bottom: it was remounted on 09-16 for a scan and never
-> re-isolated). Everything else in this note up to "2026-09-16: after the rebuild" describes the
+> external `D:`, `F:`, `H:` on the hub tree. `E:` has no drive letter but is **not offline**
+> (see "`E:` is deliberately dismounted" at the bottom). Disk numbers change between reboots:
+> the Seagate was disk 3 before the 8:06 AM reboot on 09-22 and disk 1 after, so identify
+> volumes by their volume ID, never by disk number. Everything else in this note up to "2026-09-16: after the rebuild" describes the
 > pre-rebuild machine and is history, including the `badbo` paths.
 
 > **Check what a drive letter actually is before writing to it, every single time.** `D:`
@@ -446,7 +447,7 @@ The Surface was wiped and rebuilt onto tiny11 25H2 on 2026-09-15 (see
 | Disk | Device | Size | Bus | Letters |
 |---|---|---|---|---|
 | 0 | KIOXIA KBG40ZNS128G NVMe | 119 GB | NVMe | `C:` |
-| 1 | Seagate Expansion Desk | 3726 GB | USB | `E:` (meant to be dismounted; mounted again, see below), `H:`, `F:` |
+| 1 | Seagate Expansion Desk | 3726 GB | USB | `E:` (no letter; see below), `H:`, `F:` |
 
 - `C:` is partition 3 of disk 0, 118 GB.
 - The Seagate's partitions, in on-disk order: **1 = `E:`** (1618 GB, File History), **2 = `H:`**
@@ -470,13 +471,18 @@ The Surface was wiped and rebuilt onto tiny11 25H2 on 2026-09-15 (see
 it was isolated in software instead of unplugged: `mountvol E: /P`, run elevated early on
 09-16. Verified afterwards: the volume reads "not mountable until a volume mount point is
 created", partition 1 has no letter and `IsOffline: True`, and `F:` and `H:` are
-`Healthy / OK`. It stays dismounted across reboots and replugs.
+`Healthy / OK`.
 
-> **Status 2026-09-22: `E:` is mounted.** It was remounted on purpose later on 09-16 so its
-> scan could run (see [[Security incident 2026-09-12]]) and was never re-isolated. Checked
-> 09-22: volume `{12920787-...}` is at `E:` (disk numbers have shifted since 09-16; the Seagate
-> is now disk 3). To re-isolate, from an elevated prompt: `mountvol E: /P`. Tracked in
-> [[Active Priorities]].
+**Correction, 2026-09-22: `/P` does not fully survive a reboot.** It was remounted on purpose
+later on 09-16 for its scan and left mounted until 09-22, when Nathan ran `mountvol E: /P`
+again. Straight after, `mountvol` showed "NOT MOUNTABLE UNTIL A VOLUME MOUNT POINT IS
+CREATED" (fully offline). After the 8:06 AM reboot it showed "NO MOUNT POINTS" instead: still
+no drive letter, but the volume is online and its folders can be listed through
+`\\?\Volume{12920787-a58e-11f1-90b0-d4548b588599}\`. So what survives a reboot is "no letter",
+not "offline". Whether that is enough isolation is open in [[Active Priorities]].
+
+To check it, look the volume up by ID (disk numbers move): `mountvol` and find
+`{12920787-...}`, or `Get-Volume | ? UniqueId -like '*12920787*'`.
 
 **`E:` missing is intended, not a fault.** To remount it on purpose, from an elevated prompt:
 
