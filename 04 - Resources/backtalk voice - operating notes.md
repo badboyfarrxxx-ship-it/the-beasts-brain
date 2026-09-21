@@ -129,7 +129,9 @@ fine before the loop).
 
 Fix, local commit `cd7198b` in `backtalk/ears.py` `transcribe()`: `temperature=(0.0, 0.2,
 0.4, 0.6, 0.8, 1.0)`. Tested on the recording that looped: "1-2-3...-12-8-12-8-12..." became
-"1, 2, 3, ... 12, 13."; clean recordings decode the same. Worth reporting upstream.
+"1, 2, 3, ... 12, 13."; clean recordings decode the same. Reported upstream as [jaredrhod/backtalk#54](https://github.com/jaredrhod/backtalk/issues/54) (09-22).
+If upstream fixes it, a future merge makes `cd7198b` redundant: drop it rather than
+keeping both.
 
 ## Audio output device (local source patch, 2026-08-29)
 
