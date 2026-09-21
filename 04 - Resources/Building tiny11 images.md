@@ -40,12 +40,14 @@ Instructions for Nathan, rewritten to match reality, live beside it at
 
 ## Two warnings that will bite if forgotten
 
-**1. There is a second, dead tiny11 ISO on `E:`.** An earlier attempt around 2026-09-08 to
-09-10 left `E:\windows images-iso recovery\tiny11 iso\`, an extracted ISO tree whose
-`sources\install.wim` is a **208 byte stub**, and a 693 MB `tiny11.iso` built from it on
-09-10 at 21:50. That ISO boots into Setup and then fails with no image to apply. The folder
-was renamed on 2026-09-12 to **`tiny11 iso - BROKEN DO NOT USE`**. Delete it when Nathan
-says so; until then the name is the guard.
+**1. The dead tiny11 ISO is gone (deleted 2026-09-22).** An earlier attempt around
+2026-09-08 to 09-10 left `E:\windows images-iso recovery\tiny11 iso\`, an extracted ISO tree
+whose `sources\install.wim` was a **208 byte stub**, and a 693 MB `tiny11.iso` built from it
+on 09-10 at 21:50, which booted into Setup and then failed with no image to apply. Renamed
+`tiny11 iso - BROKEN DO NOT USE` on 09-12, then deleted on Nathan's OK on 09-22 (946 files,
+1.38 GB). The only tiny11 ISO left is the good one above. `E:` has no drive letter since
+09-22; reach it as `\\?\Volume{12920787-a58e-11f1-90b0-d4548b588599}\` (see
+[[Machine drives]]).
 
 **2. `D:` is no longer the USB stick.** The 2026-09-04 instructions told Nathan to point
 Rufus at `D:` because `D:` was then a 28.9 GB Lexar flash drive. As of 2026-09-12 `D:` is a
