@@ -3,7 +3,7 @@ status: active
 project: personal
 type: guide
 created: 2026-09-04
-updated: 2026-09-12
+updated: 2026-09-22
 wikilinks: [[Machine drives]]
 ---
 # Building tiny11 images
@@ -11,8 +11,9 @@ wikilinks: [[Machine drives]]
 Master note for building a debloated Windows 11 install image with
 [tiny11builder](https://github.com/ntdevlabs/tiny11builder) on this machine.
 
-**Status as of 2026-09-12: the image is built, verified, and written to a bootable USB
-stick.** What is left is booting the second computer from it and installing. See
+**Status as of 2026-09-22: done.** The image was built, verified and written to a bootable
+USB stick (2026-09-12), and the HP Pavilion TouchSmart was installed from it (steps given
+2026-09-15; Nathan confirmed on 2026-09-22 that the install finished). See
 "Writing the stick without Rufus" below for how the stick was made and the one trap in it.
 
 ## The finished image
