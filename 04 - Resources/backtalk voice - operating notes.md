@@ -22,7 +22,8 @@ copy is kept in my-agent's `tool-configs\`). Values as checked 2026-09-22:
 - `agent_dir` → `C:\Users\Fredy 2\my-agent` (the folder whose CLAUDE.md is The Beast)
 - `name` → "The Beast"; `ptt_key` → `caps_lock`; `mic_mode` → `open` (always listening)
 - `wake_phrase` → "hey beast" (the transcription-based gate from the local patch); `wake_word`
-  empty (openWakeWord off); `wake_debug` → `true`
+  empty (openWakeWord off); `wake_phrase_fuzz` → `0.76`; `wake_debug` → `false` (both set
+  2026-09-22, see "Wake phrase tuning" below)
 - `voice` → `bm_fable` (Kokoro built-in, British male). Nathan picked it from a full audition on 2026-08-29 (the earlier default was `bm_lewis`). Engine is the free offline one, not ElevenLabs.
 - `tts_device` → `8` (output device index, from the local patch; see "Audio output device" below)
 - `stt_model` → `base.en` (already the smaller model; the 8 GB RAM fallback in CLAUDE.md is in effect)
@@ -63,7 +64,8 @@ model). openWakeWord's pretrained models were tried and only `alexa` scored well
 real voice (`hey_jarvis` ~0.15, `hey_mycroft` nothing) — its models are TTS-trained and miss
 real accents. "Hey Beast" / "computer" have no pretrained model, and Picovoice (custom) blocks
 free-email signups. So: **the mic transcribes what it hears with Whisper** (which handles
-Nathan's voice fine) and wakes only on "hey beast" in the first ~6 words. A command in the
+Nathan's voice fine) and wakes when "hey beast" turns up anywhere in what it heard (it scores
+every two-word window against the phrase). A command in the
 same breath ("Hey Beast, what's the weather") passes straight through; "Hey Beast" alone
 captures the next utterance.
 
@@ -84,12 +86,47 @@ captures the next utterance.
 - Tested headless: a Kokoro-synthesized "Hey Mycroft" peaks the score at 1.00; 3 s of white
   noise peaks at 0.001. Real-voice detection through the live mic is Nathan's to confirm.
 
+### Wake phrase tuning (2026-09-22)
+
+`wake_phrase_fuzz` is the fuzzy-match bar (0-1, default 0.80). On the rebuilt Surface with
+`base.en`, Nathan's "hey beast" came through as "how you beast" and "bye beast", both scoring
+0.778, so the default missed him. Set to **0.76**, not 0.75: at 0.75 exactly, "a beast" and
+"hey bee" (both 0.750) would wake it, which is what the default exists to block. "the beast"
+(0.89) and "yo beast"/"hi beast" (0.82) wake at any of these settings. To score a phrase:
+`difflib.SequenceMatcher(None, "<two heard words>", "hey beast").ratio()`.
+
+`wake_debug` is **off**. When on, it logs every utterance the open mic transcribes into
+`logs\backtalk.log`, so room conversation ends up on disk. Turn it on only while tuning, then
+off again.
+
 ## Running the voice line
 
 - Desktop shortcut "Talk to The Beast", or `uv run python -m backtalk.main` from the backtalk folder.
 - `start.bat` / the shortcut uses `uv sync --inexact` — do not run a bare `uv sync` (exact),
   it prunes `pip` and the `en_core_web_sm` spaCy model that Kokoro needs.
-- "Goodbye Nathan" ends the session cleanly. Logs: `backtalk\logs\backtalk.log`.
+- **"Goodbye The Beast"** hangs up cleanly (the startup line says "say 'goodbye the beast' to
+  hang up"; it is "goodbye" plus the agent's `name`). Logs: `backtalk\logs\backtalk.log`.
+- Hold Caps Lock, speak, release, then leave the key alone: **pressing it while The Beast is
+  talking cancels the reply**.
+- First run after a wipe downloads Whisper `base.en` (Systran) and Kokoro-82M into
+  `C:\Users\Fredy 2\.cache\huggingface\hub`; the symlink warning during that is harmless.
+  On 2026-09-22 startup took about 8 minutes, most of it Kokoro loading while RAM was short
+  (0.3 GB available). Closing Obsidian got it through.
+
+### Whisper repetition loops (local patch, 2026-09-22)
+
+Symptom: push-to-talk turns arrive as "Okay. All right. All right..." or "Okay. Okay. Okay..."
+whatever was said. Cause: upstream calls `model.transcribe(..., temperature=0.0)`, which
+disables faster-whisper's re-decode of looping output, and the Surface mic is fairly quiet
+(speech around -40 dBFS RMS on the generic driver), which makes loops start. Ruled out on the
+way, each by measurement: mic level (Whisper transcribed a plain recording correctly, and 8 dB
+of gain changed nothing), Caps Lock handling (a 3 s hold read as 2.99 s), and the speaker and
+open-mic streams being open at once (same level, and the first twelve words came through
+fine before the loop).
+
+Fix, local commit `cd7198b` in `backtalk/ears.py` `transcribe()`: `temperature=(0.0, 0.2,
+0.4, 0.6, 0.8, 1.0)`. Tested on the recording that looped: "1-2-3...-12-8-12-8-12..." became
+"1, 2, 3, ... 12, 13."; clean recordings decode the same. Worth reporting upstream.
 
 ## Audio output device (local source patch, 2026-08-29)
 
@@ -155,7 +192,8 @@ The `.venv` is not in the backup, so a wipe means recreating it. From the backta
 `uv sync` installs neither `pip` nor the spaCy model, and kokoro needs both. `webrtcvad`
 installs as the prebuilt `webrtcvad-wheels`, so no C++ Build Tools are needed. The local
 source patches (wake-phrase gate in `ears.py`, WASAPI output in `mouth.py`, `tts_device` in
-`config.py`) are committed in the backtalk repo (`0b9cec7`, merged in `8190423`), so a
+`config.py`) are committed in the backtalk repo (`0b9cec7`, merged in `8190423`; plus the
+Whisper loop fix `cd7198b`, 2026-09-22), so a
 restored folder keeps them. A fresh clone from upstream would not, so since 2026-09-22 they are
 also backed up in the my-agent repo as `tool-configs\backtalk-local.bundle` (full history) and
 `tool-configs\backtalk-local.patch` (one plain diff), both tested to restore. Restore steps are in
