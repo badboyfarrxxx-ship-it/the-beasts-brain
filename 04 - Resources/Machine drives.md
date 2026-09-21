@@ -16,16 +16,17 @@ reboot. **Do not trust a drive letter to mean the same thing between reboots.**
 > therefore hangs off a chain of hubs, not because anyone chose that but because there is
 > nowhere else to plug them. That single fact explains most of this note.
 >
-> **It has a battery, and Windows cannot see it. See "The battery is invisible" below.**
-> Do not read `Win32_Battery` returning nothing as "this is a desktop"; that was an
-> assumption made on 09-12 and Nathan corrected it.
+> **Current state (checked 2026-09-22, after the 09-15 rebuild onto tiny11 25H2).**
+> Windows sees the battery again (`Win32_Battery` returns `SurfaceBattery`), so the
+> invisible-battery fault went with the old install. `Program Files` and `Users` are back on
+> the internal `C:` (profile `C:\Users\Fredy 2`), not on a USB drive. Mounted: `C:`, plus
+> external `D:`, `E:`, `F:`, `H:` still on the hub tree. Everything below this box describes
+> the pre-rebuild machine and is history, including the `badbo` paths.
 
-> **Read "2026-09-12: a Storage Space is back, and it is now load-bearing" at the bottom
-> first. Everything above it about `D:` and `G:` is history.** `D:` has meant three
-> different things in ten days: a degraded Storage Space partition (09-02), a Lexar USB
-> flash drive (09-04), and now a healthy single-SSD Storage Space holding `Program Files`
-> and `Users` (09-12). **Check what a letter actually is before writing to it, every single
-> time.**
+> **Check what a drive letter actually is before writing to it, every single time.** `D:`
+> meant three different things in ten days before the rebuild: a degraded Storage Space
+> partition (09-02), a Lexar USB flash drive (09-04), and a single-SSD Storage Space holding
+> `Program Files` and `Users` (09-12).
 
 ## The machine itself is fine
 
