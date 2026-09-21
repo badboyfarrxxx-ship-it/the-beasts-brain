@@ -11,7 +11,15 @@ How this machine builds [[VLC]] from source into a native Windows binary. First 
 
 ## Status
 
-- **Build environment: working.** MSYS2 + toolchain + Qt6 installed, VLC source cloned, `extras/tools` built, prebuilt contribs installed, `configure` passes with `--disable-dbus --disable-ncurses` and the Qt GUI enabled.
+> **After the 2026-09-15 rebuild (checked 2026-09-22): the build environment is gone.** There
+> is no `C:\msys64` and no `C:\Users\badbo`, so MSYS2, the toolchain, Qt6, the VLC source
+> tree and the `Builds\VLC` run folder no longer exist on this machine. Everything below
+> describes the old install. What survived: the two patched source files
+> ([[vlc-source-patches]]) and the installer `VLC-4.0-dev-setup.exe` on `E:` (which has no
+> drive letter since 2026-09-22; see [[Machine drives]]). Rebuilding the environment is part
+> of [[Dev machine setup]] if Nathan wants it.
+
+- **Build environment: working (old install).** MSYS2 + toolchain + Qt6 installed, VLC source cloned, `extras/tools` built, prebuilt contribs installed, `configure` passes with `--disable-dbus --disable-ncurses` and the Qt GUI enabled.
 - **`vlc.exe` COMPILES AND THE FULL QT GUI RUNS.** As of 2026-08-29 `make -k` produces `win64/bin/.libs/vlc.exe` (`VLC 4.0.0-dev Otto Chriek`, gcc 16.2), 409 plugin DLLs, and a plugin cache. Getting a runnable GUI took **two small source patches** (below) plus a hand-assembled run folder, because MSYS2's Qt is shared where VLC's contrib Qt is static.
 - **The finished build lives at `C:\Users\badbo\Builds\VLC\`** (~1.5 GB, `vlc.exe` + all plugins + Qt runtime + data + `vlc.ico`). Desktop shortcut **"VLC 4.0 (dev build)"** points at it (workdir set, VLC icon). Tested from both the folder and the shortcut — the real VLC 4.0 QML interface, ~200 MB working set, no errors. It was on `G:\Builds\VLC` from 2026-08-29 to 2026-09-01, then moved back to C: (G: is a spinning HDD, so scans and launch dragged); freed the space for it by disabling hibernation and clearing caches. Nathan also has a separate stable VLC installed at `D:\Program Files\VLC`.
 - **Distributable installer: `VLC-4.0-dev-setup.exe`** (306 MB, NSIS/MUI2, LZMA), plus its two `.nsi` scripts and a `README.txt`, now live at `E:\programs installs\programs setups\aaaaamy builds\VLC 4.0 dev setup\` (moved off the dead G: drive, see the 2026-09-02 note below). Also copied by File History to `E:\FileHistory\...\Users\badbo\Builds\installer\`. The `.exe` is verified intact (valid PE, sha256 `447a96012660175c827fb5b0840fc725894a3123965e79528e64a7f4e2d3d1f8`). Built with a **custom `.nsi`** (session scratchpad `vlc-dev-installer.nsi`), not VLC's `make package-win32-exe` — that chain wants `make install` to succeed (the `vlc-cache-gen` install-exec-hook breaks it), doesn't gather the shared Qt runtime, and needs a 32-bit toolchain for `nsProcess.dll`. The custom installer wraps `Builds\VLC\` → `$PROGRAMFILES64\VLC 4.0 dev`, Start Menu + optional Desktop shortcut, real uninstaller + Add/Remove entry, GPL license page, **no file associations** (Nathan's stable VLC keeps those). It runs `vlc-cache-gen` post-extract (NSIS re-timestamps files, staling the bundled `plugins.dat`). Full install→launch→uninstall lifecycle verified via a user-level test variant.
