@@ -505,7 +505,32 @@ individually (that many files is not practical to hand-check), and not touched. 
 Nathan's call, same as `apk mobile apps`**: leave it, do something else, or wipe it.
 
 **`E:` is still mounted and not yet re-isolated.** Needs `mountvol E: /P` from an elevated
-prompt once Nathan is done with it.
+prompt once Nathan is done with it. *(Done 2026-09-22; see below.)*
+
+## 2026-09-22: `E:` dismounted, quarantine and lure wiped
+
+- **`E:` dismounted** with `mountvol E: /P` (Nathan, elevated). A reboot brings the volume back
+  online with no drive letter, readable only through `\\?\Volume{12920787-...}\`. Detail in
+  [[Machine drives]].
+- **The quarantine folder is permanently deleted**, on Nathan's decision:
+  `C:\Users\Fredy 2\QUARANTINE-2026-09-16-malware\`, 20 files, 8.7 GB. Every confirmed threat moved
+  there on 09-16 is gone: both AOMEI v10.3.0 exes (`D:`), the AutoCAD Civil 3D keygen `.rar`, four
+  Lucky Patcher APKs, the iMazing patch zip, the IDA `Keygen.zip`, the USTV Adfraud APK, the File
+  History AOMEI `TE.exe` and `$OF` exe, the two SSD-recovery keygen/activator exes, and the Office
+  2016 + KMS activator package. No samples were kept. Nathan ran the delete himself
+  (`rd /s /q "\\?\C:\..."`; the `\\?\` form was needed because the Office folder is past the
+  260-character path limit).
+- **The lure is deleted:** `E:\Download Latest Cracks and Apps.url` (117 bytes, dated
+  2026-04-15). `del` rejects volume-ID paths ("The parameter is incorrect"); PowerShell's
+  `Remove-Item -LiteralPath '\\?\Volume{...}\<file>' -Force` worked.
+- **Kept on purpose, Nathan's call on 09-22** (offered for wiping, not chosen):
+  `E:\programs installs` (146 GB, the pirated-software stash, including the 32 GB
+  `apk mobile apps` collection), `E:\tools`, `E:\New folder (2)`, `E:\margrat` (possibly
+  [[Margaret McMahon]]'s), and the SSD recovery dump's `Compressed files` and `Other files`
+  (~5,800 reputation-only hits). `FileHistory` was never on the list; it is the last-resort backup
+  of the old profile. All named threats in these were already removed on 09-16; what remains is
+  unverified pirated material with no named detections.
+- Verified afterwards (8:32 AM): neither path exists.
 
 ## Related
 

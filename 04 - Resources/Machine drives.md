@@ -479,7 +479,8 @@ again. Straight after, `mountvol` showed "NOT MOUNTABLE UNTIL A VOLUME MOUNT POI
 CREATED" (fully offline). After the 8:06 AM reboot it showed "NO MOUNT POINTS" instead: still
 no drive letter, but the volume is online and its folders can be listed through
 `\\?\Volume{12920787-a58e-11f1-90b0-d4548b588599}\`. So what survives a reboot is "no letter",
-not "offline". Whether that is enough isolation is open in [[Active Priorities]].
+not "offline". Nathan accepted that as enough on 09-22, and had the cracks lure on it and the
+`C:` quarantine folder deleted instead (see [[Security incident 2026-09-12]]).
 
 To check it, look the volume up by ID (disk numbers move): `mountvol` and find
 `{12920787-...}`, or `Get-Volume | ? UniqueId -like '*12920787*'`.
