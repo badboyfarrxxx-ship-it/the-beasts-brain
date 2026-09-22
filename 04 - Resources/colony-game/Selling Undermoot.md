@@ -96,7 +96,12 @@ The difference between the bottom and the middle is almost always marketing, not
 - Decide whether the procedural art is good enough for a paid page, or whether a few `.glb`
   models (see [[colony-game]], "Real 3D models") are worth adding first.
 
-**Step 1: split it into a demo and a full game.**
+**Step 1: split it into a demo and a full game.** *Designed 2026-09-23, spec in the working
+copy at `docs/superpowers/specs/2026-09-23-demo-build-design.md`. Nathan's decisions: the demo
+ends after zone 4 (Bramble Sinks, right after the Choosing of the Brood; 82 of 290 fights);
+progress carries into the full game through the save code; the demo is cut from the sale
+content at build time so the paid zones aren't in the free file. Store link left empty until
+the itch.io page exists.*
 - The engine already supports this: a build is just another content file. A demo build ends
   after about three zones with a screen pointing to the full game.
 - The demo plays in the browser on itch.io. The full game is a download (the same single HTML
