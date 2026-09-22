@@ -89,7 +89,7 @@ npm install              # three.js, Vite, the single-file plugin and Playwright
 npx playwright install chromium   # once per machine, the smoke test's browser
 npm run dev              # dev server with hot reload (sale build)
 npm run build            # all three builds (on Windows use Git Bash; see the README's Test section)
-npm test                 # playthrough check, then 25 browser checks per build (not the demo yet)
+npm test                 # playthrough check, then the browser smoke test on all three builds
 npm run test:unit        # unit tests, no browser needed
 npm run scan             # after a build: no book names in sale or demo, no paid content in the demo
 npm run preview          # reference page with all 14 creature shapes
@@ -98,9 +98,20 @@ npm run models           # export every creature to a .glb file
 
 On this machine, `npm run build` fails (the scripts set `GAME_PACK` the Unix way); the
 README gives the Git Bash build commands. Everything else runs, including the browser smoke
-test since 2026-09-23 (Playwright 1.63 is a devDependency and Chromium is installed; about
-55 seconds for both builds). "World resumes after the battle" failed once and then passed 8
-reruns; it now prints the open modals when it fails, so the next failure shows the cause.
+test since 2026-09-23 (Playwright 1.63 is a devDependency and Chromium is installed). It
+covers all three builds: 25 checks each, plus 10 for the demo's ending and the save code
+carrying into the full game, 85 in all, about 75 seconds.
+
+**Smoke test timing traps (fixed 2026-09-23, in the test, not the game).** The software
+renderer draws frames far apart, and after a battle the world waits 700ms before a creature
+can touch the player again. Checks that waited a fixed time were flaky: a second creature (or
+the boss the player was still standing on) started a new fight, and its battle window either
+failed the check or blocked "Back to colony" until Playwright's 30-second timeout. The fixes:
+check inside the cooldown, move the player off the boss after fleeing, finish any fight
+before leaving the world, and wait on game state rather than fixed delays. When adding 3D
+checks, follow the same pattern. After the fixes, 7 of 8 runs passed all 85. The one miss was
+"lowest quality tier doesn't collapse" (needs more than 4 fps) on the fan build, the first
+page opened; it now prints the measured fps when it fails, to decide if the bar is too tight.
 
 All names, story text, numbers and colours are in `src/content.personal.json` and
 `src/content.sale.json`. The code contains none of them. A third version of the game is
