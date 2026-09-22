@@ -137,6 +137,13 @@ rate in a normal browser (Firefox here), with its window in front, never in the 
 Not yet tested: Chrome or Edge (neither is installed; tiny11 removes Edge), the HP, and a
 phone. The HP is the more useful next test, since it's the weaker machine.
 
+**Test file for other machines:** `C:\Users\Fredy 2\Documents\undermoot-bench.html` (630 KB,
+built 2026-09-22). It is the sale build with the benchmark script built in. Double-click it
+(or open it in any browser), leave the window in front for about 40 seconds: it enters the 3D
+world on its own, measures every quality level, and shows the results in a green box. Opened
+as a local file it only shows them; served from the test server it also reports back. It is
+a test copy, not for sale or sharing. Checked end to end on 2026-09-22.
+
 ## Known limits
 
 - The art is procedural. The creatures read clearly as real animals on real ground, but
