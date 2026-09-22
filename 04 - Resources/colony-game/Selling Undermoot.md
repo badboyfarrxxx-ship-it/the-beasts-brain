@@ -136,6 +136,35 @@ this folder (see [[colony-game]]). Status: built and delivered, not yet on itch.
   game" link in the demo's end screen. That's the owned list.
 - Revenue share: the default 10% is fine; it can be changed any time.
 
+**Step 2b: host the installable demo (researched 2026-09-23).** The demo is now an
+installable app (see [[colony-game]], "Installable app"), but a browser only offers to
+install it over https and never inside an iframe, so the itch.io embed cannot do it. It
+needs a real address of its own. All three free options were checked against their own
+docs on 2026-09-23:
+
+| Host | Free tier | Fit |
+|---|---|---|
+| **Cloudflare Pages** | No bandwidth charge on static assets. 500 builds a month, 20,000 files, 25 MiB per file, 100 projects. Works from a private repo, or with no repo at all | **Recommended.** The game is one 0.63 MB file, nowhere near any limit |
+| **Netlify** | Credit-based since 2026: 300 credits a month, bandwidth 20 credits per GB, 15 credits per production deploy. That is roughly 15 GB, about 24,000 plays, minus deploys | Works, but the credit model is a meter to watch for no gain here |
+| **GitHub Pages** | Free **only on public repos**; private repos need GitHub Pro | **No.** `colony-game` holds the fan build and must stay private, so this would mean a second public repo or a paid plan |
+
+**Use Cloudflare Pages with Direct Upload, not the Git integration.** Direct upload takes
+a folder (drag and drop on their dashboard, or `npx wrangler pages deploy`), so the only
+bytes that leave the machine are `dist/pwa-demo/`. No access to the repo, no build config
+to get wrong, and no way to publish the fan build or the paid zones by accident. One
+catch from their docs: a direct-upload project **cannot be switched to Git integration
+later**; that needs a new project. Nathan creates the Cloudflare account himself. Cost:
+zero, on a `<name>.pages.dev` address. A custom domain is optional and works on the free
+plan.
+
+**The part this does not solve: the full game can't be an installed app.** Installing
+needs https, and a bought copy is a file on the buyer's disk, so a paid download stays a
+double-clickable HTML file, not an app with an icon. Three ways out, all decisions for
+later: sell a wrapped Windows build (the same work Steam needs anyway), host the full
+game behind some per-buyer address (itch's download keys do not do this), or accept it
+and let the demo be the only installable piece. **This is the strongest practical argument
+for the desktop wrapper**, ahead of Steam itself.
+
 **Step 3: get it seen.** itch.io's own traffic is thin; most sales come from what you bring.
 Devlogs on the itch.io page, short clips (the 3D world and a boss fight), posts in
 incremental-game communities (r/incremental_games and similar), and game jams.
