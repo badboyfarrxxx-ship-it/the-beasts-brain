@@ -109,7 +109,24 @@ this folder (see [[colony-game]]). Status: built and delivered, not yet on itch.
 - The demo plays in the browser on itch.io. The full game is a download (the same single HTML
   file), sold on the same page.
 
-**Step 2: launch on itch.io.**
+**Step 2: launch on itch.io.** *Upload mechanics checked against itch.io's own docs
+2026-09-23:*
+- *A self-contained single HTML file is uploaded **as is**, no zip. Zips are only for
+  multi-file projects, and then they need an `index.html` inside. Both builds are single
+  files, so nothing needs packaging.*
+- ***Browser games on itch can only take donations, not sales.** itch's HTML5 guide says
+  so plainly: to charge for something, its "Kind of Game" has to be Downloadable. The
+  docs don't describe a paid page with a playable demo embedded in it, so the shape is
+  probably two pages: a free HTML demo page (playable, donations on) linking to a paid
+  downloadable page for the full game. Confirm that in the editor before building the page,
+  because it decides the store link and the page copy.*
+- ***Ordering trap: the demo's "Get the full game" button needs the store URL, which only
+  exists once the page does.** `storeUrl` is empty in `src/demo.js`, and the button stays
+  hidden while it is. So: create the page (unpublished) to get the URL, set `storeUrl`,
+  rebuild the demo, then upload that build. Uploading the current file first means
+  re-uploading later.*
+- *Nathan has to create the itch.io account himself; the AI does not create accounts or
+  enter payment details.*
 - Price about **US$4.99**, pay-what-you-want above that (third-party guidance says PWYW buyers
   pay about 30% more on average; one developer reports never earning from PWYW with no minimum,
   so keep the minimum).
