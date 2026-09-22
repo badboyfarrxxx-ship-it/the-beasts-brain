@@ -85,19 +85,22 @@ as notes. After a change, rebuild, then copy all three `dist/*.html` files here 
 zip with `git archive --format=zip --prefix=colony-game/ -o <vault>/colony-game-source.zip HEAD`.
 
 ```
-npm install              # three.js, Vite and the single-file plugin
+npm install              # three.js, Vite, the single-file plugin and Playwright
+npx playwright install chromium   # once per machine, the smoke test's browser
 npm run dev              # dev server with hot reload (sale build)
-npm run build            # both builds (on Windows use Git Bash; see the README's Test section)
-npm test                 # playthrough check, then 24 browser checks per build
+npm run build            # all three builds (on Windows use Git Bash; see the README's Test section)
+npm test                 # playthrough check, then 25 browser checks per build (not the demo yet)
 npm run test:unit        # unit tests, no browser needed
-npm run scan             # after a build: no fan-build names in the sale file
+npm run scan             # after a build: no book names in sale or demo, no paid content in the demo
 npm run preview          # reference page with all 14 creature shapes
 npm run models           # export every creature to a .glb file
 ```
 
-On this machine, `npm run build` fails (the scripts set `GAME_PACK` the Unix way) and the
-browser smoke test can't run (it loads Playwright from the cloud session's Linux path). The
-README gives the Git Bash build commands. The progression test, unit tests and scan all run.
+On this machine, `npm run build` fails (the scripts set `GAME_PACK` the Unix way); the
+README gives the Git Bash build commands. Everything else runs, including the browser smoke
+test since 2026-09-23 (Playwright 1.63 is a devDependency and Chromium is installed; about
+55 seconds for both builds). "World resumes after the battle" failed once and then passed 8
+reruns; it now prints the open modals when it fails, so the next failure shows the cause.
 
 All names, story text, numbers and colours are in `src/content.personal.json` and
 `src/content.sale.json`. The code contains none of them. A third version of the game is
