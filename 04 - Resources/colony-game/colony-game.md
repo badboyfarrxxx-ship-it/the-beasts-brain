@@ -77,7 +77,8 @@ what was asked and what came of each request.
 **The working copy is `C:\Users\Fredy 2\Documents\colony-game`**, a local git repo (set up
 2026-09-22, baseline commit `103e242`), with `npm install` done. Since 2026-09-23 it is
 backed up to the **private** GitHub repo `badboyfarrxxx-ship-it/colony-game` (remote
-`origin`, default branch `master`, both `master` and `demo-build` pushed). It holds the fan
+`origin`, and `master` is the only branch: the `demo-build` branch was merged into it and
+removed from both copies on 2026-09-23). It holds the fan
 build's content, so it must stay private. It is not one of the two auto-pushed backup repos
 in [[Vault backup]]; push it when work lands. Work there,
 never inside the vault: `node_modules` holds 27 markdown files that Obsidian would pick up
