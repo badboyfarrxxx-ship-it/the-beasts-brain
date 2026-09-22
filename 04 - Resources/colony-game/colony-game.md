@@ -134,8 +134,23 @@ performance problem in the game. It wasn't: a bare WebGL canvas that only clears
 frame also ran at 30.4 fps in the pane, while a page without WebGL ran at 60. Measure frame
 rate in a normal browser (Firefox here), with its window in front, never in the pane.
 
-Not yet tested: Chrome or Edge (neither is installed; tiny11 removes Edge), the HP, and a
-phone. The HP is the more useful next test, since it's the weaker machine.
+**The HP, 2026-09-22 (Chrome 153): 3 to 11 fps, but not a valid test of the game.** The
+test reported the GPU as `Microsoft Basic Render Driver`, which is Windows' software
+fallback: the HP's NVIDIA GeForce 710A has no driver installed (predicted in
+[[Building tiny11 images]]), so the 3D world was drawn on the 2013 Pentium processor.
+Quality 0: 3.2 fps, 1: 7.4, 2: 11.6, 3: 11.3; worst frames 109 to 922 ms. Two things it does
+tell us about the game:
+
+- **Some buyers will have no working graphics driver**, and on software rendering the 3D
+  world is unplayable at any quality. The game could spot this (the GPU name contains "Basic
+  Render Driver", "SwiftShader" or "llvmpipe") and say so plainly, instead of just running
+  badly.
+- **The auto-tuner still said quality 0 at 2.8 fps**, 9 seconds after entering the world.
+  It should have stepped down by then. Possibly the world took a long time to build on the
+  processor, so the tuner had barely started; not yet confirmed.
+
+Re-test the HP once its NVIDIA driver is installed. Not yet tested: Chrome on a machine with a
+working GPU, and a phone.
 
 **Test file for other machines:** `C:\Users\Fredy 2\Documents\undermoot-bench.html` (630 KB,
 built 2026-09-22). It is the sale build with the benchmark script built in. Double-click it

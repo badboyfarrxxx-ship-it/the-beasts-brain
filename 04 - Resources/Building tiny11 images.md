@@ -243,7 +243,9 @@ Microsoft-signed `bootx64.efi`, so the boot chain is still signed. Try it as-is 
 2. **No graphics driver on the image.** Kepler's last NVIDIA branch is R470, end-of-life in
    2024 but it does cover Windows 11. It will not be on a 21H2 image and the machine is
    meant to stay offline, so expect Microsoft Basic Display Adapter: a usable 1080p desktop
-   with no acceleration, and rough video. The Ivy Bridge integrated graphics is equally
+   with no acceleration, and rough video. **Confirmed 2026-09-22:** Chrome on the installed HP
+   reports `Microsoft Basic Render Driver`, so 3D in the browser falls back to the processor
+   (Undermoot ran at 3 to 11 fps; see [[colony-game]]). The NVIDIA driver is still to install. The Ivy Bridge integrated graphics is equally
    unsupported, so there is no better fallback. Fetching the R470 driver is a few hundred MB,
    which matters while Nathan is rationing data.
 3. **Use the Ethernet port, not the Wi-Fi.** A 2013 b/g/n card is a coin flip for in-box
