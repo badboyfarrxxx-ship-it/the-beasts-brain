@@ -72,7 +72,11 @@ what was asked and what came of each request.
 ## Working on it
 
 **The working copy is `C:\Users\Fredy 2\Documents\colony-game`**, a local git repo (set up
-2026-09-22, baseline commit `103e242`; no remote yet), with `npm install` done. Work there,
+2026-09-22, baseline commit `103e242`), with `npm install` done. Since 2026-09-23 it is
+backed up to the **private** GitHub repo `badboyfarrxxx-ship-it/colony-game` (remote
+`origin`, default branch `master`, both `master` and `demo-build` pushed). It holds the fan
+build's content, so it must stay private. It is not one of the two auto-pushed backup repos
+in [[Vault backup]]; push it when work lands. Work there,
 never inside the vault: `node_modules` holds 27 markdown files that Obsidian would pick up
 as notes. After a change, rebuild, then copy both `dist/*.html` files here and refresh the
 zip with `git archive --format=zip --prefix=colony-game/ -o <vault>/colony-game-source.zip HEAD`.
@@ -250,3 +254,18 @@ reached the vault; on 2026-09-22 they were written into `04 - Resources/colony-g
   they load a mid-game save instead of playing through.
 - The finale was played through in a real browser, with no errors. The sale build was
   scanned again for names from the books, with zero matches. All tests pass.
+
+### 2026-09-23: hidden 3D world stays paused
+
+- **Bug:** `WORLD3D.onBattleResolved()` unpaused the world after every battle, including
+  hunts from the colony screen with the 3D world closed. The hidden world then ran: held
+  keys moved the player and enemy and boss touches fired. In the demo this reopened the end
+  screen after every hunt (first patched in `showDemoEnd()`, commit `9bf2cd7`).
+- **Fix (commit `9ff3b7f`):** the world tracks whether it is open. `openWorld` and
+  `closeWorld` call `WORLD3D.setOpen()`, and a battle only unpauses an open world.
+  `WORLD3D.debug()` now also reports `open`.
+- Checked in a browser: colony hunts (fled and won) leave it paused, held keys don't move
+  the hidden player, and battles inside the world still resume movement. All three packs
+  build; unit, progression and scan pass.
+- `demo-build` was then fast-forwarded into `master` (all 8 demo commits plus this fix) and
+  both branches pushed to the new GitHub repo.
