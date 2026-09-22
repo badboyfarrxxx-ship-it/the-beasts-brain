@@ -158,9 +158,10 @@ tell us about the game:
   **Confirmed on the real HP (no driver), 2026-09-22:** the auto-tuner now starts at
   quality 3, 12.2 fps, against quality 0 at 2.8 fps before the change. Per level: 0: 2.5,
   1: 3.2, 2: 7.5, 3: 13.7 fps (worst frame 94 ms at quality 3). Still slow, as expected on
-  the processor; the fix is the driver, which the notice tells the player. (The test's own
-  green results box covers the top of the screen, so the amber notice wasn't visible in the
-  photo.)
+  the processor; the fix is the driver, which the notice tells the player. A second photo
+  from the HP shows the amber notice itself under the zone bar, full text and "Got it"
+  button, with the 3D world rendering below and touch controls on (the HP's touchscreen
+  was detected). Feature done.
 - **The auto-tuner still said quality 0 at 2.8 fps**, 9 seconds after entering the world.
   It should have stepped down by then. Possibly the world took a long time to build on the
   processor, so the tuner had barely started; not yet confirmed.
