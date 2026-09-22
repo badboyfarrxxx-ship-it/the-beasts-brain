@@ -25,6 +25,8 @@ what was asked and what came of each request.
 - `colony-game-source.zip`: the source project (npm + Vite). See "Working on it".
 - [[Chrysalis book notes]]: the research on all nine books that the personal build is
   based on. It has spoilers throughout.
+- [[Selling Undermoot]]: where and how to sell the sale build (research and a recommended
+  plan, 2026-09-22).
 
 ## What the game is
 
@@ -120,8 +122,8 @@ real graphics chip.
   already cover, and mining a full novel's text for a game is a different act from
   reading public recaps). Nathan chose to put the effort into Undermoot instead. If the
   fan build is ever extended, it will be from Nathan's own summary of Books 6–9.
-- Neither build is published anywhere. How and where to sell Undermoot hasn't been
-  discussed.
+- Neither build is published anywhere. Where and how to sell Undermoot was researched on
+  2026-09-22: see [[Selling Undermoot]]. Nothing is decided yet.
 
 ## How it was built (the chat, 2026-09-19)
 
