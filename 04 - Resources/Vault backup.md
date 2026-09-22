@@ -74,8 +74,9 @@ tracked patch file or a fork is a separate open task.
 - Git for Windows, installed 2026-09-16 on the rebuilt Surface via
   `winget install --id Git.Git`. Its bundled Git Credential Manager holds the GitHub
   sign-in.
-- `gh` (GitHub CLI) is **not** installed on the rebuild. The old install had 2.98.0 from
-  2026-09-02. Nothing in the routine backup needs it; it was only used to create the
-  repos.
+- `gh` (GitHub CLI) 2.101.0, installed 2026-09-22 via winget and signed in by Nathan the
+  same day (account `badboyfarrxxx-ship-it`, token in the Windows keyring, scopes `repo`,
+  `workflow`, `gist`, `read:org`). Nothing in the routine backup needs it; git pushes go
+  through Git Credential Manager. See [[Dev machine setup]].
 - Global git identity: `Nathan` / `badboyfarrxxx@gmail.com`, set again 2026-09-16
   after the rebuild.

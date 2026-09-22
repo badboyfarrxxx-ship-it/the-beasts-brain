@@ -26,7 +26,7 @@ example) is gone unless listed below.
 | Windows Terminal | | `wt` |
 | WSL | 2.7.14 | Ubuntu 26.04 registered again 2026-09-22 (see below) |
 | VS Code | 1.138.0 | installed 2026-09-22, winget, user scope (`%LOCALAPPDATA%\Programs\Microsoft VS Code`) |
-| GitHub CLI (`gh`) | 2.101.0 | installed 2026-09-22, winget, `C:\Program Files\GitHub CLI`. **Not signed in yet** |
+| GitHub CLI (`gh`) | 2.101.0 | installed 2026-09-22, winget, `C:\Program Files\GitHub CLI`. Signed in 2026-09-22 (see Plan) |
 | ffmpeg / ffprobe | 9.0.2 (gyan.dev full build) | installed 2026-09-22, winget portable, on PATH via the WinGet package folder |
 | 7-Zip | 26.03 | installed 2026-09-22, winget, `C:\Program Files\7-Zip`. Its installer does not add itself to PATH, so that folder was added to the user PATH by hand |
 
@@ -83,9 +83,10 @@ sale, and web is the lightest stack on 8 GB. Heavy toolchains are added only whe
 needs one.
 
 - [x] VS Code, GitHub CLI, ffmpeg, 7-Zip (2026-09-22).
-- [ ] Sign the GitHub CLI in: Nathan runs `gh auth login` himself (browser sign-in; the agent
-  never handles the credentials). Then GitHub work no longer needs the prefilled-link-in-Firefox
-  workaround.
+- [x] GitHub CLI signed in (2026-09-22, by Nathan with `gh auth login`, browser sign-in; the
+  agent never handles the credentials). Account `badboyfarrxxx-ship-it`, token in the Windows
+  keyring. Verified by reading jaredrhod/backtalk#54 through `gh`. GitHub work no longer needs
+  the prefilled-link-in-Firefox workaround.
 - [ ] Later, per project: the other items under "Missing".
 
 Browsers here: Edge is the default, Nathan uses Firefox (Microsoft Store version,

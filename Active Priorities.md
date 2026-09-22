@@ -9,7 +9,6 @@ The single queue of open work across everything. Tag each item with its project 
 
 ### Open Tasks
 - [ ] **SECURITY: finish rotating credentials, from the phone.** Done and verified 09-12: Gmail, Microsoft account, GitHub (both stolen OAuth logins confirmed dead). Left: anything with a saved card, then every site in the Chrome and Edge password lists, working down `H:\Surface backup 2026-09-12\sites-to-rotate-PRIORITISED.txt` (banks first). The Surface has since been wiped (09-15), so the old "Claude last, right before the wipe" ordering no longer applies. Whether Claude "log out everywhere" was done before the wipe is not recorded; do it if unsure. Also still open: whether to put an Equifax credit ban on. See [[Security incident 2026-09-12]].
-- [ ] **Get this computer set up as a machine for building programs.** Web first (decided 09-22). Done 09-22: inventory, WSL Ubuntu re-registered, VS Code, GitHub CLI, ffmpeg and 7-Zip installed and verified. Left: Nathan signs the GitHub CLI in (`gh auth login`); heavier toolchains only when a project needs them. See [[Dev machine setup]].
 - [ ] Start making money from the programs I build.
 - [ ] **Point [[camera-wall]] at the real cameras.** The app is built and tested against fake
   cameras; these steps are all on the camera side. ffmpeg is installed on the Surface as of
@@ -40,3 +39,4 @@ The single queue of open work across everything. Tag each item with its project 
 - [x] **Post the backtalk Whisper-loop issue upstream.** Posted 09-22 by Nathan as [jaredrhod/backtalk#54](https://github.com/jaredrhod/backtalk/issues/54), from the draft in `my-agent/drafts/`. See [[backtalk voice - operating notes]].
 - [x] **tiny11: install the HP from the stick.** Done; Nathan confirmed on 09-22 that the install (started 09-15) finished. See [[Building tiny11 images]].
 - [x] **Delete the broken tiny11 ISO.** Deleted on Nathan's OK on 09-22: the `tiny11 iso - BROKEN DO NOT USE` folder on `E:` (946 files, 1.38 GB, including the 208-byte stub `install.wim`). The working ISO and its instructions stay. See [[Building tiny11 images]].
+- [x] **Get this computer set up as a machine for building programs.** Done 09-22 for web work (Nathan's choice): VS Code, GitHub CLI (signed in), ffmpeg and 7-Zip on top of Git, Node 24 and Python 3.12, and WSL Ubuntu re-registered. Heavier toolchains get added when a project needs one. See [[Dev machine setup]].
