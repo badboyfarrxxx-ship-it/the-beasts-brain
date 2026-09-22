@@ -22,6 +22,9 @@ what was asked and what came of each request.
 - `chrysalis-fan-game-personal-use.html`: the fan version, which uses the books' names and
   plot (Books 1–5). **For private use only.** See the section on the line between the two
   builds.
+- `undermoot-demo.html`: the free demo of Undermoot (zones 1 to 4, ends after the Choosing
+  of the Brood). Progress carries into the full game through the save code. Built from the
+  sale content, with the paid zones cut out. See [[Selling Undermoot]].
 - `colony-game-source.zip`: the source project (npm + Vite). See "Working on it".
 - [[Chrysalis book notes]]: the research on all nine books that the personal build is
   based on. It has spoilers throughout.
@@ -78,7 +81,7 @@ backed up to the **private** GitHub repo `badboyfarrxxx-ship-it/colony-game` (re
 build's content, so it must stay private. It is not one of the two auto-pushed backup repos
 in [[Vault backup]]; push it when work lands. Work there,
 never inside the vault: `node_modules` holds 27 markdown files that Obsidian would pick up
-as notes. After a change, rebuild, then copy both `dist/*.html` files here and refresh the
+as notes. After a change, rebuild, then copy all three `dist/*.html` files here and refresh the
 zip with `git archive --format=zip --prefix=colony-game/ -o <vault>/colony-game-source.zip HEAD`.
 
 ```
