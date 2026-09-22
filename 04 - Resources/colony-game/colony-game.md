@@ -118,6 +118,34 @@ All names, story text, numbers and colours are in `src/content.personal.json` an
 `src/content.sale.json`. The code contains none of them. A third version of the game is
 another content file. `README.md` inside the zip is the full manual.
 
+## Installable app (PWA), built 2026-09-23
+
+Nathan asked for the game "as an app" and chose the installable web app over a desktop or
+Android wrapper, on the basis that it costs nothing, needs no store, and doesn't block a
+wrapper later. `npm run pwa:demo` (or `pwa:sale`) writes `dist/pwa-<pack>/`: the built
+file with a manifest link, theme colour and service worker registration added, plus
+`manifest.webmanifest`, `sw.js` and three icons. The game's own code is untouched. The
+manifest and worker come from `src/pwa.js` (pure, unit tested); icons are rendered from
+the pack's hero avatar with Playwright, so there is no art file to maintain.
+
+Installed, it opens from an icon and plays with **no connection**, because the worker
+precaches the one HTML file. Each build gets its own cache name (a hash of the file), so
+a new build replaces the old one.
+
+**Two limits that decide where this can be used.** A browser only offers to install a
+page served over **https or localhost**, and never inside an **iframe**. So a `file://`
+copy and an itch.io embed both stay ordinary web pages: playable, not installable.
+Installing means hosting `dist/pwa-<pack>/` at its own address (GitHub Pages, Netlify,
+Cloudflare Pages). That hosting decision is open; see [[Selling Undermoot]].
+
+**Testing trap:** the Claude app's browser pane **cannot** test this. It refuses to fetch
+a service worker script, so registration fails there with "an unknown error occurred when
+fetching the script" while a plain fetch of the same file returns 200 with the right MIME
+type. A one-line worker fails identically, which is how it was proved to be the pane and
+not the code. `npm run test:pwa` (`test/pwa.cjs`) drives real Chromium over a local
+server instead and checks registration, the manifest, the icons, the precache and an
+offline reload. Both packs pass, demo and sale.
+
 ## Real 3D models
 
 The creatures are procedural: they are built from three.js shapes with textures generated
