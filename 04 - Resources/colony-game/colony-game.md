@@ -71,19 +71,26 @@ what was asked and what came of each request.
 
 ## Working on it
 
-Unzip `colony-game-source.zip` **outside the vault**, for example in
-`Documents\colony-game`. Don't unzip it in here. `npm install` pulls about 57 MB of
-packages into `node_modules`, including 27 markdown files that Obsidian would pick up as
-notes.
+**The working copy is `C:\Users\Fredy 2\Documents\colony-game`**, a local git repo (set up
+2026-09-22, baseline commit `103e242`; no remote yet), with `npm install` done. Work there,
+never inside the vault: `node_modules` holds 27 markdown files that Obsidian would pick up
+as notes. After a change, rebuild, then copy both `dist/*.html` files here and refresh the
+zip with `git archive --format=zip --prefix=colony-game/ -o <vault>/colony-game-source.zip HEAD`.
 
 ```
 npm install              # three.js, Vite and the single-file plugin
 npm run dev              # dev server with hot reload (sale build)
-npm run build            # both builds -> dist/*.html, named after each game
+npm run build            # both builds (on Windows use Git Bash; see the README's Test section)
 npm test                 # playthrough check, then 24 browser checks per build
+npm run test:unit        # unit tests, no browser needed
+npm run scan             # after a build: no fan-build names in the sale file
 npm run preview          # reference page with all 14 creature shapes
 npm run models           # export every creature to a .glb file
 ```
+
+On this machine, `npm run build` fails (the scripts set `GAME_PACK` the Unix way) and the
+browser smoke test can't run (it loads Playwright from the cloud session's Linux path). The
+README gives the Git Bash build commands. The progression test, unit tests and scan all run.
 
 All names, story text, numbers and colours are in `src/content.personal.json` and
 `src/content.sale.json`. The code contains none of them. A third version of the game is
@@ -142,9 +149,13 @@ Quality 0: 3.2 fps, 1: 7.4, 2: 11.6, 3: 11.3; worst frames 109 to 922 ms. Two th
 tell us about the game:
 
 - **Some buyers will have no working graphics driver**, and on software rendering the 3D
-  world is unplayable at any quality. The game could spot this (the GPU name contains "Basic
-  Render Driver", "SwiftShader" or "llvmpipe") and say so plainly, instead of just running
-  badly.
+  world is unplayable at any quality. **Done 2026-09-22:** both builds now detect this (the
+  renderer name contains "Basic Render Driver", "SwiftShader" or "llvmpipe"), start the 3D
+  world at the lightest quality straight away, and show a dismissible notice that the
+  graphics driver is missing. Machines with a real GPU see no change. Unit-tested
+  (`test/gpu.test.mjs`) and checked in a browser both ways (real GPU: no notice; the HP's
+  renderer name simulated: notice shown, quality 3). The book-name scan is clean.
+  Still to see on the real HP, before its driver goes in.
 - **The auto-tuner still said quality 0 at 2.8 fps**, 9 seconds after entering the world.
   It should have stepped down by then. Possibly the world took a long time to build on the
   processor, so the tuner had barely started; not yet confirmed.
