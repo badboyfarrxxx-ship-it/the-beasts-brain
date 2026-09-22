@@ -9,11 +9,13 @@ The single queue of open work across everything. Tag each item with its project 
 
 ### Open Tasks
 - [ ] **SECURITY: finish rotating credentials, from the phone.** Done and verified 09-12: Gmail, Microsoft account, GitHub (both stolen OAuth logins confirmed dead). Left: anything with a saved card, then every site in the Chrome and Edge password lists, working down `H:\Surface backup 2026-09-12\sites-to-rotate-PRIORITISED.txt` (banks first). The Surface has since been wiped (09-15), so the old "Claude last, right before the wipe" ordering no longer applies. Whether Claude "log out everywhere" was done before the wipe is not recorded; do it if unsure. Also still open: whether to put an Equifax credit ban on. See [[Security incident 2026-09-12]].
-- [ ] **Get this computer set up as a machine for building programs.** Started 09-22: inventory taken and WSL Ubuntu re-registered; the plan waits on what kinds of programs Nathan wants to build. See [[Dev machine setup]].
+- [ ] **Get this computer set up as a machine for building programs.** Web first (decided 09-22). Done 09-22: inventory, WSL Ubuntu re-registered, VS Code, GitHub CLI, ffmpeg and 7-Zip installed and verified. Left: Nathan signs the GitHub CLI in (`gh auth login`); heavier toolchains only when a project needs them. See [[Dev machine setup]].
 - [ ] Start making money from the programs I build.
 - [ ] **Point [[camera-wall]] at the real cameras.** The app is built and tested against fake
-  cameras; these steps are all on the camera side. First `winget install Gyan.FFmpeg`, then
-  `npm run discover` to get the IPs, then per app:
+  cameras; these steps are all on the camera side. ffmpeg is installed on the Surface as of
+  09-22 (it had none that morning, although [[camera-wall]] records an ffmpeg install and Node
+  22 on 09-19, and the Surface has Node 24: the wall may have run on another machine; unconfirmed).
+  Then `npm run discover` to get the IPs, then per app:
     - [x] **eufy** — done 2026-09-19, live on the wall. This proved the whole chain (ffmpeg,
       server, browser) on real hardware.
     - [ ] **Smart Life (Tuya)** — in the app: camera Settings > ONVIF ("Onvif Switch") > on,

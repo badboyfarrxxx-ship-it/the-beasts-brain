@@ -25,12 +25,18 @@ example) is gone unless listed below.
 | Codex CLI | 0.155.1 | |
 | Windows Terminal | | `wt` |
 | WSL | 2.7.14 | Ubuntu 26.04 registered again 2026-09-22 (see below) |
+| VS Code | 1.138.0 | installed 2026-09-22, winget, user scope (`%LOCALAPPDATA%\Programs\Microsoft VS Code`) |
+| GitHub CLI (`gh`) | 2.101.0 | installed 2026-09-22, winget, `C:\Program Files\GitHub CLI`. **Not signed in yet** |
+| ffmpeg / ffprobe | 9.0.2 (gyan.dev full build) | installed 2026-09-22, winget portable, on PATH via the WinGet package folder |
+| 7-Zip | 26.03 | installed 2026-09-22, winget, `C:\Program Files\7-Zip`. Its installer does not add itself to PATH, so that folder was added to the user PATH by hand |
+
+All four verified by running them from a fresh PATH. A shell that was already open before the
+install won't see them until it is restarted.
 
 ## Missing (checked 2026-09-22)
 
-`gh` (GitHub CLI), an editor (no VS Code or Cursor), `ffmpeg` (the [[camera-wall]] needs it),
-7-Zip, PowerShell 7, MSYS2 / gcc / cmake / make, Visual Studio Build Tools, .NET, Java, Rust,
-Go, Docker, pnpm/yarn/bun.
+PowerShell 7, MSYS2 / gcc / cmake / make, Visual Studio Build Tools, .NET, Java, Rust, Go,
+Docker, pnpm/yarn/bun. None needed for web work; add when a project calls for one.
 
 Disk: 56 GB free on `C:`. RAM is the real constraint (8 GB); see the note in `my-agent\CLAUDE.md`.
 
@@ -71,5 +77,16 @@ company and unmodified since. Defender is on with signatures from 2026-09-22.
 
 ## Plan
 
-Not decided yet. Waiting on what kinds of programs Nathan wants to build, which decides the
-heavy installs (Visual Studio Build Tools, MSYS2, Android tooling, Docker).
+**Decided 2026-09-22: web first.** Nathan's two most finished projects are web ([[camera-wall]],
+Node + ffmpeg; Undermoot in [[colony-game]], three.js + Vite), Undermoot is the one meant for
+sale, and web is the lightest stack on 8 GB. Heavy toolchains are added only when a real project
+needs one.
+
+- [x] VS Code, GitHub CLI, ffmpeg, 7-Zip (2026-09-22).
+- [ ] Sign the GitHub CLI in: Nathan runs `gh auth login` himself (browser sign-in; the agent
+  never handles the credentials). Then GitHub work no longer needs the prefilled-link-in-Firefox
+  workaround.
+- [ ] Later, per project: the other items under "Missing".
+
+Browsers here: Edge is the default, Nathan uses Firefox (Microsoft Store version,
+`%LOCALAPPDATA%\Microsoft\WindowsApps\firefox.exe`), and there is no Chrome.
