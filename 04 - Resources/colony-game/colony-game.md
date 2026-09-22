@@ -166,8 +166,14 @@ tell us about the game:
   It should have stepped down by then. Possibly the world took a long time to build on the
   processor, so the tuner had barely started; not yet confirmed.
 
-Re-test the HP once its NVIDIA driver is installed. Not yet tested: Chrome on a machine with a
-working GPU, and a phone.
+**Phone, 2026-09-22 (Nathan's realme 7 5G, Android, Chrome 152): 90 fps at every quality
+level**, which is the screen's full 90 Hz refresh, worst frame 11 ms, in portrait
+(411x783), with the touch controls on. GPU reported as "Adreno (TM) 810". The auto-tuner
+kept full quality. Tested over the Surface's own hotspot network: the test page was served
+from the Surface and the phone reported back automatically.
+
+Re-test the HP once its NVIDIA driver is installed (parked). Not yet tested: an iPhone
+(Safari), and Chrome on a desktop with a working GPU.
 
 **Test file for other machines:** `C:\Users\Fredy 2\Documents\undermoot-bench.html` (630 KB,
 built 2026-09-22). It is the sale build with the benchmark script built in. Double-click it
@@ -175,6 +181,22 @@ built 2026-09-22). It is the sale build with the benchmark script built in. Doub
 world on its own, measures every quality level, and shows the results in a green box. Opened
 as a local file it only shows them; served from the test server it also reports back. It is
 a test copy, not for sale or sharing. Checked end to end on 2026-09-22.
+
+**Testing on a phone (the method that worked, 2026-09-22):** serve a folder holding only the
+test page from the Surface to the local network, and open it on the phone.
+1. The network must be Private in Windows (Nathan's phone hotspot "realme 7 5G 2" is set to
+   Private since 2026-09-22).
+2. A server started in the background never triggers Windows' firewall prompt, so Nathan
+   adds a temporary rule in an admin PowerShell:
+   `New-NetFirewallRule -DisplayName "Undermoot phone test (temporary)" -Direction Inbound -Protocol TCP -LocalPort 8642 -Profile Private -RemoteAddress LocalSubnet -Action Allow`
+   and removes it afterwards with
+   `Remove-NetFirewallRule -DisplayName "Undermoot phone test (temporary)"`.
+3. Serve only the test page, never the scratch folder (it holds the source, fan build
+   included): the session's `server.py` takes a host and a folder (`python server.py 0.0.0.0
+   phone`) and refuses folder listings.
+4. On the phone, type the address with **`http://`** in front. Chrome otherwise tries https
+   first, which the test server can't answer.
+The phone reports its results back to the server, so no photo is needed.
 
 ## Known limits
 

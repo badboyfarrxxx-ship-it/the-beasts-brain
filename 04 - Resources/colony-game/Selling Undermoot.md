@@ -36,9 +36,10 @@ decision: Nathan decides.
 - One self-contained HTML file, **0.61 MB**, runs offline. That fits every store's limits
   easily (itch.io allows 500 MB, CrazyGames a 50 MB initial load).
 - Original, with zero names from the *Chrysalis* books (scanned before every delivery).
-- **Gaps:** only tested on one machine so far (the Surface: 60 fps at full quality in
-  Firefox, 2026-09-22); the art is procedural, not hand made; play time in hours has never
-  been measured.
+- **Gaps:** the art is procedural, not hand made; play time in hours has never been
+  measured; no outside player has tried it. (Performance is covered: 60 fps on the Surface in
+  Firefox, 90 fps on an Android phone, and a clear notice on machines with no graphics
+  driver; 2026-09-22.)
 
 ## The options
 
@@ -85,7 +86,10 @@ The difference between the bottom and the middle is almost always marketing, not
   *Surface done, 2026-09-22 (Intel Iris Xe, Firefox):* loads in 136 ms, 3D world ready in
   2.2 s, a locked 60 fps at full quality with no dropped frames. (An earlier reading of
   about 30 fps was the Claude app's browser pane, which caps WebGL at 30; not the game.)
-  Still to test: the HP and a phone. Detail in [[colony-game]], "Real-hardware test".
+  *Phone done, 2026-09-22 (Android, Chrome):* 90 fps at full quality, the screen's full
+  refresh rate. *HP:* no graphics driver, so the game now detects that, starts at the lightest
+  setting and tells the player (confirmed on the HP); its with-driver re-test is parked.
+  Detail in [[colony-game]], "Real-hardware test".
 - Time a real playthrough of the first hour, so the store page can say how long the game is.
 - Get three to five people who aren't Nathan to play the first 20 minutes and watch where they
   get confused or stop. (Poki's own guidance is that time played is the number that matters.)
