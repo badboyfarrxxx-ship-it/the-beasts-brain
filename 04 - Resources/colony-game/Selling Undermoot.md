@@ -101,7 +101,8 @@ copy at `docs/superpowers/specs/2026-09-23-demo-build-design.md`. Nathan's decis
 ends after zone 4 (Bramble Sinks, right after the Choosing of the Brood; 82 of 290 fights);
 progress carries into the full game through the save code; the demo is cut from the sale
 content at build time so the paid zones aren't in the free file. Store link left empty until
-the itch.io page exists.*
+the itch.io page exists. Built 2026-09-23 on the working copy's `demo-build` branch, all
+checks passing; status: in final review, not yet merged or delivered.*
 - The engine already supports this: a build is just another content file. A demo build ends
   after about three zones with a screen pointing to the full game.
 - The demo plays in the browser on itch.io. The full game is a download (the same single HTML
