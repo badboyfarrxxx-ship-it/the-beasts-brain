@@ -159,11 +159,16 @@ plan.
 
 **The part this does not solve: the full game can't be an installed app.** Installing
 needs https, and a bought copy is a file on the buyer's disk, so a paid download stays a
-double-clickable HTML file, not an app with an icon. Three ways out, all decisions for
-later: sell a wrapped Windows build (the same work Steam needs anyway), host the full
-game behind some per-buyer address (itch's download keys do not do this), or accept it
-and let the demo be the only installable piece. **This is the strongest practical argument
-for the desktop wrapper**, ahead of Steam itself.
+double-clickable HTML file, not an app with an icon. The options were a wrapped Windows
+build (the same work Steam needs), a per-buyer hosted address (itch's download keys do not
+do this), or accepting it.
+
+**Decided 2026-09-23 (Nathan): accept it.** The demo is the installable piece and the
+purchase stays a file. No desktop wrapper is being built for now. The odd consequence is
+worth remembering when the store page is written: the free thing installs and the paid
+thing does not, so the paid page has to sell the eight extra zones and the ending, never
+convenience. Revisit only if Steam comes back on the table, since the wrapper is the same
+work.
 
 **Step 3: get it seen.** itch.io's own traffic is thin; most sales come from what you bring.
 Devlogs on the itch.io page, short clips (the 3D world and a boss fight), posts in
