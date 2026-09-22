@@ -89,5 +89,9 @@ needs one.
   the prefilled-link-in-Firefox workaround.
 - [ ] Later, per project: the other items under "Missing".
 
-Browsers here: Edge is the default, Nathan uses Firefox (Microsoft Store version,
-`%LOCALAPPDATA%\Microsoft\WindowsApps\firefox.exe`), and there is no Chrome.
+Browsers here: **Firefox is the only real browser** (Microsoft Store version,
+`%LOCALAPPDATA%\Microsoft\WindowsApps\firefox.exe`). Edge is not installed (tiny11 removes it,
+checked 2026-09-22) although Windows still lists it as the default for web links, and there
+is no Chrome. So launch Firefox by path rather than just "opening a link". The Claude app's
+built-in browser pane is Chromium, but it caps WebGL pages at 30 fps: don't use it to measure
+game performance.
