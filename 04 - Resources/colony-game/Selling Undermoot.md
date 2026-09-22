@@ -36,8 +36,9 @@ decision: Nathan decides.
 - One self-contained HTML file, **0.61 MB**, runs offline. That fits every store's limits
   easily (itch.io allows 500 MB, CrazyGames a 50 MB initial load).
 - Original, with zero names from the *Chrysalis* books (scanned before every delivery).
-- **Gaps:** never measured on real hardware; the art is procedural, not hand made; play time
-  in hours has never been measured.
+- **Gaps:** the 3D world runs at about 30 fps on this Surface's Intel Iris Xe (first real
+  test, 2026-09-22), and the quality settings don't help; the art is procedural, not hand
+  made; play time in hours has never been measured.
 
 ## The options
 
@@ -81,6 +82,10 @@ The difference between the bottom and the middle is almost always marketing, not
 **Step 0: make it sellable (do this first).**
 - Play it on real hardware: this Surface, the HP, and a phone. Note frame rate, load time and
   anything that breaks. Fix what breaks.
+  *First result, 2026-09-22 (Surface, Intel Iris Xe):* loads in 136 ms, 3D world ready in
+  2.2 s, but the 3D world holds only about 30 fps (20 to 27 at full quality), and the
+  quality settings can't raise it. Playable, not smooth. Needs a performance pass before
+  sale. Detail in [[colony-game]], "First real-hardware test".
 - Time a real playthrough of the first hour, so the store page can say how long the game is.
 - Get three to five people who aren't Nathan to play the first 20 minutes and watch where they
   get confused or stop. (Poki's own guidance is that time played is the number that matters.)

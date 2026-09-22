@@ -108,9 +108,42 @@ textures. Weak graphics chips struggle with the per-pixel work, so the world mea
 own frame rate after it loads. If the game is slow, it steps down in this order: render
 resolution, then shadows and the heavier material effects, then reflections. It only
 steps down, never back up, so it can't flip-flop. On the headless software renderer used
-for testing, this took the scene from 1.9 to 17 fps. **The game has not been measured on
-real hardware.** Only the software renderer was tested, and it is much slower than any
-real graphics chip.
+for testing, this took the scene from 1.9 to 17 fps.
+
+### First real-hardware test (2026-09-22, the Surface Pro 7+)
+
+Undermoot, fresh game, zone 1, in the Claude app's built-in browser (Chromium 152) on
+**Intel Iris Xe** graphics through WebGL 2, 59 Hz screen at 2736x1824, on the charger,
+Balanced power plan. Measured with the game's own `WORLD3D.debug()` / `setQuality()` hooks.
+
+| What | Result |
+|---|---|
+| Page load | 136 ms |
+| 3D world ready after clicking "Walk the zone in 3D" | 2.2 s |
+| Quality the auto-tuner picked | 0 (everything on), because it never dropped below its 22 fps line |
+| Frame rate, quality 0 (full) | 27 fps in the first run, 20 fps in a second run a few minutes later |
+| Frame rate, quality 1 / 2 / 3 | 30 / 30 / 30 fps |
+| Worst single frame | 34 to 67 ms |
+| Game JavaScript per frame | 2.2 to 3 ms |
+| Blank page, same browser pane | 60 fps |
+
+What it means:
+- **Playable, not smooth.** It holds about 30 fps, never 60, though the browser itself runs a
+  blank page at 60.
+- **The bottleneck is graphics work that the quality settings don't touch.** The JavaScript
+  is cheap (2 to 3 ms of a 16.7 ms frame), and even the lightest setting (half resolution,
+  no shadows, no reflections) stays at 30. So there is a fixed cost per frame (candidates:
+  the number of separate draw calls from the procedural creatures and terrain, or per-frame
+  material updates), and the auto-tuner can't help a weaker chip.
+- **Full quality may degrade over time** (27 fps, then 20 fps a few minutes later),
+  possibly heat. Worth a longer run.
+- **The auto-tuner's 22 fps line is too low for a paid game.** It keeps full quality at
+  20 to 27 fps.
+- Caveat: this was the Claude app's browser pane, not a normal browser, with the app window
+  not in focus. Still to test: Firefox and Edge on this Surface, the HP, and a phone.
+
+Next step for selling: a performance pass to find the fixed per-frame cost, aiming for 60 on
+Iris Xe and a 30 floor on weaker chips. See [[Selling Undermoot]].
 
 ## Known limits
 
