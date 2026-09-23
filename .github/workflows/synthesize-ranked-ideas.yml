@@ -1,0 +1,172 @@
+name: Synthesize ranked ideas
+
+# Assembles a brief from the vault's own notes, has Claude Code rank what to
+# do next, and commits the result to the Inbox.
+#
+# Requires the repository secret CLAUDE_CODE_OAUTH_TOKEN
+# (Settings > Secrets and variables > Actions).
+
+on:
+  workflow_dispatch:
+    inputs:
+      daily_note_count:
+        description: How many recent daily notes to include in the brief
+        required: false
+        default: "7"
+
+  # Weekly, Monday 08:00 UTC. Uncomment to let it run unattended.
+  # schedule:
+  #   - cron: "0 8 * * 1"
+
+permissions:
+  contents: write
+
+jobs:
+  synthesize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check credentials
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+            echo "::error::Secret CLAUDE_CODE_OAUTH_TOKEN is not set. Add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          echo "Credentials present."
+
+      - uses: actions/checkout@v4
+
+      - name: Assemble brief.md from the vault
+        id: brief
+        env:
+          DAILY_NOTE_COUNT: ${{ github.event.inputs.daily_note_count || '7' }}
+        run: |
+          set -euo pipefail
+
+          today="$(date -u +%Y-%m-%d)"
+          brief="brief.md"
+
+          {
+            echo "# Vault brief - ${today}"
+            echo
+            echo "Assembled from the vault's current state. Active Priorities is the"
+            echo "system of record for open work; the daily notes below are frozen"
+            echo "snapshots and may name work that has since closed."
+            echo
+          } > "${brief}"
+
+          if [ -f "Active Priorities.md" ]; then
+            {
+              echo "## Active Priorities"
+              echo
+              cat "Active Priorities.md"
+              echo
+            } >> "${brief}"
+          else
+            echo "::warning::Active Priorities.md not found at the vault root."
+          fi
+
+          count=0
+          while IFS= read -r note; do
+            [ -n "${note}" ] || continue
+            {
+              echo "## Daily note: $(basename "${note}" .md)"
+              echo
+              cat "${note}"
+              echo
+            } >> "${brief}"
+            count=$((count + 1))
+          done < <(
+            find "01 - Daily Notes" -type f -regextype posix-extended \
+                 -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}\.md' 2>/dev/null \
+              | sort -r \
+              | head -n "${DAILY_NOTE_COUNT}"
+          )
+
+          size="$(wc -c < "${brief}")"
+          echo "Assembled ${brief}: ${size} bytes, Active Priorities plus ${count} daily note(s)."
+
+          echo "date=${today}" >> "${GITHUB_OUTPUT}"
+
+          if [ "${size}" -gt 500 ] && [ "${count}" -gt 0 ]; then
+            echo "have_brief=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "have_brief=false" >> "${GITHUB_OUTPUT}"
+            echo "::warning::Brief is too thin to synthesize from; skipping the rest of the run."
+          fi
+
+      - name: Synthesize ranked ideas with Claude Code
+        if: steps.brief.outputs.have_brief == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Read `brief.md` in the workspace root. It holds this vault's Active
+            Priorities note and its most recent daily notes.
+
+            From that material alone, work out what is genuinely worth doing
+            next, and write a ranked list.
+
+            How to rank: put the things that unblock other work, or that carry
+            real risk if left, above the things that are merely tidy. An item
+            that has been open across several daily notes without moving is
+            worth calling out as stalled rather than repeating it as if it were
+            new. Where the brief shows a decision waiting on a person, say so
+            plainly instead of ranking it as an action.
+
+            For each entry give: a one-line action, why it ranks where it does,
+            and what it is blocked on if anything. Six to ten entries. If the
+            brief does not support ten, write fewer rather than padding.
+
+            Close with a short section, "What the brief does not say", naming
+            anything you needed and could not find in it. Do not fill those
+            gaps by guessing, and do not read other files in the repository to
+            fill them - the brief is the whole input.
+
+            Write the result to `00 - Inbox/Ranked ideas ${{ steps.brief.outputs.date }}.md`
+            with this frontmatter, then the body:
+
+            ---
+            status: active
+            project: meta
+            type: synthesis
+            created: ${{ steps.brief.outputs.date }}
+            ---
+
+            Use Obsidian wiki-links (`[[Note name]]`) when naming a note the
+            brief refers to. Write plainly, in full sentences, the way the rest
+            of the vault is written. Do not create or modify any other file.
+          claude_args: |
+            --allowedTools Read,Write,Glob,Grep
+            --max-turns 20
+
+      - name: Commit the ranked ideas
+        if: steps.brief.outputs.have_brief == 'true'
+        env:
+          NOTE: 00 - Inbox/Ranked ideas ${{ steps.brief.outputs.date }}.md
+          NOTE_DATE: ${{ steps.brief.outputs.date }}
+        run: |
+          set -euo pipefail
+
+          # The brief is an input, not a deliverable - never commit it.
+          rm -f brief.md
+
+          if [ ! -f "${NOTE}" ]; then
+            echo "::error::Expected ${NOTE} but nothing was written there."
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "${NOTE}"
+
+          if git diff --cached --quiet; then
+            echo "No change to commit."
+            exit 0
+          fi
+
+          git commit -m "Ranked ideas: ${NOTE_DATE}"
+          git push
