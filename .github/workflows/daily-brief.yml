@@ -1,0 +1,448 @@
+name: Daily brief — synthesize app ideas + open PR
+
+# Runs once per day at 23:00 UTC, 3 hours after the last batch (20:00 UTC)
+# of the day so all 6 source-group batches have had time to land. Merges
+# the rolling 30-day pool of batch JSONs into one ideas brief, asks
+# Claude Code (auth via the user's Max-plan OAuth token) to synthesize it
+# into ranked app-idea proposals, and opens a PR on the user's private
+# ideas repo.
+#
+# Required secrets:
+#   - CLAUDE_CODE_OAUTH_TOKEN  (run `claude setup-token` locally to get it)
+#   - PAT_TOKEN                (fine-grained PAT with write + PR access on
+#                               abhishekdubey331/App-Ideas)
+#
+# Optional environment:
+#   - IDEAS_REPO  (default abhishekdubey331/App-Ideas)
+
+on:
+  schedule:
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+    inputs:
+      window_days:
+        description: 'Rolling lookback in days'
+        required: false
+        default: '30'
+      prune:
+        description: 'Delete batch files older than the window'
+        required: false
+        default: 'true'
+        type: choice
+        options: ['true', 'false']
+  # Label-based trigger: add the `run-daily-brief` label to any issue and
+  # this workflow fires once. The label is auto-removed when the run
+  # finishes so re-labelling triggers a fresh run. Useful for testing the
+  # synthesis path without waiting for 23:00 UTC.
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write   # to write back to the data branch when --prune is on
+  issues: write     # to remove the trigger label + post the run-URL comment
+  id-token: write   # required by anthropics/claude-code-action for OIDC auth
+
+concurrency:
+  group: daily-brief-${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  IDEAS_REPO: abhishekdubey331/App-Ideas
+
+jobs:
+  synthesize-and-pr:
+    # When the trigger is `issues.labeled`, only run if the label that was
+    # just applied is `run-daily-brief`. All other label changes are ignored.
+    if: github.event_name != 'issues' || github.event.label.name == 'run-daily-brief'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout main (engine + aggregator)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Acknowledge label trigger on the issue
+        if: github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" \
+            --body "Daily-brief workflow triggered via \`run-daily-brief\` label. Watch progress at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          gh issue edit "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" \
+            --remove-label "run-daily-brief"
+
+      - name: Probe for `data` branch
+        # Probe before calling actions/checkout so first-day runs (no data
+        # branch yet) don't waste 42s retrying a known-missing ref. The
+        # downstream "Build evidence brief" step already handles the
+        # missing-dir case gracefully.
+        id: probe-data
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads "https://github.com/${{ github.repository }}.git" data >/dev/null 2>&1; then
+            echo "data branch exists, will check it out."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "data branch does not exist yet (first run, or no batches have committed)."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout `data` branch (rolling pool)
+        if: steps.probe-data.outputs.exists == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: batch-data
+          fetch-depth: 1
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python 3.12
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --frozen || uv sync
+
+      - name: Build evidence brief from rolling pool
+        id: brief
+        run: |
+          set -euo pipefail
+          # Expose today's date so the synthesis prompt can use it (the
+          # prompt is plain text, so `$(date ...)` inside it never runs).
+          echo "day=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+          WINDOW="${{ github.event.inputs.window_days }}"
+          WINDOW="${WINDOW:-30}"
+          DATA_DIR="batch-data/data"
+          if [ ! -d "$DATA_DIR" ]; then
+            echo "No batch-data/data directory found — first run or empty pool."
+            echo "have_brief=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if uv run --frozen python3 skills/last30days/scripts/aggregate_day.py \
+                --data-dir "$DATA_DIR" \
+                --window-days "$WINDOW" \
+                --emit ideas \
+                --top-candidates 40 \
+                --out brief.md; then
+            echo "have_brief=true" >> "$GITHUB_OUTPUT"
+            wc -l brief.md
+          else
+            echo "Aggregator returned non-zero (likely empty rolling pool)."
+            echo "have_brief=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Synthesize ranked ideas with Claude Code
+        if: steps.brief.outputs.have_brief == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # v1 dropped the @beta inputs `mode`, `direct_prompt` and `model`.
+          # Passing `prompt` is what makes it run unattended on schedule /
+          # workflow_dispatch / issues.labeled; the model and tool
+          # permissions go through `claude_args`.
+          claude_args: |
+            --model claude-sonnet-4-5
+            --allowedTools Read,Write,Glob,Grep
+            --max-turns 30
+          prompt: |
+            Read `brief.md` in the workspace root. It contains a
+            deterministic top-N pool of social/web evidence from a rolling
+            30-day window, plus strict synthesis instructions in its
+            `## SYNTHESIS INSTRUCTIONS` section. The Python layer did NOT
+            classify these candidates — that is your job. Follow the
+            instructions in brief.md exactly. Do NOT modify brief.md.
+
+            SCOPE (HARD): this brief surfaces **paid mobile app ideas
+            only** — Android or iOS, with explicit willingness-to-pay
+            evidence. Web-only, desktop-only, browser-extension, and
+            free-only opportunities are out of scope and must be
+            dropped, regardless of how strong the engagement looks.
+
+            Your task, in order:
+
+            1. **Classify** each candidate against PAIN / WILL-PAY /
+               LAUNCH / WORKFLOW. Quote the matching sentence verbatim
+               from the candidate's title or excerpt. Drop any candidate
+               that matches none.
+            2. **Mobile-shippable gate (HARD).** Drop any candidate that
+               cannot reasonably ship as a standalone Android or iOS app.
+               If the unmet need is fundamentally desktop/web (e.g.
+               "better VS Code extension", "self-hosted server tool"),
+               drop it. If unclear, drop it — bias toward false negatives.
+            3. **Willingness-to-pay gate (HARD).** Drop any candidate
+               without explicit WTP evidence in its title or excerpt.
+               Acceptable WTP signals (must quote one verbatim):
+                 - "I'd pay $X" / "I would pay" / "happy to pay"
+                 - "currently paying $X for [incumbent]"
+                 - Names a paid incumbent that the author is unhappy with
+                 - "worth $N/mo" / "worth paying for"
+                 - Workflow stitching 2+ paid apps together
+               PAIN-only candidates ("I wish there was an app") without
+               any WTP signal are DROPPED. No exceptions.
+            4. **Cluster duplicates** — merge candidates that describe
+               the same opportunity into one idea, citing all URLs.
+            5. **Rank** by evidence strength × engagement (the `eng:`
+               field) × recency (the date field). High engagement on
+               organic complaint language outweighs low engagement on a
+               literal trigger phrase.
+            6. **Competitor check** — for each surviving idea, name 2+
+               existing Android/iOS competitors if you know them.
+               Downrank crowded mobile markets and say so explicitly.
+               If the named incumbent is already a popular paid mobile
+               app, downrank harder — the author's complaint may not
+               translate to a switchable market.
+            7. **Pick 3-7 ideas**, ordered by combined score. Cut weak
+               ones; quality over quantity.
+
+            Write the result to a new file `ideas.md` in the workspace
+            root with this structure:
+
+              # Mobile app ideas — ${{ steps.brief.outputs.day }}
+
+              <One-line honest assessment of this batch's signal
+              strength. If brief.md has a SOURCE HEALTH section, mention
+              which sources are unreliable today and how that biases the
+              brief. Also note how many candidates the mobile + WTP
+              gates dropped.>
+
+              ## 1. <Idea title — concrete, not category-level>
+              - **Platform:** Android | iOS | Both
+              - **Unmet need:** <one sentence>
+              - **Proposed app:** <one sentence — must be a mobile app>
+              - **Monetization signal:** <quoted WTP sentence verbatim
+                from brief.md> ([source](URL from brief.md))
+              - **Evidence:** (every URL must come from brief.md)
+                - [link description](URL from brief.md) — quoted matching
+                  sentence
+                - [link description](URL from brief.md) — quoted matching
+                  sentence
+              - **Existing competitors:** <name 2+ Android/iOS apps if
+                you know them; downrank crowded markets>
+              - **Score signal:** <PAIN | WILL-PAY | LAUNCH | WORKFLOW combo>
+
+              (repeat for 3-7 ideas, ordered by combined score)
+
+              ## What to research next
+              <one line suggesting mobile + WTP topics to add to topics.yml>
+
+            Hard rules:
+            - Do not invent evidence. Every cited URL must appear in
+              brief.md. Every quoted sentence must come from the
+              candidate's title or excerpt.
+            - Every surviving idea MUST have a Monetization signal line
+              with a verbatim WTP quote. No quote = drop the idea.
+            - Every surviving idea MUST be shippable as Android or iOS.
+            - LAUNCH-only signals describe an *adjacency* opportunity
+              ("X exists but nobody has done Y for Z"), not "build X".
+            - If fewer than 3 candidates survive both gates, output
+              what you have and say so in the honest assessment. Do
+              NOT lower the bar to hit the 3-7 target.
+
+      - name: Sanity-check Claude wrote ideas.md
+        if: steps.brief.outputs.have_brief == 'true'
+        id: synth
+        run: |
+          set -euo pipefail
+          if [ ! -s ideas.md ]; then
+            echo "::warning::Claude Code did not write ideas.md (or it was empty)."
+            echo "have_ideas=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          DAY=$(date -u +%Y-%m-%d)
+          echo "have_ideas=true" >> "$GITHUB_OUTPUT"
+          echo "day=$DAY" >> "$GITHUB_OUTPUT"
+          echo "Claude wrote $(wc -l < ideas.md) lines to ideas.md"
+
+      - name: Checkout target ideas repo
+        if: steps.synth.outputs.have_ideas == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.IDEAS_REPO }}
+          token: ${{ secrets.PAT_TOKEN }}
+          path: ideas-repo
+          fetch-depth: 1
+
+      - name: Drop today's brief into the ideas repo
+        if: steps.synth.outputs.have_ideas == 'true'
+        run: |
+          set -euo pipefail
+          DAY="${{ steps.synth.outputs.day }}"
+          # Per-day folder so each day is a self-contained dossier:
+          # the synthesized ideas plus the brief that produced them.
+          # brief.md is the audit trail for "why was this idea surfaced?"
+          # — useful when an idea recurs weeks later and you want to
+          # trace back the original evidence cluster.
+          DAY_DIR="ideas-repo/ideas/${DAY}"
+          mkdir -p "$DAY_DIR"
+          cp ideas.md "${DAY_DIR}/ideas.md"
+          if [ -s brief.md ]; then
+            cp brief.md "${DAY_DIR}/brief.md"
+          else
+            echo "::warning::brief.md missing or empty; skipping brief persistence."
+          fi
+
+      - name: Append rows to idea-ledger + capture dedup warnings
+        # The ledger lives in the App-Ideas repo (next to the ideas it
+        # tracks). Run a dry-pass first: if the script detects near-
+        # duplicates against existing ledger rows it returns exit code 3
+        # without writing anything. We then re-run with --force to commit
+        # the new rows and stash the warnings for a follow-up PR comment.
+        if: steps.synth.outputs.have_ideas == 'true'
+        id: ledger
+        run: |
+          set -euo pipefail
+          DAY="${{ steps.synth.outputs.day }}"
+          LEDGER="ideas-repo/ledger.csv"
+          BRIEF="ideas-repo/ideas/${DAY}/ideas.md"
+
+          LEDGER_RC=0
+          DEDUP_OUTPUT=$(uv run --frozen python3 skills/idea-ledger/scripts/ledger.py add \
+            --brief "$BRIEF" \
+            --ledger "$LEDGER" \
+            --init 2>&1) || LEDGER_RC=$?
+
+          if [ "$LEDGER_RC" -eq 0 ]; then
+            echo "$DEDUP_OUTPUT"
+            echo "have_warnings=false" >> "$GITHUB_OUTPUT"
+          elif [ "$LEDGER_RC" -eq 3 ]; then
+            echo "$DEDUP_OUTPUT" | tee /tmp/dedup-warnings.txt
+            uv run --frozen python3 skills/idea-ledger/scripts/ledger.py add \
+              --brief "$BRIEF" \
+              --ledger "$LEDGER" \
+              --init --force
+            echo "have_warnings=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Ledger script returned ${LEDGER_RC} — skipping ledger update."
+            echo "$DEDUP_OUTPUT"
+            echo "have_warnings=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open PR on the ideas repo
+        if: steps.synth.outputs.have_ideas == 'true'
+        id: pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          path: ideas-repo
+          token: ${{ secrets.PAT_TOKEN }}
+          branch: ideas/${{ steps.synth.outputs.day }}
+          base: main
+          commit-message: "Add ideas brief for ${{ steps.synth.outputs.day }}"
+          title: "Ideas — ${{ steps.synth.outputs.day }}"
+          body: |
+            Auto-generated app-idea brief for ${{ steps.synth.outputs.day }}.
+
+            Source: rolling 30-day pool from
+            `${{ github.repository }}@data`. Synthesized via Claude Code on
+            the user's Max-plan OAuth token.
+
+            This PR includes:
+            - `ideas/${{ steps.synth.outputs.day }}/ideas.md` — today's ranked ideas
+            - `ideas/${{ steps.synth.outputs.day }}/brief.md` — source evidence pool
+            - `ledger.csv` — updated with new rows (see PR comments for any dedup warnings)
+
+            Review tips:
+            - Check each idea for evidence (URLs must trace back to the
+              source batch).
+            - Drop any idea where you can name 2+ existing competitors.
+            - Treat PAIN + WILL-PAY items as highest-priority.
+            - If dedup warnings posted, review them before acting on
+              today's brief — you may be re-surfacing a previously
+              killed idea.
+
+            Workflow run:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          delete-branch: false
+          draft: true
+
+      - name: Comment dedup warnings on the PR
+        # Only fires when the ledger step detected near-duplicate idea
+        # titles against existing rows. Surfaces the warnings as a PR
+        # comment (using PAT_TOKEN — GITHUB_TOKEN can't comment on a
+        # cross-repo PR) so the reviewer sees them inline.
+        if: |
+          steps.synth.outputs.have_ideas == 'true' &&
+          steps.ledger.outputs.have_warnings == 'true' &&
+          steps.pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Idea ledger — dedup warnings"
+            echo ""
+            echo "The following titles in today's brief look similar to existing ledger rows. Review before acting — you may be re-surfacing an idea that was already killed or feasibility-tested."
+            echo ""
+            echo '```'
+            cat /tmp/dedup-warnings.txt
+            echo '```'
+            echo ""
+            echo "If a match is real, use \`/idea-ledger status <id> <new-status>\` on the existing row instead of treating today's row as a new idea."
+          } > /tmp/dedup-comment.md
+          gh pr comment "${{ steps.pr.outputs.pull-request-number }}" \
+            --repo "${{ env.IDEAS_REPO }}" \
+            --body-file /tmp/dedup-comment.md
+
+      - name: Prune stale batches from data branch
+        if: |
+          steps.synth.outputs.have_ideas == 'true' &&
+          (github.event_name != 'workflow_dispatch' ||
+           github.event.inputs.prune != 'false')
+        run: |
+          set -euo pipefail
+          WINDOW="${{ github.event.inputs.window_days }}"
+          WINDOW="${WINDOW:-30}"
+          DATA_DIR="batch-data/data"
+          if [ ! -d "$DATA_DIR" ]; then
+            echo "No data dir to prune."
+            exit 0
+          fi
+          uv run --frozen python3 skills/last30days/scripts/aggregate_day.py \
+            --data-dir "$DATA_DIR" \
+            --window-days "$WINDOW" \
+            --emit json \
+            --prune \
+            --out /tmp/_drop_merged.json >/dev/null
+          cd batch-data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "Nothing pruned."
+            exit 0
+          fi
+          git add -A
+          git commit -m "Prune batches older than ${WINDOW} days"
+          git push origin data
+
+      - name: Log run to data/usage-log.csv
+        if: always() && hashFiles('batch-data/.git/HEAD') != ''
+        run: |
+          set -euo pipefail
+          TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          STATUS="${{ job.status }}"
+          HAVE_BRIEF="${{ steps.brief.outputs.have_brief }}"
+          HAVE_IDEAS="${{ steps.synth.outputs.have_ideas }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          cd batch-data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Refresh in case prune just pushed.
+          git pull --rebase origin data || true
+          mkdir -p data
+          if [ ! -f data/usage-log.csv ]; then
+            echo "timestamp,run_id,run_url,status,brief_built,ideas_synthesized" > data/usage-log.csv
+          fi
+          echo "${TS},${{ github.run_id }},${RUN_URL},${STATUS},${HAVE_BRIEF:-false},${HAVE_IDEAS:-false}" \
+            >> data/usage-log.csv
+          git add data/usage-log.csv
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Log daily-brief run ${TS}"
+          git push origin data
