@@ -11,6 +11,13 @@ Design spec, agreed with Nathan on 2026-09-25. It replaces the old method in [[B
 
 Implementation plan: [[VLC build pipeline - implementation plan]] (written 2026-09-25).
 
+## Status
+
+- **Built 2026-09-25.** Repo `badboyfarrxxx-ship-it/vlc-build` (private). First good build: run 2, 26 minutes, zip 96 MB (584 files, Qt interface included), release `build-9e59d4b38-run2-a1` (https://github.com/badboyfarrxxx-ship-it/vlc-build/releases/tag/build-9e59d4b38-run2-a1). VLC commit `9e59d4b38f80` (master, 2026-09-25).
+- **Not yet verified on the Surface.** Waiting on Nathan to unzip it and play a video.
+- Learned on the way: without a pinned library address, VLC's build falls back to compiling every library from source (hours). The workflow now finds the libraries matching the pinned commit the way VLC's own CI does (`extras/ci/get-contrib-sha.sh`) and stops with a clear message if they aren't published.
+- To build again: Actions tab > "Build VLC for Windows" > Run workflow. To upgrade: change `VLC_COMMIT`. Details in the repo README.
+
 ## Goal
 
 A newer VLC 4 build for the Surface, made by a repeatable process that needs nothing installed on the Surface. It is also the base for Nathan's own features later.
