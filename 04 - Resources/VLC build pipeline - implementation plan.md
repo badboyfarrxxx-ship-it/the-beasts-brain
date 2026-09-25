@@ -11,7 +11,7 @@ created: 2026-09-25
 
 **Goal:** A private GitHub repo, `vlc-build`, that builds [[VLC]] 4 for Windows at a pinned commit with one click and publishes a portable zip Nathan can unzip and run on the Surface.
 
-**Architecture:** A GitHub Actions workflow on an Ubuntu runner downloads VLC at the commit in `VLC_COMMIT`, applies `patches/*.patch`, reads the Windows build image VLC's own CI uses from that commit's `extras/ci/gitlab-ci.yml`, and runs VLC's official `extras/package/win32/build.sh` inside that image with `docker run`, followed by `make package-win32-zip`. A check script confirms the zip holds the core files; the zip is then published as a GitHub release. All logic lives in small bash scripts under `scripts/` with bash tests under `tests/`, so the workflow file only wires them together.
+**Architecture:** A GitHub Actions workflow on an Ubuntu runner downloads VLC at the commit in `VLC_COMMIT`, applies `patches/*.patch`, reads the Windows build image VLC's own CI uses from that commit's `extras/ci/gitlab-ci.yml`, and runs VLC's official `extras/package/win32/build.sh` inside that image with `docker run`; its release flag also packages the zip. A check script confirms the zip holds the core files; the zip is then published as a GitHub release. All logic lives in small bash scripts under `scripts/` with bash tests under `tests/`, so the workflow file only wires them together.
 
 **Tech Stack:** bash, git, Docker, GitHub Actions (`ubuntu-24.04` runner), VLC's `vlc-debian-win64-posix` build image, `unzip`, Python 3 (tests only, to make fixture zips).
 
@@ -23,7 +23,7 @@ created: 2026-09-25
 - VLC source: `https://github.com/videolan/vlc.git` (VideoLAN's official GitHub mirror of `code.videolan.org/videolan/vlc`). Branch `master`, VLC 4.0 dev.
 - Initial pin: `9e59d4b38f804b33491b332df7643c1f80cc0b57` (master on 2026-09-25). `VLC_COMMIT` holds one full 40-character hash and nothing else.
 - Build image: the value of `VLC_WIN64_IMAGE` in the pinned commit's `extras/ci/gitlab-ci.yml`. For the initial pin that is `registry.videolan.org/vlc-debian-win64-posix:20260611225331`. Never hard-code it in the workflow.
-- Build command: `extras/package/win32/build.sh -a x86_64 -r -p`, then `make package-win32-zip` in `win64/`. Output: `win64/vlc-<VERSION>-win64.zip`, whose single top folder is `vlc-<VERSION>/`.
+- Build command: `extras/package/win32/build.sh -a x86_64 -r -p`. Its `-r` (release) flag also runs `make package-win32`, which makes the zip (and a .7z and installer that aren't published). Output: `win64/vlc-<VERSION>-win64.zip`, whose single top folder is `vlc-<VERSION>/`.
 - Output is a portable zip, not an installer. No file associations, nothing installed.
 - Required files in the zip (relative to its top folder): `vlc.exe`, `libvlc.dll`, `libvlccore.dll`, `plugins/gui/libqt_plugin.dll`, `plugins/codec/libavcodec_plugin.dll`.
 - Builds start by hand only (`workflow_dispatch`). No schedule.
@@ -629,16 +629,13 @@ git add -A && git commit -m "Add check-package.sh" && git push
 ```bash
 #!/usr/bin/env bash
 # Runs inside VLC's Windows build image, with the VLC source as the current folder.
+# build.sh -r builds in release mode and runs `make package-win32`, which writes
+# win64/vlc-<VERSION>-win64.zip (plus a .7z and an installer we don't publish).
 set -euo pipefail
 # The source is owned by the runner's user, not root; let git work on it anyway.
 git config --global --add safe.directory '*'
 extras/package/win32/build.sh -a x86_64 -r -p
-cd win64
-if ! command -v zip >/dev/null; then
-  apt-get update -qq && apt-get install -y -qq zip
-fi
-make package-win32-zip
-ls -l vlc-*-win64.zip
+ls -l win64/vlc-*-win64.zip
 ```
 
 ```bash
@@ -687,7 +684,9 @@ jobs:
 
       - name: Pick VLC's build image
         id: image
-        run: echo "name=$(scripts/read-image.sh vlc/extras/ci/gitlab-ci.yml)" >> "$GITHUB_OUTPUT"
+        run: |
+          name="$(scripts/read-image.sh vlc/extras/ci/gitlab-ci.yml)"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
 
       - name: Build inside VLC's image
         run: |
@@ -735,7 +734,7 @@ Expected failures to recognise and their fixes (fix, push, re-run; each fix gets
 - **"Build inside VLC's image" can't pull the image:** GitHub runners can't reach `registry.videolan.org`. This is a spec risk; stop and tell Nathan. Fallback to propose: build the image from VLC's Dockerfile in the `videolan/docker-images` repo.
 - **`build.sh` rebuilds all the contribs from source** (log shows long contrib compiles, "prebuilt" failed): no prebuilt package exists for this commit. Fix: move `VLC_COMMIT` to a slightly older master commit whose prebuilt exists, or let it run (hours, within the 300-minute limit).
 - **Out of disk** ("No space left on device"): add more removals to "Free disk space" (`/usr/local/share/boost`, `/usr/local/lib/node_modules`, `docker image prune -af` before the build).
-- **`make package-win32-zip` fails in `package-win-install`:** read the log. Fix in `container-build.sh`.
+- **Packaging fails inside `build.sh` (`make package-win32`), for example a missing `7z` or `makensis`:** read the log. The zip is all we need, so the fix is to stop `build.sh` packaging (drop `-r`, pass `--disable-debug` another way) and run `make package-win32-zip` in `container-build.sh`.
 - **`check-package.sh` reports a missing file:** list the zip (`unzip -Z1`) in the log to see the real layout. If the file simply moved upstream, update `required` in `check-package.sh` and its test together. If the Qt plugin really is missing, the build is broken: find out why from the configure output.
 
 - [ ] **Step 6: Record the result**
