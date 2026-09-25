@@ -22,4 +22,4 @@ One file per day, `YYYY-MM-DD.md`, sorted into monthly subfolders (`08 - August 
 - [[2026-09-21]]: `uv` and the backtalk `.venv` restored after the rebuild, my-agent docs corrected, backtalk's local patches verified present; Obsidian installed, vault not opened yet.
 - [[2026-09-22]]: a long day of cleanup and progress. E: isolated and the malware quarantine deleted, the vault opened in Obsidian, the voice line running (Whisper loop fixed and reported upstream as jaredrhod/backtalk#54), web dev tools installed, and Undermoot researched for sale, tested on real hardware (60 fps Surface, 90 fps phone) and given a missing-graphics-driver notice.
 - [[2026-09-23]]: the Undermoot free demo designed and specced (ends after zone 4, progress carries over by save code, cut at build time).
-- [[2026-09-25]]: VLC dev build crashing on launch (checks given, cause unknown); rebuild split into four sub-projects and the build pipeline specced ([[VLC build pipeline]]).
+- [[2026-09-25]]: VLC dev build crashing on launch (checks given, cause unknown); rebuild split into four sub-projects and the build pipeline specced ([[VLC build pipeline]]) and its implementation plan written.
