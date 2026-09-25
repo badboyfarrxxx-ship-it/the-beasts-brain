@@ -61,7 +61,7 @@ This is sub-project 1 of 4. Each of the others gets its own spec later, built as
 
 ## Limits and risks
 
-- **Build time:** private repos get a monthly allowance of free GitHub Actions minutes. Expected under an hour per build; the first build confirms the real figure. If builds eat the allowance, making the repo public removes the limit. VLC is open source under the GPL, so that is allowed.
+- **Build time:** private repos get a monthly allowance of free GitHub Actions minutes. The first build took 26 minutes. If builds eat the allowance, making the repo public removes the limit. VLC is open source under the GPL, so that is allowed.
 - **Runner disk:** GitHub's standard runners have about 14 GB free. A VLC build with ready-made libraries should fit; if it doesn't, the workflow clears unused preinstalled tools first.
 - **Registry access:** GitHub's runners have to be able to download VLC's build image from `registry.videolan.org`. The first build checks this.
 - **VLC master moves:** a pinned commit keeps builds repeatable. An upgrade can break a patch; the build then fails at step 3 and the patch gets updated.
