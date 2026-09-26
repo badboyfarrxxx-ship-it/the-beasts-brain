@@ -9,7 +9,7 @@ created: 2026-08-29
 
 How this machine builds [[VLC]] from source into a native Windows binary. First done 2026-08-29. This is a **native MSYS2 build** (compiling on Windows, for Windows) using VLC's **prebuilt contribs** — not VLC's officially supported path, which is cross-compilation from Linux. Because we're off the supported path, several of VLC's build scripts needed small fixes; they are all recorded below so a future session doesn't rediscover them.
 
-> **Being replaced (2026-09-25).** VLC is now built on GitHub by [[VLC build pipeline]]. This MSYS2 method gets marked retired once the new build is confirmed working on the Surface. Kept for the history and the MSYS2 fixes.
+> **Being replaced (2026-09-25).** VLC is now built on GitHub by [[VLC build pipeline]]. This MSYS2 method gets marked retired once the new build is confirmed working on the Surface. The old installer's "crash on launch" on the rebuilt machine was most likely a stale `intf=skins2` setting in `%APPDATA%\vlc\vlcrc`, not the build. Kept for the history and the MSYS2 fixes.
 
 ## Status
 

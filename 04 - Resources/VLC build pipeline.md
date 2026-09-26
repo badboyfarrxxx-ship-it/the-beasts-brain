@@ -7,14 +7,16 @@ created: 2026-09-25
 
 # VLC build pipeline
 
-Design spec, agreed with Nathan on 2026-09-25. It replaces the old method in [[Building VLC for Windows]], which compiled [[VLC]] on the Surface itself with MSYS2. That setup was wiped with the machine on 2026-09-15, and the installer it made crashes on launch on the rebuilt machine (cause not found yet).
+Design spec, agreed with Nathan on 2026-09-25. It replaces the old method in [[Building VLC for Windows]], which compiled [[VLC]] on the Surface itself with MSYS2. That setup was wiped with the machine on 2026-09-15, and the installer it made wouldn't start on the rebuilt machine (cause found 2026-09-26: a stale skins2 interface setting, see Status).
 
 Implementation plan: [[VLC build pipeline - implementation plan]] (written 2026-09-25).
 
 ## Status
 
 - **Built 2026-09-25.** Repo `badboyfarrxxx-ship-it/vlc-build` (private). First good build: run 2, 26 minutes, zip 96 MB (584 files, Qt interface included), release `build-9e59d4b38-run2-a1` (https://github.com/badboyfarrxxx-ship-it/vlc-build/releases/tag/build-9e59d4b38-run2-a1). VLC commit `9e59d4b38f80` (master, 2026-09-25).
-- **Not yet verified on the Surface.** Waiting on Nathan to unzip it and play a video.
+- **Opens on the Surface (2026-09-26).** The full Qt interface came up with its welcome page. Playing a video not yet confirmed.
+- **Why it looked like it wouldn't start:** VLC's saved settings (`%APPDATA%\vlc\vlcrc`) held an old `intf` setting pointing at the skins2 interface. skins2 found no skin and quit straight away, so no window ever appeared. The log said `skins2 error: no skins found : exiting`. Fix: the settings folder was renamed to `vlc-old-<date>` so VLC started with defaults. This is probably also what "crashed" the old MSYS2 dev build. Not Smart App Control, which is on but didn't block anything, and not graphics.
+- **Running it:** extract the zip first (right-click > Extract All). Running `vlc.exe` from inside the zip view can't work, because Windows copies out only that one file.
 - Learned on the way: without a pinned library address, VLC's build falls back to compiling every library from source (hours). The workflow now finds the libraries matching the pinned commit the way VLC's own CI does (`extras/ci/get-contrib-sha.sh`) and stops with a clear message if they aren't published.
 - To build again: Actions tab > "Build VLC for Windows" > Run workflow. To upgrade: change `VLC_COMMIT`. Details in the repo README.
 
