@@ -24,3 +24,4 @@ One file per day, `YYYY-MM-DD.md`, sorted into monthly subfolders (`08 - August 
 - [[2026-09-23]]: the Undermoot free demo designed and specced (ends after zone 4, progress carries over by save code, cut at build time).
 - [[2026-09-25]]: VLC dev build crashing on launch (checks given, cause unknown); rebuild split into four sub-projects and the build pipeline specced ([[VLC build pipeline]]) and its implementation plan written; the first build finished on GitHub, waiting on the Surface test. Nathan also closed out the five older items in [[Active Priorities]].
 - [[2026-09-26]]: VLC 4 build verified on the Surface, opens and plays video (the "won't start" was a stale skins2 setting); added a boot-config rule to always name the terminal for command blocks.
+- [[2026-09-27]]: cleaned up the app-ideas pipeline: fixed the App-Ideas ledger and ideas files, and fixed the synthesis prompt so it stops inventing prices and ranking crowded ideas first.
