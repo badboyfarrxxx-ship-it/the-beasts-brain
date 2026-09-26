@@ -8,9 +8,10 @@ type: plan
 The single queue of open work across everything. Tag each item with its project where it isn't obvious. Add an item when work is parked; delete it when it's actually done (don't let it rot). This is the system of record for "what's still open": a daily note's "In Progress" is a frozen snapshot that goes stale the moment something closes, so never treat an old daily note's open items as current truth.
 
 ### Open Tasks
-- None open. Nathan marked everything done on 2026-09-25.
+- [ ] **VLC sub-project 2: swipe to seek.** Drag a finger left or right on the video to rewind or fast-forward, built as a patch in `vlc-build`. Next step: brainstorm and spec it. Later: camera wall in VLC, then video editing (scope to agree first). See [[VLC build pipeline]].
 
 ### Completed Tasks
+- [x] **Rebuild VLC 4 through the new build pipeline.** Done 09-26: built on GitHub (repo `vlc-build`), opens and plays video on the Surface. The old "won't start" was a stale skins2 interface setting. See [[VLC build pipeline]].
 - [x] **SECURITY: finish rotating credentials, from the phone.** Nathan marked this done on 2026-09-25. Done and verified 09-12: Gmail, Microsoft account, GitHub (both stolen OAuth logins confirmed dead). Left: anything with a saved card, then every site in the Chrome and Edge password lists, working down `H:\Surface backup 2026-09-12\sites-to-rotate-PRIORITISED.txt` (banks first). The Surface has since been wiped (09-15), so the old "Claude last, right before the wipe" ordering no longer applies. Whether Claude "log out everywhere" was done before the wipe is not recorded; do it if unsure. Also still open: whether to put an Equifax credit ban on. See [[Security incident 2026-09-12]].
 - [x] **Start making money from the programs I build.** Nathan marked this done on 2026-09-25. First candidate: Undermoot. Researched 09-22: recommended plan is real-hardware testing first, then an itch.io free demo plus paid full game (about US$4.99), building an email list, and Steam only if itch.io shows interest. Waiting on Nathan's decisions. See [[Selling Undermoot]].
 - [x] **Point [[camera-wall]] at the real cameras.** Nathan marked this done on 2026-09-25. The app is built and tested against fake
