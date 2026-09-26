@@ -8,7 +8,7 @@ type: plan
 The single queue of open work across everything. Tag each item with its project where it isn't obvious. Add an item when work is parked; delete it when it's actually done (don't let it rot). This is the system of record for "what's still open": a daily note's "In Progress" is a frozen snapshot that goes stale the moment something closes, so never treat an old daily note's open items as current truth.
 
 ### Open Tasks
-- [ ] **VLC sub-project 2: swipe to seek, test on the Surface.** Built 09-26 as a patch (build run 3, https://github.com/badboyfarrxxx-ship-it/vlc-build/releases/tag/build-9e59d4b38-run3-a1): time bubble while dragging sideways, jump on release, speed follows the swipe (full width = 5 min). Nathan to test; the 5-minute figure is a guess to tune after. Later: camera wall in VLC, then video editing. See [[VLC build pipeline]].
+- [ ] **VLC sub-project 3: camera wall in VLC.** Next up. Swipe to seek (sub-project 2) done 09-26: live picture while dragging, speed follows the finger, and the stuck-on-close bug fixed (build run 5, https://github.com/badboyfarrxxx-ship-it/vlc-build/releases/tag/build-9e59d4b38-run5-a1, tested OK). After the camera wall: video editing. See [[VLC build pipeline]].
 
 ### Completed Tasks
 - [x] **Rebuild VLC 4 through the new build pipeline.** Done 09-26: built on GitHub (repo `vlc-build`), opens and plays video on the Surface. The old "won't start" was a stale skins2 interface setting. See [[VLC build pipeline]].
