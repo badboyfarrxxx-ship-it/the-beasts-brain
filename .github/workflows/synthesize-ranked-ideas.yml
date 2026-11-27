@@ -1,10 +1,14 @@
 name: Synthesize ranked ideas
 
-# Assembles a brief from the vault's own notes, has Claude Code rank what to
+# Assembles a brief from the vault's own notes, has Gemini rank what to
 # do next, and commits the result to the Inbox.
 #
-# Requires the repository secret CLAUDE_CODE_OAUTH_TOKEN
+# Requires the repository secret GEMINI_API_KEY (free key from Google AI
+# Studio: aistudio.google.com)
 # (Settings > Secrets and variables > Actions).
+#
+# The synthesis uses gemini-3.5-flash-lite first, falling back to
+# gemini-3.8-flash if the primary model is busy.
 
 on:
   workflow_dispatch:
@@ -27,15 +31,15 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Check credentials
+      - name: Check Gemini API key is present
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
-            echo "::error::Secret CLAUDE_CODE_OAUTH_TOKEN is not set. Add it under Settings > Secrets and variables > Actions."
+          if [ -z "${GEMINI_API_KEY:-}" ]; then
+            echo "::error::Secret GEMINI_API_KEY is not set. Add it under Settings > Secrets and variables > Actions."
             exit 1
           fi
-          echo "Credentials present."
+          echo "Gemini API key is present."
 
       - uses: actions/checkout@v4
 
@@ -98,50 +102,147 @@ jobs:
             echo "::warning::Brief is too thin to synthesize from; skipping the rest of the run."
           fi
 
-      - name: Synthesize ranked ideas with Claude Code
+      - name: Synthesize ranked ideas with Gemini
+        id: gemini
         if: steps.brief.outputs.have_brief == 'true'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: |
-            Read `brief.md` in the workspace root. It holds this vault's Active
-            Priorities note and its most recent daily notes.
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3.5-flash-lite
+          NOTE: 00 - Inbox/Ranked ideas ${{ steps.brief.outputs.date }}.md
+        run: |
+          set -euo pipefail
+          # Gemini cannot read files, so the brief is inlined into the
+          # prompt below. The ranking instructions are unchanged from
+          # the old prompt apart from referring to the inlined brief
+          # instead of a brief.md file, and asking for the complete
+          # output file (frontmatter included).
+          cat > "$RUNNER_TEMP/synth-prompt.txt" <<'PROMPT_EOF'
+          The brief is appended after these instructions. It holds this vault's Active Priorities note and its most recent daily notes.
 
-            From that material alone, work out what is genuinely worth doing
-            next, and write a ranked list.
+          From that material alone, work out what is genuinely worth doing next, and write a ranked list.
 
-            How to rank: put the things that unblock other work, or that carry
-            real risk if left, above the things that are merely tidy. An item
-            that has been open across several daily notes without moving is
-            worth calling out as stalled rather than repeating it as if it were
-            new. Where the brief shows a decision waiting on a person, say so
-            plainly instead of ranking it as an action.
+          How to rank: put the things that unblock other work, or that carry real risk if left, above the things that are merely tidy. An item that has been open across several daily notes without moving is worth calling out as stalled rather than repeating it as if it were new. Where the brief shows a decision waiting on a person, say so plainly instead of ranking it as an action.
 
-            For each entry give: a one-line action, why it ranks where it does,
-            and what it is blocked on if anything. Six to ten entries. If the
-            brief does not support ten, write fewer rather than padding.
+          For each entry give: a one-line action, why it ranks where it does, and what it is blocked on if anything. Six to ten entries. If the brief does not support ten, write fewer rather than padding.
 
-            Close with a short section, "What the brief does not say", naming
-            anything you needed and could not find in it. Do not fill those
-            gaps by guessing, and do not read other files in the repository to
-            fill them - the brief is the whole input.
+          Close with a short section, "What the brief does not say", naming anything you needed and could not find in it. Do not fill those gaps by guessing, and do not read other files in the repository to fill them - the brief is the whole input.
 
-            Write the result to `00 - Inbox/Ranked ideas ${{ steps.brief.outputs.date }}.md`
-            with this frontmatter, then the body:
+          Write the result as a complete file with this exact frontmatter at the top, then the body:
 
-            ---
-            status: active
-            project: meta
-            type: synthesis
-            created: ${{ steps.brief.outputs.date }}
-            ---
+          ---
+          status: active
+          project: meta
+          type: synthesis
+          created: ${{ steps.brief.outputs.date }}
+          ---
 
-            Use Obsidian wiki-links (`[[Note name]]`) when naming a note the
-            brief refers to. Write plainly, in full sentences, the way the rest
-            of the vault is written. Do not create or modify any other file.
-          claude_args: |
-            --allowedTools Read,Write,Glob,Grep
-            --max-turns 20
+          Write each ranked entry as a "## N. <one-line action>" section, followed by why it ranks where it does and what it is blocked on, if anything. Use Obsidian wiki-links ([[Note name]]) when naming a note the brief refers to. Write plainly, in full sentences, the way the rest of the vault is written.
+
+          Output ONLY the complete file contents, with no introduction, explanation, or commentary before or after it.
+
+          PROMPT_EOF
+          {
+            echo ""
+            echo "## BRIEF"
+            echo ""
+            cat brief.md
+          } >> "$RUNNER_TEMP/synth-prompt.txt"
+          python3 - <<'PY'
+          import json, os, sys, time, urllib.error, urllib.request
+
+          prompt_path = os.path.join(os.environ["RUNNER_TEMP"], "synth-prompt.txt")
+          with open(prompt_path, encoding="utf-8") as f:
+              prompt = f.read()
+          key = os.environ["GEMINI_API_KEY"]
+          note = os.environ["NOTE"]
+          model = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
+          body = json.dumps({
+              "contents": [{"parts": [{"text": prompt}]}],
+              "generationConfig": {"temperature": 0.7, "maxOutputTokens": 8192},
+          }).encode("utf-8")
+
+          payload = None
+          last_err = ""
+          retryable = (429, 500, 502, 503, 504)
+
+          def try_model(model, max_attempts, backoff):
+              global last_err
+              model_url = (
+                  "https://generativelanguage.googleapis.com/v1beta/models/"
+                  f"{model}:generateContent"
+              )
+              for attempt in range(1, max_attempts + 1):
+                  req = urllib.request.Request(model_url, data=body, headers={
+                      "Content-Type": "application/json",
+                      "x-goog-api-key": key,
+                  }, method="POST")
+                  try:
+                      with urllib.request.urlopen(req, timeout=300) as resp:
+                          return json.load(resp)
+                  except urllib.error.HTTPError as e:
+                      last_err = e.read().decode("utf-8", "replace")[:2000]
+                      print(f"::warning::Gemini API attempt {attempt} for {model} failed ({e.code}): {last_err}")
+                      if e.code in retryable and attempt < max_attempts:
+                          time.sleep(backoff[attempt - 1])
+                          continue
+                      return None
+                  except Exception as e:
+                      last_err = str(e)
+                      print(f"::error::Gemini API request failed: {e}")
+                      return None
+              return None
+
+          primary = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
+          fallback = "gemini-3.8-flash"
+          payload = try_model(primary, 4, (65, 120, 180))
+          used_model = primary
+          if payload is None:
+              print(f"::warning::Primary model {primary} unavailable after retries; trying fallback {fallback}.")
+              payload = try_model(fallback, 2, (65,))
+              used_model = fallback
+          if payload is None:
+              print(f"::error::Gemini API request failed after retries: {last_err}")
+              sys.exit(1)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+              f.write(f"model={used_model}\n")
+
+          parts = []
+          for cand in payload.get("candidates") or []:
+              for part in (cand.get("content") or {}).get("parts") or []:
+                  if "text" in part:
+                      parts.append(part["text"])
+          out = "".join(parts).strip()
+          if not out:
+              print(f"::error::Gemini returned no text. Full response: {json.dumps(payload)[:2000]}")
+              sys.exit(1)
+          with open(note, "w", encoding="utf-8") as f:
+              f.write(out if out.endswith("\n") else out + "\n")
+          print(f"Gemini ({used_model}) wrote {len(out.splitlines())} lines to {note}")
+          PY
+
+      - name: Sanity-check the ranked ideas file
+        if: steps.brief.outputs.have_brief == 'true'
+        env:
+          NOTE: 00 - Inbox/Ranked ideas ${{ steps.brief.outputs.date }}.md
+        run: |
+          set -euo pipefail
+          if [ ! -s "${NOTE}" ]; then
+            echo "::error::Gemini did not write ${NOTE} (or it was empty)."
+            exit 1
+          fi
+          if ! head -n 1 "${NOTE}" | grep -q '^---$'; then
+            echo "::error::Ranked ideas file does not start with the expected frontmatter - refusing to commit it."
+            exit 1
+          fi
+          if ! grep -q '^status: active$' "${NOTE}"; then
+            echo "::error::Ranked ideas file is missing the expected frontmatter - refusing to commit it."
+            exit 1
+          fi
+          if ! grep -q '^## ' "${NOTE}"; then
+            echo "::error::Ranked ideas file has no ranked entries ('## ') - refusing to commit it."
+            exit 1
+          fi
+          echo "Gemini wrote $(wc -l < "${NOTE}") lines to ${NOTE}"
 
       - name: Commit the ranked ideas
         if: steps.brief.outputs.have_brief == 'true'
