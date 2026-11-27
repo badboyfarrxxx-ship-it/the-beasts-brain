@@ -18,9 +18,9 @@ on:
         required: false
         default: "7"
 
-  # Weekly, Monday 08:00 UTC. Uncomment to let it run unattended.
-  # schedule:
-  #   - cron: "0 8 * * 1"
+  # Weekly, Monday 08:00 UTC.
+  schedule:
+    - cron: "0 8 * * 1"
 
 permissions:
   contents: write
